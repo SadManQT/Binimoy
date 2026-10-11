@@ -9,7 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loading, EmptyState, IdChip, Money, PermissionDenied } from "@/components/StatusBits";
+import { EvidenceButton, AccessPill } from "@/components/EvidenceDrawer";
 import { toast } from "sonner";
+
+const snapEvidence = (s) => ({ source_url: s.url, source_platform: s.host, access_status: s.auto_access_status, snapshot: s });
 
 export default function Moderation() {
   const { t, L } = useLang();
@@ -34,6 +37,11 @@ export default function Moderation() {
 
   const moderate = async (id, action) => {
     try { await api.post(`/reports/${id}/moderate`, { action, note: notes[id] || "" }); toast.success(action); load(); }
+    catch (e) { toast.error(apiErr(e)); }
+  };
+
+  const refetch = async (id) => {
+    try { await api.post(`/reports/${id}/refetch`); toast.success(L("Snapshot refreshed", "স্ন্যাপশট হালনাগাদ")); load(); }
     catch (e) { toast.error(apiErr(e)); }
   };
 
@@ -69,7 +77,11 @@ export default function Moderation() {
                   </div>
                   <h3 className="font-bold mt-2">{r.title}</h3>
                   <p className="text-sm text-ink-soft mt-1">{r.summary}</p>
-                  <p className="text-[11px] text-ink-muted mt-1 font-mono">{r.source_platform} · {r.access_status}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="text-[11px] text-ink-muted font-mono">{r.source_platform || "—"}</span>
+                    <AccessPill status={r.access_status} testid={`mod-access-${r.report_id}`} />
+                    {(r.source_url || r.snapshot || r.author_excerpt) && <EvidenceButton evidence={r} label={L("snapshot", "স্ন্যাপশট")} testid={`mod-evidence-${r.report_id}`} onRefetch={() => refetch(r.report_id)} />}
+                  </div>
                   <Input value={notes[r.report_id] || ""} onChange={(e) => setNotes({ ...notes, [r.report_id]: e.target.value })} placeholder={L("Moderation note (optional)", "মডারেশন নোট (ঐচ্ছিক)")} className="mt-3" data-testid={`mod-note-${r.report_id}`} />
                   <div className="flex flex-wrap gap-2 mt-3">
                     <Button size="sm" onClick={() => moderate(r.report_id, "publish")} data-testid={`mod-publish-${r.report_id}`} className="bg-state-pass-bd hover:opacity-90">{L("Publish", "প্রকাশ")}</Button>
@@ -96,6 +108,14 @@ export default function Moderation() {
                     </div>
                     <p className="text-sm mt-2"><span className="font-semibold">{L("Claim", "দাবি")}:</span> {d.dispute?.claim}</p>
                     {d.dispute?.evidence && <p className="text-sm text-ink-soft mt-1"><span className="font-semibold">{L("Evidence", "প্রমাণ")}:</span> {d.dispute.evidence}</p>}
+                    {d.dispute?.snapshots?.length > 0 && (
+                      <div className="mt-1.5 flex flex-wrap gap-1.5" data-testid={`mod-dispute-evidence-${d.deal_id}`}>
+                        {d.dispute.snapshots.map((s, i) => <EvidenceButton key={i} evidence={snapEvidence(s)} label={s.host || "source"} testid={`mod-dispute-evidence-${d.deal_id}-${i}`} />)}
+                      </div>
+                    )}
+                    {d.dispute?.timers_snapshot && (
+                      <p className="text-[11px] font-mono text-ink-muted mt-1">{L("At dispute", "বিরোধের সময়")}: delivery {d.dispute.timers_snapshot.delivery?.state} · inspection {d.dispute.timers_snapshot.inspection?.state}</p>
+                    )}
                     <p className="text-sm mt-2">{t("held")}: <Money amount={d.held} className="font-bold" /></p>
                     <div className="grid grid-cols-2 gap-3 mt-3">
                       <div><label className="text-xs font-semibold">{L("To seller", "বিক্রেতাকে")}</label><Input type="number" value={a.to_seller} onChange={(e) => setAlloc({ ...alloc, [d.deal_id]: { ...a, to_seller: e.target.value } })} className="mt-1 font-mono" data-testid={`review-toseller-${d.deal_id}`} /></div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Handshake, Plus, ArrowRight, CheckCircle2, AlertCircle } from "lucide-react";
+import { Handshake, Plus, ArrowRight, Lock } from "lucide-react";
 import { useLang } from "@/i18n";
 import { api, apiErr } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ export const STATUS_LABEL = {
   DELIVERED: ["Delivered", "সরবরাহকৃত", "bg-teal-50 text-brand-tealdark border-brand-teal/40"],
   INSPECTING: ["Inspecting", "পরিদর্শন", "bg-state-unk-bg text-state-unk-tx border-state-unk-bd"],
   SETTLE_PROPOSED: ["Split proposed", "ভাগাভাগি প্রস্তাবিত", "bg-state-unk-bg text-state-unk-tx border-state-unk-bd"],
+  REFUND_REQUESTED: ["Refund requested", "রিফান্ড অনুরোধ", "bg-state-fail-bg text-state-fail-tx border-state-fail-bd"],
   DISPUTED: ["Disputed", "বিরোধপূর্ণ", "bg-state-fail-bg text-state-fail-tx border-state-fail-bd"],
   SETTLED: ["Settled", "নিষ্পন্ন", "bg-state-pass-bg text-state-pass-tx border-state-pass-bd"],
   UNRESOLVED: ["Unresolved", "অমীমাংসিত", "bg-state-fail-bg text-state-fail-tx border-state-fail-bd"],
@@ -36,7 +37,9 @@ export default function Deals() {
   const [cats, setCats] = useState([]);
   const [modes, setModes] = useState([]);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ category: "CAT-06", title: "", description: "", service_mode: "ai_first", my_role: "buyer", counterparty_email: "", amount: 1000, deadline_days: 7 });
+  const [form, setForm] = useState({ category: "CAT-06", title: "", description: "", service_mode: "ai_first", my_role: "buyer", counterparty_email: "", amount: 1000, deadline_days: 7, inspection_days: 3 });
+  const [showAllItems, setShowAllItems] = useState(false);
+  const cat = cats.find((c) => c.code === form.category);
 
   const load = useCallback(async () => {
     try { const { data } = await api.get("/deals"); setDeals(data); }
@@ -51,7 +54,7 @@ export default function Deals() {
 
   const create = async () => {
     try {
-      const { data } = await api.post("/deals", { ...form, amount: Number(form.amount), deadline_days: Number(form.deadline_days) });
+      const { data } = await api.post("/deals", { ...form, amount: Number(form.amount), deadline_days: Number(form.deadline_days), inspection_days: Number(form.inspection_days) });
       toast.success(L("Deal created", "ডিল তৈরি হয়েছে"));
       setOpen(false);
       setDeals((d) => [data, ...(d || [])]);
@@ -86,9 +89,28 @@ export default function Deals() {
                 </div>
               </div>
               <div><Label>{L("Counterparty email", "প্রতিপক্ষের ইমেইল")}</Label><Input data-testid="deal-counterparty-input" value={form.counterparty_email} onChange={(e) => setForm({ ...form, counterparty_email: e.target.value })} className="mt-1" placeholder="other@example.com" /></div>
-              <div className="grid grid-cols-2 gap-3">
+
+              {/* category depth preview — full mandatory checklist + vault requirement */}
+              {cat && (
+                <div className="rounded-xl border border-border bg-surface-elev p-3" data-testid="category-preview">
+                  <p className="text-xs text-ink-soft">{L(cat.desc_en, cat.desc_bn)}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase">
+                    <span className="bg-white border border-border rounded-full px-2 py-0.5" data-testid="category-mandatory-count">{cat.mandatory_count} {L("mandatory checks", "আবশ্যক চেক")}</span>
+                    <span className={`rounded-full px-2 py-0.5 border inline-flex items-center gap-1 ${cat.requires_vault ? "bg-brand/10 border-brand/30 text-brand" : "bg-white border-border text-ink-muted"}`} data-testid="category-vault-flag"><Lock className="w-3 h-3" />{cat.requires_vault ? L("Secret vault required", "সিক্রেট ভল্ট আবশ্যক") : L("Vault optional", "ভল্ট ঐচ্ছিক")}</span>
+                  </div>
+                  <ul className="mt-2 space-y-1" data-testid="category-items">
+                    {(showAllItems ? cat.items : cat.items.slice(0, 4)).map((it) => (
+                      <li key={it.id} className="text-[11px] flex items-start gap-1.5 text-ink-soft"><span className={`mt-1 w-1.5 h-1.5 rounded-full shrink-0 ${it.mandatory ? "bg-brand" : "bg-border"}`} />{L(it.label_en, it.label_bn)}</li>
+                    ))}
+                  </ul>
+                  {cat.items.length > 4 && <button type="button" onClick={() => setShowAllItems(!showAllItems)} className="mt-1.5 text-[11px] font-semibold text-brand-tealdark underline" data-testid="category-items-toggle">{showAllItems ? L("Show fewer", "কম দেখান") : `+${cat.items.length - 4} ${L("more", "আরও")}`}</button>}
+                </div>
+              )}
+
+              <div className="grid grid-cols-3 gap-3">
                 <div><Label>{L("Amount (BDT)", "পরিমাণ (BDT)")}</Label><Input type="number" data-testid="deal-amount-input" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} className="mt-1 font-mono" /></div>
-                <div><Label>{L("Deadline (days)", "সময়সীমা (দিন)")}</Label><Input type="number" data-testid="deal-deadline-input" value={form.deadline_days} onChange={(e) => setForm({ ...form, deadline_days: e.target.value })} className="mt-1 font-mono" /></div>
+                <div><Label>{L("Deliver within (days)", "সরবরাহ (দিন)")}</Label><Input type="number" min={1} data-testid="deal-deadline-input" value={form.deadline_days} onChange={(e) => setForm({ ...form, deadline_days: e.target.value })} className="mt-1 font-mono" /></div>
+                <div><Label>{L("Inspect within (days)", "পরিদর্শন (দিন)")}</Label><Input type="number" min={1} data-testid="deal-inspection-input" value={form.inspection_days} onChange={(e) => setForm({ ...form, inspection_days: e.target.value })} className="mt-1 font-mono" /></div>
               </div>
               <div><Label>{L("Service mode", "সার্ভিস মোড")}</Label>
                 <Select value={form.service_mode} onValueChange={(v) => setForm({ ...form, service_mode: v })}>

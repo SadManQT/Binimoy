@@ -86,7 +86,7 @@
   <div id="content"></div>
 </main>
 <footer>
-  Phase 1 MVP · Source of truth: <span class="mono">Lenden_Prohori_Master_Build_Specification_v7.md</span><br/>
+  Phase 1 MVP + Phase 2 slice (evidence drawer, deadline timers, secret vault, full category depth) · Source of truth: <span class="mono">Lenden_Prohori_Master_Build_Specification_v7.md</span><br/>
   Money is simulated (mock) in all phases before the Phase 3 real-money track. Updated as work lands.
 </footer>
 
@@ -103,13 +103,13 @@ const MODULES = [
       {id:'FE-21', t:'Disputes, case builder & evidence', d:'Claim, evidence and the current financial hold are preserved.', p:'P0', s:S.done},
       {id:'FE-24', t:'Receipts & version replay/export', d:'Reconstruct agreement, evidence & allocation at bound versions.', p:'P0', s:S.done},
       {id:'FE-22', t:'Human workbench, review & independent appeal', d:'Scoped reviewers, no self-review; appeal sequencing partial.', p:'P0', s:S.prog},
-      {id:'FE-19', t:'Four authorization paths + no-delivery refunds', d:'Accepted / mutual / reviewed live; objective-release deferred.', p:'P0', s:S.prog},
+      {id:'FE-19', t:'Four authorization paths + no-delivery refunds', d:'Accepted / mutual / reviewed / no-delivery refund (buyer requests after deadline, seller confirms or reviewer decides).', p:'P0', s:S.done},
       {id:'FE-14', t:'AI activity timeline & outage fallback', d:'Proposed vs committed; deterministic actions always available.', p:'P0', s:S.prog},
-      {id:'FE-11', t:'Eleven-category catalog (99 combos)', d:'All 11 categories selectable with slim checklists; full depth in Phase 2.', p:'P0', s:S.prog},
-      {id:'FE-15', t:'Secret Delivery Vault & device continuity', d:'E2E vault, device/key handling.', p:'P0', s:S.plan},
+      {id:'FE-11', t:'Eleven-category catalog (99 combos)', d:'All 11 categories with full mandatory inspection checklists (6–11 items), descriptions, vault fields & universal items.', p:'P0', s:S.done},
+      {id:'FE-15', t:'Secret Delivery Vault & device continuity', d:'E2E (browser ECDH P-256 + AES-GCM to buyer device key) + Fernet at rest; reveal only after delivery; access log; key backup/import for new devices.', p:'P0', s:S.done},
       {id:'FE-17', t:'Login/access error diagnosis & synthetic provider', d:'Wrong account, recovery, rotation, suspension, outage differ.', p:'P0', s:S.plan},
       {id:'FE-20', t:'Milestones, partial settlement & holdback', d:'Per-milestone funds and dependency checks.', p:'P0', s:S.plan},
-      {id:'FE-23', t:'Notices, updates, timers & deadlines', d:'Challenge periods cannot silently start or shorten.', p:'P0', s:S.plan},
+      {id:'FE-23', t:'Notices, updates, timers & deadlines', d:'Delivery & inspection countdowns, overdue notices (once), mutual-consent extensions only (never shorten), timers pause during dispute.', p:'P0', s:S.done},
     ]},
   { name:'B · Research & Reporting', desc:'Subject lookup, grouped evidence-linked reports, timelines, two-subject compare, community editor & moderation.',
     features:[
@@ -117,7 +117,7 @@ const MODULES = [
       {id:'FE-06', t:'Research filters & two-subject comparison', d:'Compare coverage/recency with NO trust or safer-seller verdict.', p:'P0', s:S.done},
       {id:'FE-07', t:'Community report editor, drafts & publication preview', d:'Author approves narrative; incomplete allegations not "verified".', p:'P0', s:S.done},
       {id:'FE-08', t:'Moderation, seller response, withdrawal & appeal', d:'Moderation queue + seller response; nonresponse is not guilt.', p:'P0', s:S.done},
-      {id:'FE-04', t:'Evidence Explorer & source drawer', d:'Every claim opens its source with access-status labels.', p:'P0', s:S.prog},
+      {id:'FE-04', t:'Evidence Explorer & source drawer', d:'Every report, delivery note & dispute claim opens a saved snapshot (title, excerpt, hash, HTTP) with auto access-status + author excerpt fallback + refetch.', p:'P0', s:S.done},
       {id:'FE-01', t:'Subject identity clarification', d:'Subjects kept separate with aliases; merge rules partial.', p:'P0', s:S.prog},
       {id:'FE-02', t:'Search-index-first Facebook discovery', d:'Live configured-provider links (Phase 2).', p:'P0', s:S.plan},
       {id:'FE-03', t:'Multilingual balanced query coverage', d:'Bangla/English/Banglish balanced retrieval (Phase 2).', p:'P0', s:S.plan},
@@ -154,14 +154,14 @@ const MODULES = [
       {id:'LP-011', t:'AI deal guidance & evidence assessment', d:'Rule-based guidance live.', p:'', s:S.prog},
       {id:'LP-012', t:'Research, subject resolution, sources', d:'Seeded sources; live providers Phase 2.', p:'', s:S.prog},
       {id:'LP-014', t:'Integrated Bangla UX & Scenario Lab', d:'Bilingual UX live; Scenario Lab planned.', p:'', s:S.prog},
-      {id:'LP-007', t:'Secret vault & device/key behavior', d:'', p:'', s:S.plan},
+      {id:'LP-007', t:'Secret vault & device/key behavior', d:'Hybrid E2E + at-rest vault shipped; device key backup/import.', p:'', s:S.done},
       {id:'LP-015', t:'CI/release hardening & private staging', d:'', p:'', s:S.plan},
       {id:'LP-016', t:'P1/P2 extensions & real-provider/category expansion', d:'', p:'', s:S.defer},
-      {id:'LP-017', t:'Executable capability/template contracts & vault threat boundary', d:'', p:'', s:S.plan},
-      {id:'LP-018', t:'Financial conservation, dispatch races & notice contract', d:'', p:'', s:S.prog},
+      {id:'LP-017', t:'Executable capability/template contracts & vault threat boundary', d:'Vault boundary: server never sees plaintext; reviewers see metadata only.', p:'', s:S.prog},
+      {id:'LP-018', t:'Financial conservation, dispatch races & notice contract', d:'Conserved ledger + notice contract (window start/overdue/extension/refund/vault) live.', p:'', s:S.done},
       {id:'LP-019', t:'Review/appeal sequencing, consent withdrawal & scoped grants', d:'', p:'', s:S.plan},
       {id:'LP-020', t:'Retrieval/upload isolation & community publication lifecycle', d:'', p:'', s:S.prog},
-      {id:'LP-021', t:'Complete eleven-category synthetic catalog', d:'', p:'', s:S.plan},
+      {id:'LP-021', t:'Complete eleven-category synthetic catalog', d:'Full mandatory depth for all 11 categories.', p:'', s:S.done},
       {id:'LP-022', t:'Cross-module privacy, continuity, AI evaluation & ops checks', d:'', p:'', s:S.plan},
     ]},
 ];

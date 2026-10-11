@@ -1,14 +1,26 @@
 """Idempotent seeding: platform accounts, demo research subjects/reports, and one demo deal."""
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from db import db
 from auth import hash_password
 import policy
+import evidence
 
 
 def _now():
     return datetime.now(timezone.utc).isoformat()
+
+
+# synthetic snapshots for the seeded (fictional) sources — labeled origin="seed", never passed off as live
+SEED_SNAPSHOTS = {
+    "REP-D1POS001": ("BD Trade Group · post 1001", "Bought a ৳5000 Steam card from DigiMart BD. Code arrived in 4 minutes and redeemed fine. Screenshot attached. Would buy again.", "open"),
+    "REP-D1NEG001": ("r/bangladesh — Delayed subscription from DigiMart", "Paid Sunday, no reply for 3 days. Finally got the subscription on Wednesday after posting here.", "snippet_only"),
+    "REP-D1RES001": ("r/bangladesh — UPDATE: resolved", "Update: DigiMart refunded the full amount and apologized for the delay. Marking resolved.", "open"),
+    "REP-G1NEG001": ("GameHub Reseller · post 55", "", "link_only"),
+    "REP-G1NEU001": ("GameHub Reseller · post 60", "Advance payment via bKash/Nagad required before delivery. No escrow offered.", "open"),
+    "REP-C1POS001": ("CodeWorks Studio — Testimonials", "Delivered the full source with a README and build steps; our acceptance test passed on the first run.", "open"),
+}
 
 
 SEED_USERS = [
@@ -92,6 +104,16 @@ async def seed_research(ids):
                                      "source_platform", "source_url", "language", "access_status")}})
 
 
+async def backfill_snapshots():
+    for rid, (title, excerpt, access) in SEED_SNAPSHOTS.items():
+        rep = await db.reports.find_one({"report_id": rid, "snapshot": {"$exists": False}}, {"_id": 0})
+        if rep:
+            snap = evidence.seed_snapshot(rep["source_url"], title, excerpt, access)
+            await db.reports.update_one({"report_id": rid}, {"$set": {
+                "snapshot": snap, "access_status": access, "declared_access_status": rep.get("access_status"),
+                "author_excerpt": "", "snapshot_history": []}})
+
+
 async def seed_demo_deal(ids):
     if await db.deals.find_one({"deal_id": "LP-D-DEMO0001"}):
         return
@@ -101,6 +123,7 @@ async def seed_demo_deal(ids):
     items[0]["status"] = "PASS"
     items[0]["updated_by"] = buyer
     items[0]["updated_at"] = _now()
+    now = datetime.now(timezone.utc)
     deal = {
         "deal_id": "LP-D-DEMO0001", "category": "CAT-06",
         "title": "Steam gift card ৳5000 (demo)", "description": "Demo escrow deal in inspection stage.",
@@ -108,7 +131,7 @@ async def seed_demo_deal(ids):
         "buyer_id": buyer, "buyer_email": "buyer@lendenprohori.com",
         "seller_id": seller, "seller_email": "seller@lendenprohori.com",
         "created_by": buyer, "status": "INSPECTING",
-        "terms": {"amount": 5000, "currency": "BDT", "deadline_days": 3,
+        "terms": {"amount": 5000, "currency": "BDT", "deadline_days": 3, "inspection_days": 3,
                   "items": [i["label_en"] for i in items], "version": 1},
         "terms_version": 1, "buyer_accepted_version": 1, "seller_accepted_version": 1,
         "monitoring_consent": {"buyer": True, "seller": True},
@@ -123,8 +146,20 @@ async def seed_demo_deal(ids):
         ],
         "ledger": [{"type": "FUND", "amount": 5000, "from": "buyer", "to": "hold",
                     "at": _now(), "by": buyer, "note": "Mock funding (simulated)"}],
-        "delivery": {"note": "Gift card code delivered via secret vault (demo).", "at": _now(), "by": seller},
+        "delivery": {"note": "Gift card code delivered via secret vault (demo).", "at": _now(), "by": seller, "snapshots": [], "late": False},
         "dispute": None, "settlement": None, "settlement_proposal": None,
+        "deadlines": {"delivery_due": (now - timedelta(hours=6)).isoformat(),
+                      "inspection_due": (now + timedelta(days=2, hours=18)).isoformat(),
+                      "extensions": [], "extension_request": None},
+        "notices": [
+            {"notice_id": "n-demo-01", "kind": "window_started", "at": (now - timedelta(days=3)).isoformat(),
+             "title_en": "Delivery window started", "title_bn": "সরবরাহ সময় শুরু",
+             "body_en": "The seller must deliver within 3 days.", "body_bn": "বিক্রেতাকে ৩ দিনের মধ্যে সরবরাহ করতে হবে।"},
+            {"notice_id": "n-demo-02", "kind": "window_started", "at": (now - timedelta(hours=6)).isoformat(),
+             "title_en": "Inspection window started", "title_bn": "পরিদর্শন সময় শুরু",
+             "body_en": "The buyer has 3 days to inspect and settle.", "body_bn": "ক্রেতার পরিদর্শন ও নিষ্পত্তির জন্য ৩ দিন আছে।"},
+        ],
+        "vault": {"buyer_public_key": None, "key_fingerprint": None, "key_set_at": None, "items": [], "access_log": []},
         "created_at": _now(), "updated_at": _now(),
     }
     await db.deals.insert_one(deal)
@@ -133,4 +168,5 @@ async def seed_demo_deal(ids):
 async def run_seed():
     ids = await seed_users()
     await seed_research(ids)
+    await backfill_snapshots()
     await seed_demo_deal(ids)

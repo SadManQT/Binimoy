@@ -6,7 +6,7 @@ checklists and resolution policy. It only proposes guidance and explains
 outcomes; it never moves money or grants permissions (that lives in policy.py).
 All assistant output is marked ai_suggested=True so the UI renders it distinctly."""
 
-from policy import CATEGORIES, completion_summary, held_amount
+from policy import CATEGORIES, completion_summary, held_amount, compute_timers
 
 # guidance keyed by deal status — each step is templated, bilingual, domain-aware
 _GUIDE = {
@@ -51,6 +51,11 @@ _GUIDE = {
          "The other party proposed an exact split. Review the amounts and approve or open a dispute.",
          "অপর পক্ষ একটি নির্দিষ্ট ভাগাভাগি প্রস্তাব করেছে। পরিমাণ দেখে অনুমোদন করুন বা বিরোধ খুলুন।"),
     ],
+    "REFUND_REQUESTED": [
+        ("No-delivery refund requested", "নো-ডেলিভারি রিফান্ড অনুরোধ",
+         "The delivery deadline passed with nothing delivered. The seller can confirm the full refund, or either party can send the case to a reviewer. Money moves only on consent or a reasoned review.",
+         "কিছু সরবরাহ ছাড়াই সময়সীমা পেরিয়েছে। বিক্রেতা পূর্ণ রিফান্ড নিশ্চিত করতে পারেন, বা যেকোনো পক্ষ পর্যালোচকের কাছে পাঠাতে পারে। সম্মতি বা যুক্তিসহ পর্যালোচনা ছাড়া টাকা সরে না।"),
+    ],
     "DISPUTED": [
         ("Awaiting human review", "মানব পর্যালোচনার অপেক্ষায়",
          "A scoped reviewer will record a reasoned outcome within the agreed policy.",
@@ -71,10 +76,22 @@ _TERMINAL = {
 def guidance_for(deal):
     status = deal["status"]
     if status in _TERMINAL:
-        t = _TERMINAL[status]
-        steps = [t]
+        steps = [_TERMINAL[status]]
     else:
-        steps = _GUIDE.get(status, [])
+        steps = list(_GUIDE.get(status, []))
+        timers = compute_timers(deal)
+        if timers["delivery"]["state"] == "overdue":
+            steps.insert(0, ("Delivery deadline passed", "সরবরাহের সময়সীমা পেরিয়েছে",
+                             "Nothing was delivered in time. Buyer: request a no-delivery refund or agree an extension. Seller: ask for an extension with a reason. Nothing moves silently.",
+                             "সময়মতো কিছু সরবরাহ হয়নি। ক্রেতা: নো-ডেলিভারি রিফান্ড চান বা মেয়াদ বাড়াতে সম্মত হন। বিক্রেতা: কারণসহ মেয়াদ বৃদ্ধি চান। কিছুই নীরবে সরে না।"))
+        elif timers["inspection"]["state"] == "overdue":
+            steps.insert(0, ("Inspection window closed", "পরিদর্শন সময় শেষ",
+                             "The buyer has not settled in time. Funds stay held; agree an extension, settle now, or send the case to review.",
+                             "ক্রেতা সময়মতো নিষ্পত্তি করেননি। টাকা হোল্ডে থাকে; মেয়াদ বাড়ান, এখনই নিষ্পত্তি করুন, বা পর্যালোচনায় পাঠান।"))
+        if status == "FUNDED" and CATEGORIES[deal["category"]]["requires_vault"] and not (deal.get("vault") or {}).get("buyer_public_key"):
+            steps.append(("Set up the secret vault", "সিক্রেট ভল্ট সেট আপ করুন",
+                          "This category hands over secrets (codes, keys, credentials). Buyer: create your device vault key so the seller can seal them — never paste secrets in chat.",
+                          "এই বিভাগে গোপন তথ্য (কোড, কী, ক্রেডেনশিয়াল) হস্তান্তর হয়। ক্রেতা: ডিভাইস ভল্ট কী তৈরি করুন যাতে বিক্রেতা সিল করতে পারেন — চ্যাটে কখনো গোপন তথ্য দেবেন না।"))
     return [
         {"title_en": s[0], "title_bn": s[1], "body_en": s[2], "body_bn": s[3], "ai_suggested": True}
         for s in steps
@@ -87,7 +104,7 @@ def suggest_checklist(category):
         return []
     return [
         {"id": cid, "label_en": en, "label_bn": bn, "ai_suggested": True}
-        for cid, en, bn in cat["items"]
+        for cid, en, bn, _m in cat["items"]
     ]
 
 

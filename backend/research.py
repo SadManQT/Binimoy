@@ -7,6 +7,7 @@ from typing import Optional, List
 
 from db import db
 from auth import get_current_user, require_roles
+import evidence
 
 research_router = APIRouter(prefix="/api", tags=["research"])
 
@@ -32,7 +33,8 @@ class ReportIn(BaseModel):
     source_platform: str = ""
     source_url: str = ""
     language: str = "bn"
-    access_status: str = "open"          # open | snippet_only | link_only | unavailable
+    access_status: str = "open"          # author-declared: open | snippet_only | link_only | unavailable
+    author_excerpt: str = ""             # pasted quote — fallback when the live snapshot fails
     resolution_of: Optional[str] = None  # report_id this resolves (for resolution kind)
 
 
@@ -49,6 +51,15 @@ class ModerateIn(BaseModel):
 def _pub(doc):
     doc.pop("_id", None)
     return doc
+
+
+async def _evidence_fields(body: ReportIn) -> dict:
+    """Snapshot the source once (FE-04). Final access_status = auto result when a fetch was attempted."""
+    snap = await evidence.snapshot_url(body.source_url) if body.source_url else None
+    return {"source_url": body.source_url, "author_excerpt": body.author_excerpt,
+            "declared_access_status": body.access_status,
+            "access_status": snap["auto_access_status"] if snap else body.access_status,
+            "snapshot": snap}
 
 
 # ---------- subjects ----------
@@ -116,15 +127,17 @@ async def create_report(body: ReportIn, user: dict = Depends(get_current_user)):
     doc = {
         "report_id": report_id, "subject_id": body.subject_id, "kind": body.kind,
         "title": body.title, "summary": body.summary,
-        "source_platform": body.source_platform, "source_url": body.source_url,
-        "language": body.language, "access_status": body.access_status,
+        "source_platform": body.source_platform,
+        "language": body.language,
         "resolution_of": body.resolution_of,
         "author_id": user["user_id"], "author_name": user["name"],
         "origin": "community",
         "status": "DRAFT",
         "responses": [],
         "moderation_history": [],
+        "snapshot_history": [],
         "created_at": _now(), "updated_at": _now(),
+        **(await _evidence_fields(body)),
     }
     await db.reports.insert_one(dict(doc))
     return _pub(dict(doc))
@@ -136,6 +149,33 @@ async def my_reports(user: dict = Depends(get_current_user)):
     return docs
 
 
+@research_router.get("/reports/{report_id}")
+async def get_report(report_id: str, user: dict = Depends(get_current_user)):
+    rep = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
+    if not rep:
+        raise HTTPException(404, "Report not found")
+    if rep["status"] != "PUBLISHED" and rep["author_id"] != user["user_id"] and user.get("role") not in ("reviewer", "admin"):
+        raise HTTPException(403, "This report is not published")
+    return rep
+
+
+@research_router.post("/reports/{report_id}/refetch")
+async def refetch_report(report_id: str, user: dict = Depends(get_current_user)):
+    rep = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
+    if not rep:
+        raise HTTPException(404, "Report not found")
+    if rep["author_id"] != user["user_id"] and user.get("role") not in ("reviewer", "admin"):
+        raise HTTPException(403, "Only the author or a reviewer can refresh the snapshot")
+    if not rep.get("source_url"):
+        raise HTTPException(400, "This report has no source URL to snapshot")
+    snap = await evidence.snapshot_url(rep["source_url"])
+    update = {"$set": {"snapshot": snap, "access_status": snap["auto_access_status"], "updated_at": _now()}}
+    if rep.get("snapshot"):
+        update["$push"] = {"snapshot_history": rep["snapshot"]}
+    await db.reports.update_one({"report_id": report_id}, update)
+    return _pub(await db.reports.find_one({"report_id": report_id}, {"_id": 0}))
+
+
 @research_router.put("/reports/{report_id}")
 async def edit_report(report_id: str, body: ReportIn, user: dict = Depends(get_current_user)):
     rep = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
@@ -145,11 +185,16 @@ async def edit_report(report_id: str, body: ReportIn, user: dict = Depends(get_c
         raise HTTPException(403, "Only the author can edit")
     if rep["status"] not in ("DRAFT", "NEEDS_INFORMATION"):
         raise HTTPException(400, "Only drafts can be edited")
-    await db.reports.update_one({"report_id": report_id}, {"$set": {
+    url_changed = body.source_url != rep.get("source_url")
+    ev = await _evidence_fields(body) if url_changed or not rep.get("snapshot") else {
+        "author_excerpt": body.author_excerpt, "declared_access_status": body.access_status}
+    update = {"$set": {
         "kind": body.kind, "title": body.title, "summary": body.summary,
-        "source_platform": body.source_platform, "source_url": body.source_url,
-        "language": body.language, "access_status": body.access_status,
-        "resolution_of": body.resolution_of, "updated_at": _now()}})
+        "source_platform": body.source_platform, "language": body.language,
+        "resolution_of": body.resolution_of, "updated_at": _now(), **ev}}
+    if url_changed and rep.get("snapshot"):
+        update["$push"] = {"snapshot_history": rep["snapshot"]}
+    await db.reports.update_one({"report_id": report_id}, update)
     return _pub(await db.reports.find_one({"report_id": report_id}, {"_id": 0}))
 
 

@@ -5,7 +5,8 @@ import { useLang } from "@/i18n";
 import { api, apiErr } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loading, ErrorState, EmptyState, IdChip, EvidenceChip } from "@/components/StatusBits";
+import { Loading, ErrorState, EmptyState, IdChip } from "@/components/StatusBits";
+import { EvidenceButton, AccessPill } from "@/components/EvidenceDrawer";
 import { toast } from "sonner";
 
 const KIND_STYLE = {
@@ -13,12 +14,6 @@ const KIND_STYLE = {
   negative: "border-l-state-fail-bd bg-state-fail-bg/40",
   neutral: "border-l-border bg-surface-elev/40",
   resolution: "border-l-brand-teal bg-teal-50/40",
-};
-const ACCESS_LABEL = {
-  open: ["Open source", "ওপেন সোর্স"],
-  snippet_only: ["Snippet only", "শুধু স্নিপেট"],
-  link_only: ["Link only", "শুধু লিংক"],
-  unavailable: ["Unavailable", "অনুপলব্ধ"],
 };
 
 export default function SubjectProfile() {
@@ -95,7 +90,7 @@ export default function SubjectProfile() {
                     <IdChip value={r.report_id} />
                     <span className="text-[11px] font-mono text-ink-muted">{(r.created_at || "").slice(0, 10)}</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-ink-muted">{(ACCESS_LABEL[r.access_status] || ["", ""])[L(0, 1)]}</span>
+                  <AccessPill status={r.access_status} testid={`access-${r.report_id}`} />
                 </div>
                 <h3 className="font-bold mt-2">{r.title}</h3>
                 <p className="text-sm text-ink-soft mt-1 leading-relaxed">{r.summary}</p>
@@ -107,7 +102,9 @@ export default function SubjectProfile() {
                 )}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  {r.source_url ? <EvidenceChip href={r.source_url} label={`${r.source_platform || "source"}`} testid={`evidence-${r.report_id}`} /> : <span className="text-[11px] text-ink-muted italic">{L("No openable source", "খোলা যায় এমন সোর্স নেই")}</span>}
+                  {(r.source_url || r.snapshot || r.author_excerpt)
+                    ? <EvidenceButton evidence={r} label={`${r.source_platform || "source"} · ${L("snapshot", "স্ন্যাপশট")}`} testid={`evidence-${r.report_id}`} />
+                    : <span className="text-[11px] text-ink-muted italic">{L("No openable source", "খোলা যায় এমন সোর্স নেই")}</span>}
                   <span className="text-[11px] font-mono text-ink-muted uppercase">{r.language}</span>
                 </div>
 

@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loading, EmptyState, IdChip } from "@/components/StatusBits";
+import { EvidenceButton, AccessPill } from "@/components/EvidenceDrawer";
 import { toast } from "sonner";
 
 const STATUS_STYLE = {
@@ -19,7 +20,7 @@ const STATUS_STYLE = {
   PUBLISHED: "bg-state-pass-bg text-state-pass-tx border-state-pass-bd",
   REJECTED: "bg-state-fail-bg text-state-fail-tx border-state-fail-bd",
 };
-const BLANK = { subject_id: "", kind: "negative", title: "", summary: "", source_platform: "", source_url: "", language: "bn", access_status: "open" };
+const BLANK = { subject_id: "", kind: "negative", title: "", summary: "", source_platform: "", source_url: "", language: "bn", access_status: "open", author_excerpt: "" };
 
 export default function ReportEditor() {
   const [sp] = useSearchParams();
@@ -29,6 +30,8 @@ export default function ReportEditor() {
   const [form, setForm] = useState({ ...BLANK, subject_id: sp.get("subject") || "" });
   const [editingId, setEditingId] = useState(null);
   const [approved, setApproved] = useState(false);
+  const [saved, setSaved] = useState(null);   // last saved report (carries the live snapshot result)
+  const [saving, setSaving] = useState(false);
 
   const loadMine = useCallback(async () => {
     try { const { data } = await api.get("/reports/mine"); setMine(data); }
@@ -41,27 +44,38 @@ export default function ReportEditor() {
   }, [loadMine]);
 
   const upd = (k) => (e) => setForm({ ...form, [k]: e?.target ? e.target.value : e });
+  const payload = () => Object.fromEntries([...Object.keys(BLANK), "resolution_of"].map((k) => [k, form[k] ?? (k === "resolution_of" ? null : "")]));
 
   const saveDraft = async () => {
+    setSaving(true);
     try {
-      if (editingId) { await api.put(`/reports/${editingId}`, form); toast.success(L("Draft updated", "খসড়া হালনাগাদ")); }
-      else { const { data } = await api.post("/reports", form); setEditingId(data.report_id); toast.success(L("Draft saved", "খসড়া সংরক্ষিত")); }
+      if (editingId) { const { data } = await api.put(`/reports/${editingId}`, payload()); setSaved(data); toast.success(L("Draft updated", "খসড়া হালনাগাদ")); }
+      else { const { data } = await api.post("/reports", payload()); setEditingId(data.report_id); setSaved(data); toast.success(L("Draft saved", "খসড়া সংরক্ষিত")); }
       loadMine();
     } catch (e) { toast.error(apiErr(e)); }
+    finally { setSaving(false); }
+  };
+
+  const refetch = async () => {
+    if (!editingId) return;
+    try { const { data } = await api.post(`/reports/${editingId}/refetch`); setSaved(data); toast.success(L("Snapshot refreshed", "স্ন্যাপশট হালনাগাদ")); }
+    catch (e) { toast.error(apiErr(e)); }
   };
 
   const submitReport = async () => {
+    setSaving(true);
     try {
       let id = editingId;
-      if (!id) { const { data } = await api.post("/reports", form); id = data.report_id; setEditingId(id); }
-      else { await api.put(`/reports/${id}`, form); }
+      if (!id) { const { data } = await api.post("/reports", payload()); id = data.report_id; setEditingId(id); }
+      else { await api.put(`/reports/${id}`, payload()); }
       await api.post(`/reports/${id}/submit`);
       toast.success(L("Submitted for moderation", "মডারেশনের জন্য জমা"));
-      setForm({ ...BLANK }); setEditingId(null); setApproved(false); loadMine();
+      setForm({ ...BLANK }); setEditingId(null); setApproved(false); setSaved(null); loadMine();
     } catch (e) { toast.error(apiErr(e)); }
+    finally { setSaving(false); }
   };
 
-  const editDraft = (r) => { setForm({ ...BLANK, ...r }); setEditingId(r.report_id); setApproved(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const editDraft = (r) => { setForm({ ...BLANK, ...r }); setEditingId(r.report_id); setSaved(r); setApproved(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-5 gap-6">
@@ -106,6 +120,21 @@ export default function ReportEditor() {
             <div><Label>{L("Source platform", "সোর্স প্ল্যাটফর্ম")}</Label><Input data-testid="report-platform-input" value={form.source_platform} onChange={upd("source_platform")} className="mt-1" placeholder="Facebook / Reddit / Web" /></div>
             <div><Label>{L("Source URL", "সোর্স ইউআরএল")}</Label><Input data-testid="report-url-input" value={form.source_url} onChange={upd("source_url")} className="mt-1 font-mono" placeholder="https://…" /></div>
           </div>
+          <div>
+            <Label>{L("Pasted excerpt / quote (fallback evidence)", "উদ্ধৃতি (বিকল্প প্রমাণ)")}</Label>
+            <Textarea data-testid="report-excerpt-input" value={form.author_excerpt} onChange={upd("author_excerpt")} className="mt-1" rows={3} placeholder={L("Paste the exact words from the source. Shown in the evidence drawer if the live snapshot fails.", "সোর্সের হুবহু কথা পেস্ট করুন। লাইভ স্ন্যাপশট ব্যর্থ হলে প্রমাণ ড্রয়ারে দেখানো হবে।")} />
+            <p className="text-[11px] text-ink-muted mt-1">{L("On save, the source URL is fetched once and a snapshot (title, excerpt, hash, HTTP result) is stored. The access status you declared is kept, but the fetched result decides the label.", "সংরক্ষণে সোর্স ইউআরএল একবার সংগ্রহ করে স্ন্যাপশট (শিরোনাম, উদ্ধৃতি, হ্যাশ, HTTP ফল) রাখা হয়। আপনার ঘোষিত স্ট্যাটাস থাকে, কিন্তু সংগ্রহের ফল লেবেল নির্ধারণ করে।")}</p>
+          </div>
+
+          {saved && (saved.snapshot || saved.author_excerpt) && (
+            <div className="rounded-xl border border-border bg-surface-elev p-3 flex flex-wrap items-center gap-2 text-xs" data-testid="snapshot-result">
+              <span className="font-semibold">{L("Snapshot", "স্ন্যাপশট")}:</span>
+              <AccessPill status={saved.access_status} testid="snapshot-access-status" />
+              {saved.snapshot?.http_status != null && <span className="font-mono text-ink-muted">HTTP {saved.snapshot.http_status}</span>}
+              {saved.snapshot?.error && <span className="font-mono text-state-fail-tx">{saved.snapshot.error}</span>}
+              <EvidenceButton evidence={saved} label={L("open drawer", "ড্রয়ার খুলুন")} testid="snapshot-open-drawer" onRefetch={refetch} />
+            </div>
+          )}
 
           {/* publication preview — author must approve */}
           {form.title && form.subject_id && (
@@ -122,9 +151,9 @@ export default function ReportEditor() {
           )}
 
           <div className="flex flex-wrap gap-2 pt-1">
-            <Button variant="outline" onClick={saveDraft} disabled={!form.subject_id || !form.title} data-testid="save-draft-btn"><Save className="w-4 h-4 mr-1" />{L("Save draft", "খসড়া সংরক্ষণ")}</Button>
-            <Button onClick={submitReport} disabled={!form.subject_id || !form.title || !approved} data-testid="submit-report-btn" className="bg-brand hover:bg-brand-hover"><Send className="w-4 h-4 mr-1" />{L("Submit for moderation", "মডারেশনে জমা")}</Button>
-            {editingId && <Button variant="ghost" onClick={() => { setForm({ ...BLANK }); setEditingId(null); setApproved(false); }}>{L("New", "নতুন")}</Button>}
+            <Button variant="outline" onClick={saveDraft} disabled={saving || !form.subject_id || !form.title} data-testid="save-draft-btn"><Save className="w-4 h-4 mr-1" />{saving ? L("Saving & snapshotting…", "সংরক্ষণ ও স্ন্যাপশট…") : L("Save draft", "খসড়া সংরক্ষণ")}</Button>
+            <Button onClick={submitReport} disabled={saving || !form.subject_id || !form.title || !approved} data-testid="submit-report-btn" className="bg-brand hover:bg-brand-hover"><Send className="w-4 h-4 mr-1" />{L("Submit for moderation", "মডারেশনে জমা")}</Button>
+            {editingId && <Button variant="ghost" onClick={() => { setForm({ ...BLANK }); setEditingId(null); setApproved(false); setSaved(null); }}>{L("New", "নতুন")}</Button>}
           </div>
         </div>
       </div>
