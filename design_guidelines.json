@@ -1,0 +1,113 @@
+{
+  "project_name": "Lenden Prohori (লেনদেন প্রহরী)",
+  "app_type": "hybrid_fullstack",
+  "archetype": "Civic Trust & Precision Escrow",
+  "theme": {
+    "default_mode": "light",
+    "theme_toggle_supported": true,
+    "vibe": "Calm, evidence-forward, trustworthy, transparent, high-precision escrow ledger with civic accountability"
+  },
+  "typography": {
+    "font_family_latin_heading": "Cabinet Grotesk, General Sans, sans-serif",
+    "font_family_latin_body": "Plus Jakarta Sans, sans-serif",
+    "font_family_bangla": "'Hind Siliguri', 'Anek Bangla', 'Noto Sans Bengali', sans-serif",
+    "font_family_mono": "'JetBrains Mono', 'Space Mono', monospace",
+    "font_google_import_url": "https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap",
+    "rules": {
+      "monospaced_strict": "ALL BDT amounts (e.g. ৳ 50,000), account IDs (e.g. ACC-8801712-X), transaction hashes, provider names, and ledger entries MUST use font_family_mono with tracking-tight and exact numerical alignment.",
+      "bilingual_support": "Bangla script must have base text size of at least 15px/16px and leading-relaxed (1.6 to 1.8) for clean conjunct glyph rendering.",
+      "heading_scale": "H1: text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight, H2: text-2xl sm:text-3xl font-semibold, H3: text-xl font-medium, Body: text-base leading-relaxed."
+    }
+  },
+  "colors": {
+    "brand_primary": "#0B2B22",
+    "brand_primary_hover": "#144538",
+    "brand_secondary": "#0D9488",
+    "surface_base": "#FAF9F5",
+    "surface_card": "#FFFFFF",
+    "surface_elevated": "#F2F0E8",
+    "text_primary": "#0F172A",
+    "text_secondary": "#475569",
+    "text_muted": "#64748B",
+    "border_subtle": "#E2E8F0",
+    "border_strong": "#0F172A",
+    "status_states": {
+      "pass_safe": {
+        "bg": "#ECFDF5",
+        "border": "#10B981",
+        "text": "#065F46",
+        "badge": "PASS / সুরক্ষিত"
+      },
+      "fail_disputed": {
+        "bg": "#FEF2F2",
+        "border": "#EF4444",
+        "text": "#991B1B",
+        "badge": "FAIL / বিরোধপূর্ণ"
+      },
+      "pending_unknown": {
+        "bg": "#FFFBEB",
+        "border": "#F59E0B",
+        "text": "#92400E",
+        "badge": "UNKNOWN / অমিমাংসিত"
+      }
+    },
+    "ai_vs_committed_visual_language": {
+      "committed_facts": "Solid 1px or 2px dark border (#0B2B22), crisp white background, clear verified check icon, solid text hierarchy.",
+      "ai_proposed_items": "Dashed stroke (border-dashed border-amber-400 or border-teal-500), subtle tinted background (bg-amber-50/60 or bg-teal-50/40), explicit 'AI Suggested / AI প্রস্তাবিত' pill tag with sparkler icon."
+    }
+  },
+  "spacing_and_layout": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "bento_mode": "High Density Precision Grid for deal rooms and research profile dashboards",
+    "padding_strategy": "Generous internal padding (p-6 to p-8) on all bordered cards to prevent text collision",
+    "navigation": "Top fixed/sticky header with backdrop-blur-md bg-white/90 border-b border-slate-200 z-50. Must include Brand Logo, Language Toggle (Bangla ⇄ English), Main Nav Links (Research Hub, Escrow Workspace, Moderation), and User Role Pill."
+  },
+  "key_components_design": {
+    "bilingual_toggle": {
+      "style": "Pill switch with flags/labels (BN / EN), prominent in top header and persistent state in localStorage",
+      "data_testid": "bilingual-language-toggle"
+    },
+    "deal_room_monitoring": {
+      "style": "Side-by-side split layout: Left side message timeline with version history & counterparty consent locks; Right side live Completion Map (PASS/FAIL/UNKNOWN) & BDT Integer Ledger status.",
+      "monitoring_notice": "Unambiguous alert banner at top of workspace: 'AI is monitoring this transaction for contractual fulfillment. Human fallback active.'"
+    },
+    "evidence_forward_chips": {
+      "style": "Every claim in research profiles or dispute complaints must feature a clickable citation chip [Evidence #ID] with direct source preview modal."
+    },
+    "honest_states": {
+      "loading": "Skeleton UI with explicit 'Fetching verification logs...' text",
+      "empty": "Structured empty card with actionable 'Submit First Report' or 'Create New Escrow Deal' CTA",
+      "error": "Banner showing exact error reason + Retry button (never pretend success)",
+      "permission_denied": "Lock icon + clear explanation of required role (Buyer / Seller / Reviewer)"
+    }
+  },
+  "media_and_images": {
+    "hero_and_research": [
+      {
+        "url": "https://images.unsplash.com/photo-1781006313832-a508bd42b628?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwzfHxiYW5nbGFkZXNoJTIwYnVzaW5lc3MlMjBjb21tZXJjZSUyMHRydXN0JTIwcGFwZXIlMjBkb2N1bWVudHxlbnwwfHx8fDE3OTE3NDM1MDN8MA&ixlib=rb-4.1.0&q=85",
+        "category": "escrow_bdt_ledger",
+        "description": "Bangladeshi Taka banknotes representing BDT escrow settlement"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1631555567492-8ba42744b474?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwxfHxiYW5nbGFkZXNoJTIwYnVzaW5lc3MlMjBjb21tZXJjZSUyMHRydXN0JTIwcGFwZXIlMjBkb2N1bWVudHxlbnwwfHx8fDE3OTE3NDM1MDN8MA&ixlib=rb-4.1.0&q=85",
+        "category": "public_research_board",
+        "description": "Public community board and notice lookup"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1681505531034-8d67054e07f6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwyfHxoYW5kc2hha2UlMjBidXNpbmVzcyUyMHRydXN0JTIwY29udHJhY3QlMjBhZ3JlZW1lbnR8ZW58MHx8fHwxNzkxNzQzNTExfDA&ixlib=rb-4.1.0&q=85",
+        "category": "escrow_agreement",
+        "description": "Dual consent signed agreement over paper contract"
+      }
+    ]
+  },
+  "universal_guidelines_for_main_agent": [
+    "You tend to converge toward generic, on-distribution outputs (AI slop). Avoid this: create modern, evidence-forward, civic-tech UI with Bengali script elegance.",
+    "Do NOT use generic light-purple gradients. Use solid civic emerald (#0B2B22), crisp warm off-white (#FAF9F5), and clean slate containers.",
+    "ALL BDT currency values, account numbers, and IDs MUST be monospaced with 'font-mono' and exact integers (e.g., ৳ 12,500).",
+    "Visually distinguish AI-proposed draft items (dashed border, light amber background, 'AI Suggested' pill) from committed contractual terms (solid dark border, solid background).",
+    "Every claim, dispute item, and research report MUST include an evidence chip/link.",
+    "Bilingual toggle (Bangla/English) MUST be accessible globally in the navigation bar.",
+    "Honest states everywhere: loading, empty, error, pending, and permission-denied must be explicitly rendered and never masked as success.",
+    "All interactive elements MUST include kebab-case `data-testid` attributes for automated testing."
+  ]
+}

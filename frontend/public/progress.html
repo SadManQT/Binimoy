@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lenden Prohori — Build Progress Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --emerald:#0B2B22; --emerald2:#144538; --teal:#0D9488;
+    --base:#FAF9F5; --card:#FFFFFF; --elev:#F2F0E8;
+    --ink:#0F172A; --ink2:#475569; --muted:#64748B; --line:#E2E8F0;
+    --done-bg:#ECFDF5; --done-bd:#10B981; --done-tx:#065F46;
+    --prog-bg:#FFFBEB; --prog-bd:#F59E0B; --prog-tx:#92400E;
+    --plan-bg:#F1F5F9; --plan-bd:#94A3B8; --plan-tx:#475569;
+    --defer-bg:#F5F3FF; --defer-bd:#8B5CF6; --defer-tx:#5B21B6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--base);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;line-height:1.5}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .bn{font-family:'Hind Siliguri',sans-serif}
+  header{background:var(--emerald);color:#fff;padding:40px 24px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  header .wrap{padding:0}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:44px;height:44px;border-radius:12px;background:var(--teal);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px}
+  h1{font-size:30px;margin:0;font-weight:800;letter-spacing:-.02em}
+  .sub{opacity:.85;margin-top:6px;font-size:15px}
+  .tagbn{font-size:18px;opacity:.9}
+  .bars{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:26px}
+  .stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:16px}
+  .stat b{font-size:26px;font-weight:800;display:block}
+  .stat span{opacity:.8;font-size:13px}
+  .progressbar{height:10px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:24px;display:flex}
+  .progressbar i{display:block;height:100%}
+  main{padding:34px 0 80px}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 26px}
+  .pill{font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px;border:1px solid}
+  .b-done{background:var(--done-bg);border-color:var(--done-bd);color:var(--done-tx)}
+  .b-prog{background:var(--prog-bg);border-color:var(--prog-bd);color:var(--prog-tx)}
+  .b-plan{background:var(--plan-bg);border-color:var(--plan-bd);color:var(--plan-tx)}
+  .b-defer{background:var(--defer-bg);border-color:var(--defer-bd);color:var(--defer-tx)}
+  .module{margin-bottom:34px}
+  .module h2{font-size:20px;margin:0 0 4px;font-weight:800;letter-spacing:-.01em}
+  .module p.desc{margin:0 0 16px;color:var(--ink2);font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+  .feat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:8px}
+  .feat .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .fid{font-size:12px;font-weight:700;color:var(--teal)}
+  .ftitle{font-weight:700;font-size:15px;margin:2px 0}
+  .fdesc{font-size:13px;color:var(--muted)}
+  .phase{font-size:11px;font-weight:700;color:var(--ink2);background:var(--elev);border-radius:6px;padding:2px 7px}
+  .check{width:20px;height:20px;min-width:20px;border-radius:6px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff}
+  .c-done{background:var(--done-bd);border-color:var(--done-bd)}
+  .c-prog{background:var(--prog-bd);border-color:var(--prog-bd)}
+  .filterbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 24px}
+  .fbtn{cursor:pointer;font-size:13px;font-weight:600;padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+  .fbtn.active{background:var(--emerald);color:#fff;border-color:var(--emerald)}
+  footer{border-top:1px solid var(--line);padding:24px;text-align:center;color:var(--muted);font-size:13px}
+  a{color:var(--teal)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">লে</div>
+      <div>
+        <h1>Lenden Prohori · <span class="bn tagbn">লেনদেন প্রহরী</span></h1>
+        <div class="sub">Build Progress Tracker — every planned feature (FE-01…FE-37) &amp; work package (LP-001…LP-022)</div>
+      </div>
+    </div>
+    <div class="bars" id="stats"></div>
+    <div class="progressbar" id="pbar"></div>
+  </div>
+</header>
+<main class="wrap">
+  <div class="legend">
+    <span class="pill b-done">✓ Done</span>
+    <span class="pill b-prog">◑ In progress</span>
+    <span class="pill b-plan">○ Planned</span>
+    <span class="pill b-defer">⟳ Deferred (P1/P2)</span>
+  </div>
+  <div class="filterbar" id="filters"></div>
+  <div id="content"></div>
+</main>
+<footer>
+  Phase 1 MVP · Source of truth: <span class="mono">Lenden_Prohori_Master_Build_Specification_v7.md</span><br/>
+  Money is simulated (mock) in all phases before the Phase 3 real-money track. Updated as work lands.
+</footer>
+
+<script>
+const S = {done:'done', prog:'prog', plan:'plan', defer:'defer'};
+const MODULES = [
+  { name:'A · Transaction Workspace', desc:'Agreement, dual consent, mock ledger, monitored room, completion map, settlement, disputes, receipts.',
+    features:[
+      {id:'FE-10', t:'Scope builder, templates, invitations & immutable agreements', d:'Both accept the same terms; amendments cannot reuse stale consent.', p:'P0', s:S.done},
+      {id:'FE-12', t:'Three service modes', d:'AI-first+fallback, human-assisted, AI-only — with truthful availability.', p:'P0', s:S.done},
+      {id:'FE-13', t:'Monitored Deal Room + message versions & consent', d:'Monitoring notice, edit history, per-party consent.', p:'P0', s:S.done},
+      {id:'FE-16', t:'Completion map & item-specific inspection', d:'PASS/FAIL/UNKNOWN kept separately; cosmetic % never releases money.', p:'P0', s:S.done},
+      {id:'FE-18', t:'Mock funding, allocations & ledger', d:'Integer BDT money, conserved hold = FUND − RELEASE − REFUND.', p:'P0', s:S.done},
+      {id:'FE-21', t:'Disputes, case builder & evidence', d:'Claim, evidence and the current financial hold are preserved.', p:'P0', s:S.done},
+      {id:'FE-24', t:'Receipts & version replay/export', d:'Reconstruct agreement, evidence & allocation at bound versions.', p:'P0', s:S.done},
+      {id:'FE-22', t:'Human workbench, review & independent appeal', d:'Scoped reviewers, no self-review; appeal sequencing partial.', p:'P0', s:S.prog},
+      {id:'FE-19', t:'Four authorization paths + no-delivery refunds', d:'Accepted / mutual / reviewed live; objective-release deferred.', p:'P0', s:S.prog},
+      {id:'FE-14', t:'AI activity timeline & outage fallback', d:'Proposed vs committed; deterministic actions always available.', p:'P0', s:S.prog},
+      {id:'FE-11', t:'Eleven-category catalog (99 combos)', d:'All 11 categories selectable with slim checklists; full depth in Phase 2.', p:'P0', s:S.prog},
+      {id:'FE-15', t:'Secret Delivery Vault & device continuity', d:'E2E vault, device/key handling.', p:'P0', s:S.plan},
+      {id:'FE-17', t:'Login/access error diagnosis & synthetic provider', d:'Wrong account, recovery, rotation, suspension, outage differ.', p:'P0', s:S.plan},
+      {id:'FE-20', t:'Milestones, partial settlement & holdback', d:'Per-milestone funds and dependency checks.', p:'P0', s:S.plan},
+      {id:'FE-23', t:'Notices, updates, timers & deadlines', d:'Challenge periods cannot silently start or shorten.', p:'P0', s:S.plan},
+    ]},
+  { name:'B · Research & Reporting', desc:'Subject lookup, grouped evidence-linked reports, timelines, two-subject compare, community editor & moderation.',
+    features:[
+      {id:'FE-05', t:'Report timelines, duplicates, replies & corrections', d:'Complaint and later resolution stay linked; no double-counting.', p:'P0', s:S.done},
+      {id:'FE-06', t:'Research filters & two-subject comparison', d:'Compare coverage/recency with NO trust or safer-seller verdict.', p:'P0', s:S.done},
+      {id:'FE-07', t:'Community report editor, drafts & publication preview', d:'Author approves narrative; incomplete allegations not "verified".', p:'P0', s:S.done},
+      {id:'FE-08', t:'Moderation, seller response, withdrawal & appeal', d:'Moderation queue + seller response; nonresponse is not guilt.', p:'P0', s:S.done},
+      {id:'FE-04', t:'Evidence Explorer & source drawer', d:'Every claim opens its source with access-status labels.', p:'P0', s:S.prog},
+      {id:'FE-01', t:'Subject identity clarification', d:'Subjects kept separate with aliases; merge rules partial.', p:'P0', s:S.prog},
+      {id:'FE-02', t:'Search-index-first Facebook discovery', d:'Live configured-provider links (Phase 2).', p:'P0', s:S.plan},
+      {id:'FE-03', t:'Multilingual balanced query coverage', d:'Bangla/English/Banglish balanced retrieval (Phase 2).', p:'P0', s:S.plan},
+      {id:'FE-25', t:'Scenario Lab & adversarial datasets', d:'Synthetic namespace, hidden ground truth.', p:'P0', s:S.plan},
+      {id:'FE-26', t:'Research quality workbench & model comparison', d:'Attribution/negation/citation/abstention metrics.', p:'P0', s:S.plan},
+      {id:'FE-29', t:'Advanced research follow-up questions', d:'Subject/snapshot-scoped follow-ups.', p:'P1', s:S.defer},
+      {id:'FE-30', t:'Watchlist & update digests', d:'Opt-in, deduplicated bounded notices.', p:'P1', s:S.defer},
+      {id:'FE-31', t:'Visual research/evidence diffs', d:'Compare versions without inferring guilt from deletion.', p:'P1', s:S.defer},
+    ]},
+  { name:'C · Platform, Access & Experience', desc:'Accounts & dual auth, bilingual UX, accessibility, operations, and the future real-money boundary.',
+    features:[
+      {id:'FE-09', t:'Account, auth, session/device & recovery UI', d:'Email/password + Google; roles & session revocation; recovery partial.', p:'P0', s:S.prog},
+      {id:'FE-27', t:'Mobile Bangla, accessibility & continuity', d:'Bilingual + responsive; keyboard/screen-reader hardening ongoing.', p:'P0', s:S.prog},
+      {id:'FE-28', t:'Operations, restore, rollback & budgets', d:'Backups, reconciliation, incident controls.', p:'P0', s:S.plan},
+      {id:'FE-32', t:'Seller rehearsal', d:'Private preflight checklist in synthetic scope.', p:'P1', s:S.defer},
+      {id:'FE-33', t:'Rich case/receipt replay', d:'Time/version navigation honoring privacy.', p:'P1', s:S.defer},
+      {id:'FE-34', t:'Optional guided screen session', d:'Opt-in, redaction limits, retention.', p:'P2', s:S.defer},
+      {id:'FE-35', t:'Native mobile applications', d:'Same server contracts, secure device/key handling.', p:'P2', s:S.defer},
+      {id:'FE-36', t:'Additional categories & real provider integrations', d:'New capability contracts + live evidence.', p:'P1/P2', s:S.defer},
+      {id:'FE-37', t:'Optional private side chat', d:'Outside automatic assessment, isolated from AI.', p:'P2', s:S.defer},
+    ]},
+  { name:'D · Build Work Packages (LP)', desc:'Engineering packages from the master specification.',
+    features:[
+      {id:'LP-001', t:'Repo, docs, pinned toolchain, local infra', d:'', p:'', s:S.done},
+      {id:'LP-002', t:'Contracts, role matrix, state machine, DB baseline', d:'', p:'', s:S.done},
+      {id:'LP-003', t:'Auth/session integration & consent records', d:'', p:'', s:S.done},
+      {id:'LP-004', t:'Category engine, agreements, invitations', d:'', p:'', s:S.done},
+      {id:'LP-005', t:'Ledger, mock funding & outbox', d:'', p:'', s:S.done},
+      {id:'LP-006', t:'Monitored conversation & evidence versions', d:'', p:'', s:S.done},
+      {id:'LP-009', t:'Settlement paths & reconciliation', d:'', p:'', s:S.done},
+      {id:'LP-010', t:'Disputes, human review, appeals', d:'', p:'', s:S.done},
+      {id:'LP-013', t:'Community reporting/corrections', d:'', p:'', s:S.done},
+      {id:'LP-008', t:'Mock provider & guided inspections', d:'Inspections live; mock search provider partial.', p:'', s:S.prog},
+      {id:'LP-011', t:'AI deal guidance & evidence assessment', d:'Rule-based guidance live.', p:'', s:S.prog},
+      {id:'LP-012', t:'Research, subject resolution, sources', d:'Seeded sources; live providers Phase 2.', p:'', s:S.prog},
+      {id:'LP-014', t:'Integrated Bangla UX & Scenario Lab', d:'Bilingual UX live; Scenario Lab planned.', p:'', s:S.prog},
+      {id:'LP-007', t:'Secret vault & device/key behavior', d:'', p:'', s:S.plan},
+      {id:'LP-015', t:'CI/release hardening & private staging', d:'', p:'', s:S.plan},
+      {id:'LP-016', t:'P1/P2 extensions & real-provider/category expansion', d:'', p:'', s:S.defer},
+      {id:'LP-017', t:'Executable capability/template contracts & vault threat boundary', d:'', p:'', s:S.plan},
+      {id:'LP-018', t:'Financial conservation, dispatch races & notice contract', d:'', p:'', s:S.prog},
+      {id:'LP-019', t:'Review/appeal sequencing, consent withdrawal & scoped grants', d:'', p:'', s:S.plan},
+      {id:'LP-020', t:'Retrieval/upload isolation & community publication lifecycle', d:'', p:'', s:S.prog},
+      {id:'LP-021', t:'Complete eleven-category synthetic catalog', d:'', p:'', s:S.plan},
+      {id:'LP-022', t:'Cross-module privacy, continuity, AI evaluation & ops checks', d:'', p:'', s:S.plan},
+    ]},
+];
+
+const META = {
+  done:{cls:'c-done', pill:'b-done', mark:'✓', label:'Done'},
+  prog:{cls:'c-prog', pill:'b-prog', mark:'◑', label:'In progress'},
+  plan:{cls:'', pill:'b-plan', mark:'○', label:'Planned'},
+  defer:{cls:'', pill:'b-defer', mark:'⟳', label:'Deferred'},
+};
+let activeFilter = 'all';
+
+function allFeatures(){ return MODULES.flatMap(m=>m.features); }
+
+function renderStats(){
+  const all = allFeatures();
+  const c = {done:0,prog:0,plan:0,defer:0};
+  all.forEach(f=>c[f.s]++);
+  const total = all.length;
+  const pct = Math.round((c.done + c.prog*0.5)/total*100);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><b>${total}</b><span>Total features &amp; packages</span></div>
+    <div class="stat"><b>${c.done}</b><span>✓ Done</span></div>
+    <div class="stat"><b>${c.prog}</b><span>◑ In progress</span></div>
+    <div class="stat"><b>${c.plan + c.defer}</b><span>○ Planned / ⟳ Deferred</span></div>
+    <div class="stat"><b>${pct}%</b><span>Weighted completion</span></div>`;
+  document.getElementById('pbar').innerHTML =
+    `<i style="width:${c.done/total*100}%;background:#10B981"></i>`+
+    `<i style="width:${c.prog/total*100}%;background:#F59E0B"></i>`;
+}
+
+function renderFilters(){
+  const opts = [['all','All'],['done','Done'],['prog','In progress'],['plan','Planned'],['defer','Deferred']];
+  document.getElementById('filters').innerHTML = opts.map(([k,l])=>
+    `<button class="fbtn ${activeFilter===k?'active':''}" data-f="${k}">${l}</button>`).join('');
+  document.querySelectorAll('.fbtn').forEach(b=>b.onclick=()=>{activeFilter=b.dataset.f;render();});
+}
+
+function render(){
+  renderStats(); renderFilters();
+  const html = MODULES.map(m=>{
+    const feats = m.features.filter(f=>activeFilter==='all'||f.s===activeFilter);
+    if(!feats.length) return '';
+    const cards = feats.map(f=>{
+      const meta = META[f.s];
+      return `<div class="feat">
+        <div class="top">
+          <div><div class="fid mono">${f.id}</div><div class="ftitle">${f.t}</div></div>
+          <div class="check ${meta.cls}">${meta.mark}</div>
+        </div>
+        ${f.d?`<div class="fdesc">${f.d}</div>`:''}
+        <div class="top" style="align-items:center">
+          <span class="pill ${meta.pill}">${meta.mark} ${meta.label}</span>
+          ${f.p?`<span class="phase mono">${f.p}</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    return `<section class="module"><h2>${m.name}</h2><p class="desc">${m.desc}</p><div class="grid">${cards}</div></section>`;
+  }).join('');
+  document.getElementById('content').innerHTML = html;
+}
+render();
+</script>
+</body>
+</html>

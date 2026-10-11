@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-bangla, [lang="bn"] { font-family: 'Hind Siliguri', 'Noto Sans Bengali', sans-serif; }
+.font-heading { font-family: 'Cabinet Grotesk', 'Plus Jakarta Sans', sans-serif; }
+.font-mono, code { font-family: 'JetBrains Mono', monospace; }
+
+@layer base {
+  :root {
+    --background: 48 33% 97%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 162 58% 11%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 45 22% 92%;
+    --secondary-foreground: 162 58% 11%;
+    --muted: 45 22% 92%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 174 84% 30%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 174 84% 30%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; }
+}
+
+/* Bangla script needs a touch more line-height for conjuncts */
+[lang="bn"], .font-bangla { line-height: 1.75; }
+
+::selection { background: #0D9488; color: #fff; }
