@@ -145,7 +145,7 @@ export function VaultPanel(props: Props) {
       });
       element.reset();
       await refresh();
-      setStatus("পাঠানো হয়েছে। পাঠানো মানে সরবরাহ গৃহীত হওয়া নয়।");
+      setStatus("পাঠানো হয়েছে। পাঠানো মানে ডেলিভারি গৃহীত হওয়া নয়।");
     } catch (error) {
       setStatus(`হয়নি, কিছু পাঠানো হয়নি: ${(error as Error).message}`);
     }
@@ -167,7 +167,7 @@ export function VaultPanel(props: Props) {
 
       {phase === "loading" && <p>ভল্ট খোলা হচ্ছে…</p>}
       {phase === "unavailable" && (
-        <p>এই পরিবেশে ভল্ট চালু নেই। তাই গোপন সরবরাহ এখন সম্ভব নয়।</p>
+        <p>এই পরিবেশে ভল্ট চালু নেই। তাই গোপন ডেলিভারি এখন সম্ভব নয়।</p>
       )}
       {phase === "error" && <p>ভল্ট খোলা যায়নি। পাতা রিফ্রেশ করে আবার চেষ্টা করুন।</p>}
       {phase === "no_room" &&
@@ -176,7 +176,7 @@ export function VaultPanel(props: Props) {
             এই ডিলের ভল্ট তৈরি করুন
           </button>
         ) : (
-          <p>বিক্রেতা এখনো ভল্ট তৈরি করেননি।</p>
+          <p>সেলার এখনো ভল্ট তৈরি করেননি।</p>
         ))}
       {phase === "waiting_for_other" && (
         <p>
@@ -217,7 +217,7 @@ export function VaultPanel(props: Props) {
               value={JSON.stringify(mine)}
             />
             <fieldset>
-              <legend>বিক্রেতার ঘোষণা</legend>
+              <legend>সেলারের ঘোষণা</legend>
               {props.declarable.map((item) => (
                 <label key={item.itemId}>
                   <input
@@ -233,14 +233,14 @@ export function VaultPanel(props: Props) {
               ))}
             </fieldset>
             <p>
-              জমা দিলে ক্রেতার পরীক্ষা শুরু হয়। জমা দেওয়া মানে টাকা পাওয়া নয়; ক্রেতা গ্রহণ করলে
-              তবেই পরিশোধ হয়।
+              জমা দিলে বায়ারের চেক শুরু হয়। জমা দেওয়া মানে টাকা পাওয়া নয়; বায়ার গ্রহণ করলে তবেই
+              পেমেন্ট হয়।
             </p>
             <button
               type="submit"
               disabled={props.items.some((item) => !mine[item.itemId])}
             >
-              সরবরাহ জমা দিন
+              ডেলিভারি জমা দিন
             </button>
           </form>
         </div>
@@ -259,9 +259,9 @@ export function VaultPanel(props: Props) {
               {received.map((delivery) => (
                 <li key={delivery.eventId} data-testid="vault-received">
                   {delivery.value === null ? (
-                    "এই ডিভাইসে এটি খোলা যায়নি (চাবি নেই)। এটি সরবরাহ ব্যর্থ হওয়ার প্রমাণ নয়।"
+                    "এই ডিভাইসে এটি খোলা যায়নি (চাবি নেই)। এটি ডেলিভারি ব্যর্থ হওয়ার প্রমাণ নয়।"
                   ) : !delivery.bindingMatches ? (
-                    "এই বার্তাটি এই চুক্তির সংস্করণের সাথে বাঁধা নয়, তাই দেখানো হচ্ছে না।"
+                    "এই বার্তাটি এই ডিলের সংস্করণের সাথে বাঁধা নয়, তাই দেখানো হচ্ছে না।"
                   ) : (
                     <>
                       {title(delivery.itemId)}:{" "}

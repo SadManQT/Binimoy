@@ -6,7 +6,7 @@ import { requireUser } from "../../lib/session";
 import { claimDealAction, claimReviewAction } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "পর্যালোচনা · বিনিময়" };
+export const metadata = { title: "রিভিউ · বিনিময়" };
 
 export default async function ReviewQueuePage({
   searchParams,
@@ -21,14 +21,14 @@ export default async function ReviewQueuePage({
 
   return (
     <main>
-      <h1>পর্যালোচনার সারি</h1>
+      <h1>রিভিউয়ের সারি</h1>
       {error && <p role="alert">{ERROR_TEXT[error] ?? error}</p>}
       <p>
         আপনি যে ডিলের পক্ষ, তা এখানে দেখানো হয় না। দায়িত্ব নিলে শুধু সেই কেসের তথ্য দেখতে
         পাবেন, যতক্ষণ দায়িত্ব আপনার।
       </p>
 
-      <h2>বিরোধ</h2>
+      <h2>ডিসপিউট</h2>
       {queue.cases.length === 0 ? (
         <p>এখন কোনো কেস অপেক্ষায় নেই।</p>
       ) : (
@@ -63,7 +63,7 @@ export default async function ReviewQueuePage({
 
       <h2>শুরু থেকেই মানুষের সহায়তা চাওয়া ডিল</h2>
       {queue.deals.length === 0 ? (
-        <p>পর্যালোচকের অপেক্ষায় কোনো ডিল নেই।</p>
+        <p>রিভিউয়ারের অপেক্ষায় কোনো ডিল নেই।</p>
       ) : (
         <ul>
           {queue.deals.map((deal) => (
@@ -71,7 +71,7 @@ export default async function ReviewQueuePage({
               {deal.title}
               <form action={claimDealAction}>
                 <input type="hidden" name="dealId" value={deal.dealId} />
-                <button type="submit">এই ডিলের পর্যালোচক হোন</button>
+                <button type="submit">এই ডিলের রিভিউয়ার হোন</button>
               </form>
             </li>
           ))}

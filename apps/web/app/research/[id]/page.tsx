@@ -10,16 +10,16 @@ export const metadata = { title: "খোঁজের ফল · বিনিম�
 
 // C7.1: a label says what the author reports, never what the subject is.
 const TYPE_TEXT: Record<string, string> = {
-  positive: "ভালো অভিজ্ঞতার কথা লিখেছেন",
-  negative: "অভিযোগ লিখেছেন",
+  positive: "ভালো এক্সপেরিয়েন্সের কথা লিখেছেন",
+  negative: "রিপোর্ট লিখেছেন",
   mixed: "ভালো ও খারাপ দুটোই লিখেছেন",
-  neutral: "অভিজ্ঞতার কথা লিখেছেন",
+  neutral: "এক্সপেরিয়েন্সের কথা লিখেছেন",
   resolution: "সমাধানের কথা লিখেছেন",
-  response: "বিক্রেতার উত্তর",
+  response: "সেলারের উত্তর",
 };
 const CONTENT_TEXT: Record<string, string> = {
-  customer_experience: "ক্রেতার পোস্ট",
-  seller_response: "বিক্রেতার নিজের বক্তব্য",
+  customer_experience: "বায়ারের পোস্ট",
+  seller_response: "সেলারের নিজের বক্তব্য",
   advertisement: "বিজ্ঞাপন",
   news: "সংবাদ",
 };
@@ -134,7 +134,7 @@ export default async function CollectionPage({
       <h1>“{view.subject}” সম্পর্কে যা পাওয়া গেছে</h1>
       <p data-testid="fixture-label">
         {view.coverage.providers.includes("fixture") ? (
-          <strong>পরীক্ষামূলক তথ্য: এগুলো বানানো নমুনা পোস্ট, আসল ওয়েব ফল নয়।</strong>
+          <strong>টেস্ট তথ্য: এগুলো বানানো নমুনা পোস্ট, আসল ওয়েব ফল নয়।</strong>
         ) : null}
       </p>
 
@@ -155,11 +155,11 @@ export default async function CollectionPage({
       </section>
 
       <section aria-labelledby="counts" data-testid="counts">
-        <h2 id="counts">এই খোঁজে পাওয়া ক্রেতার পোস্ট</h2>
+        <h2 id="counts">এই খোঁজে পাওয়া বায়ারের পোস্ট</h2>
         <p>
-          ভালো অভিজ্ঞতা {n(counts.positive)}টি · অভিযোগ {n(counts.negative)}টি ·
-          মিশ্র {n(counts.mixed)}টি · সমাধানের খবর {n(counts.resolution)}টি · অন্যান্য{" "}
-          {n(counts.neutral)}টি
+          ভালো এক্সপেরিয়েন্স {n(counts.positive)}টি · রিপোর্ট {n(counts.negative)}টি
+          · মিশ্র {n(counts.mixed)}টি · সমাধানের খবর {n(counts.resolution)}টি ·
+          অন্যান্য {n(counts.neutral)}টি
         </p>
         <p>
           <small>
@@ -168,7 +168,7 @@ export default async function CollectionPage({
               ? ` (${date(dates[0] as string)} থেকে ${date(dates.at(-1) as string)})`
               : ""}
             । একই লেখার কপি একবার গোনা হয়েছে; “সম্ভবত সম্পর্কিত” পোস্ট, বিজ্ঞাপন, সংবাদ ও
-            বিক্রেতার উত্তর গোনা হয়নি। এটি সব ক্রেতার হিসাব নয়, এবং বেশি ভালো পোস্ট মানেই
+            সেলারের উত্তর গোনা হয়নি। এটি সব বায়ারের হিসাব নয়, এবং বেশি ভালো পোস্ট মানেই
             নির্ভরযোগ্য, তা নয়।
           </small>
         </p>
@@ -193,7 +193,7 @@ export default async function CollectionPage({
         <section aria-labelledby="possible">
           <h2 id="possible">সম্ভবত সম্পর্কিত</h2>
           <p>
-            এগুলোর নাম কাছাকাছি, কিন্তু একই পেজ বা দোকান কি না নিশ্চিত নয়। এগুলো উপরের গণনায়
+            এগুলোর নাম কাছাকাছি, কিন্তু একই পেজ বা শপ কি না নিশ্চিত নয়। এগুলো উপরের গণনায়
             নেই।
           </p>
           <ul data-testid="possible-cards">
@@ -205,13 +205,13 @@ export default async function CollectionPage({
       ) : null}
 
       <section aria-labelledby="community" data-testid="community-reports">
-        <h2 id="community">বিনিময় ব্যবহারকারীদের জমা দেওয়া অভিজ্ঞতা</h2>
+        <h2 id="community">বিনিময় ব্যবহারকারীদের জমা দেওয়া এক্সপেরিয়েন্স</h2>
         <p>
-          এগুলো ব্যবহারকারীর নিজের বক্তব্য। আমরা এগুলোর সত্যতা যাচাই করিনি, এবং এগুলো উপরের
-          গণনায় নেই।
+          এগুলো ব্যবহারকারীর নিজের বক্তব্য। আমরা এগুলোর সত্যতা ভেরিফাই করিনি, এবং এগুলো
+          উপরের গণনায় নেই।
         </p>
         {community.length === 0 ? (
-          <p>ঠিক এই নামে এখনো কোনো প্রকাশিত অভিজ্ঞতা নেই।</p>
+          <p>ঠিক এই নামে এখনো কোনো পাবলিশড এক্সপেরিয়েন্স নেই।</p>
         ) : (
           <ul>
             {community.map((report) => (
@@ -225,7 +225,7 @@ export default async function CollectionPage({
           </ul>
         )}
         <p>
-          <a href="/community">আপনার নিজের অভিজ্ঞতা জানান</a>
+          <a href="/community">আপনার নিজের এক্সপেরিয়েন্স জানান</a>
         </p>
       </section>
     </main>

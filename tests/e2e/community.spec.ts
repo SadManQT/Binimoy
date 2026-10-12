@@ -19,12 +19,12 @@ test("an experience is private until its author approves it and a moderator publ
 
   await author.goto("/community");
   await author.locator('input[name="subject"]').fill(shop);
-  await click(author, "খসড়া শুরু করুন");
+  await click(author, "ড্রাফট শুরু করুন");
   await author.waitForURL("**/community/*-*");
   const url = author.url();
-  await expect(author.getByTestId("report-state")).toContainText("খসড়া");
+  await expect(author.getByTestId("report-state")).toContainText("ড্রাফট");
   // An incomplete draft cannot be submitted yet.
-  await expect(author.getByTestId("preview")).toContainText("ব্যক্তিগত খসড়া");
+  await expect(author.getByTestId("preview")).toContainText("ব্যক্তিগত ড্রাফট");
 
   // A phone number in the public text is refused.
   await author
@@ -33,7 +33,7 @@ test("an experience is private until its author approves it and a moderator publ
   await author
     .locator('textarea[name="publicText"]')
     .fill("Paid to 01712345678, nothing arrived.");
-  await click(author, "খসড়া সংরক্ষণ করুন");
+  await click(author, "ড্রাফট সংরক্ষণ করুন");
   await expect(author.locator('main [role="alert"]')).toContainText("ফোন নম্বর");
 
   await author
@@ -42,7 +42,7 @@ test("an experience is private until its author approves it and a moderator publ
   await author
     .locator('textarea[name="publicText"]')
     .fill("I paid 2500 taka and the license never arrived.");
-  await click(author, "খসড়া সংরক্ষণ করুন");
+  await click(author, "ড্রাফট সংরক্ষণ করুন");
   await expect(author.getByTestId("preview-text")).toHaveText(
     "I paid 2500 taka and the license never arrived.",
   );
@@ -70,7 +70,7 @@ test("an experience is private until its author approves it and a moderator publ
     "I paid 2500 taka and the license never arrived.",
   );
   await expect(reader.getByTestId("unverified-label")).toContainText(
-    "যাচাই করেনি",
+    "ভেরিফাই করেনি",
   );
   await expect(reader.getByTestId("private-original")).toHaveCount(0);
   await expect(reader.locator("main")).not.toContainText("01712345678");
@@ -99,7 +99,7 @@ test("an experience is private until its author approves it and a moderator publ
     pending.getByRole("button", { name: "সিদ্ধান্ত দিন" }).click(),
   ]);
   await author.goto(url);
-  await expect(author.getByTestId("followup")).toContainText("যাচাই করা হয়নি");
+  await expect(author.getByTestId("followup")).toContainText("ভেরিফাই করা হয়নি");
   // The complaint is still there beside the reply.
   await expect(author.getByTestId("public-text")).toBeVisible();
 

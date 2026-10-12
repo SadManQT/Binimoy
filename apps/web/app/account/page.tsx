@@ -21,7 +21,7 @@ export default async function AccountPage() {
         <dd>{user.name}</dd>
         <dt>ইমেইল</dt>
         <dd>
-          {user.email} {user.emailVerified ? "(যাচাই করা)" : "(যাচাই হয়নি)"}
+          {user.email} {user.emailVerified ? "(ভেরিফাই করা)" : "(ভেরিফাই হয়নি)"}
         </dd>
         <dt>ব্যবহারকারী আইডি</dt>
         <dd>

@@ -618,7 +618,7 @@
     "implementationPaths": [
       "apps/web/app/globals.css",
       "apps/web/lib/next-step.ts",
-      "apps/web/app/components/vault-scene.tsx"
+      "apps/web/app/components/hero-scene.tsx"
     ],
     "acceptanceTests": [
       "tests/e2e/home.spec.ts",

@@ -59,12 +59,12 @@ export default async function CasePage({
       <dl>
         <dt>অবস্থা</dt>
         <dd>{DISPUTE_TEXT[view.state] ?? view.state}</dd>
-        <dt>অভিযোগ</dt>
+        <dt>রিপোর্ট</dt>
         <dd>
           {CLAIM_TEXT[view.claim] ?? view.claim}, করেছেন{" "}
           {ROLE_TEXT[view.openedBy]}
         </dd>
-        <dt>অভিযোগকারীর বর্ণনা (দাবি, প্রতিষ্ঠিত তথ্য নয়)</dt>
+        <dt>রিপোর্টকারীর বর্ণনা (দাবি, প্রতিষ্ঠিত তথ্য নয়)</dt>
         <dd>{view.detail || "কিছু লেখা হয়নি"}</dd>
         <dt>পক্ষ</dt>
         <dd>
@@ -74,15 +74,15 @@ export default async function CasePage({
         </dd>
         <dt>আটকে থাকা টাকা</dt>
         <dd>{formatBdt(view.balances.held.toString())}</dd>
-        <dt>টাকা পাঠানোর আগে না পরে বিরোধ</dt>
+        <dt>টাকা পাঠানোর আগে না পরে ডিসপিউট</dt>
         <dd>
           {view.afterDispatch
-            ? "পরে: পাঠানো শুরু হয়ে গিয়েছিল। এটি পরিশোধ-পরবর্তী দাবি।"
+            ? "পরে: পাঠানো শুরু হয়ে গিয়েছিল। এটি পেমেন্ট-পরবর্তী দাবি।"
             : "আগে: টাকা আটকে আছে।"}
         </dd>
       </dl>
 
-      <h2>চুক্তি</h2>
+      <h2>ডিল</h2>
       <p>
         মূল্য {formatBdt(view.terms.amountMinor)} · সংশোধনের সুযোগ{" "}
         {view.terms.timing.correctionAttempts} বার
@@ -95,7 +95,7 @@ export default async function CasePage({
         ))}
       </ul>
 
-      <h2>সরবরাহ ও পরীক্ষার রেকর্ড</h2>
+      <h2>ডেলিভারি ও চেকের রেকর্ড</h2>
       {view.delivery.package ? (
         <ol>
           {view.delivery.package.inspections.map((inspection) => (
@@ -107,7 +107,7 @@ export default async function CasePage({
           ))}
         </ol>
       ) : (
-        <p>বিক্রেতা কোনো সরবরাহ জমা দেননি।</p>
+        <p>সেলার কোনো ডেলিভারি জমা দেননি।</p>
       )}
       <p>
         গোপন ভল্টে যা পাঠানো হয়েছে তা এখানে নেই এবং দেখা সম্ভব নয়: সার্ভার তা কখনো পড়তে পারে
@@ -125,7 +125,7 @@ export default async function CasePage({
       {assessment?.assessment && (
         <>
           <p>
-            নিচেরটি এআই-এর খসড়া। আপনার সিদ্ধান্ত আপনার নিজের পর্যবেক্ষণের ভিত্তিতে হবে;
+            নিচেরটি এআই-এর ড্রাফট। আপনার সিদ্ধান্ত আপনার নিজের পর্যবেক্ষণের ভিত্তিতে হবে;
             এর সাথে একমত হওয়া বাধ্যতামূলক নয়।
           </p>
           <AssessmentSection dealId={view.dealId} view={assessment} readOnly />
@@ -178,7 +178,7 @@ export default async function CasePage({
               </label>
             </fieldset>
             <label>
-              বিক্রেতা পাবেন (টাকা; বাকিটা ক্রেতা পাবেন)
+              সেলার পাবেন (টাকা; বাকিটা বায়ার পাবেন)
               <input
                 name="toSellerTaka"
                 inputMode="decimal"

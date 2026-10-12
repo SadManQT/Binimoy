@@ -14,7 +14,7 @@ import {
 } from "./copy";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "অভিজ্ঞতা জানান · বিনিময়" };
+export const metadata = { title: "এক্সপেরিয়েন্স জানান · বিনিময়" };
 
 export default async function CommunityPage({
   searchParams,
@@ -27,21 +27,21 @@ export default async function CommunityPage({
   const found = q ? await listPublished(pool(), q) : null;
   return (
     <main>
-      <h1>অভিজ্ঞতা জানান</h1>
+      <h1>এক্সপেরিয়েন্স জানান</h1>
       <p>
-        কোনো পেজ বা দোকান থেকে কেনার অভিজ্ঞতা, ভালো বা খারাপ, এখানে লিখতে পারেন। খসড়া শুধু
-        আপনি দেখেন। আপনি অনুমোদন দিলে এবং একজন মডারেটর নিয়ম মিলিয়ে দেখলে তবেই
-        লেখাটি প্রকাশ হয়। প্রকাশ মানে আমরা ঘটনাটি সত্য বলে যাচাই করেছি, তা নয়।
+        কোনো পেজ বা শপ থেকে কেনার এক্সপেরিয়েন্স, ভালো বা খারাপ, এখানে লিখতে পারেন। ড্রাফট শুধু
+        আপনি দেখেন। আপনি অ্যাপ্রুভাল দিলে এবং একজন মডারেটর নিয়ম মিলিয়ে দেখলে তবেই
+        লেখাটি প্রকাশ হয়। প্রকাশ মানে আমরা ঘটনাটি সত্য বলে ভেরিফাই করেছি, তা নয়।
       </p>
       {error ? (
         <p role="alert">{COMMUNITY_ERROR_TEXT[error] ?? "কাজটি করা যায়নি।"}</p>
       ) : null}
 
       <section aria-labelledby="new">
-        <h2 id="new">নতুন খসড়া</h2>
+        <h2 id="new">নতুন ড্রাফট</h2>
         <form action={saveDraftAction}>
           <label>
-            পেজ বা দোকানের নাম
+            পেজ বা শপের নাম
             <input
               name="subject"
               required
@@ -51,7 +51,7 @@ export default async function CommunityPage({
             />
           </label>
           <label>
-            অভিজ্ঞতার ধরন
+            এক্সপেরিয়েন্সের ধরন
             <select name="experienceType" defaultValue="negative">
               {Object.entries(EXPERIENCE_TEXT).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -61,7 +61,7 @@ export default async function CommunityPage({
             </select>
           </label>
           <label>
-            দোকানের ধরন
+            শপের ধরন
             <select name="shopCategory" defaultValue="other">
               {SHOP_CATEGORY_KEYS.map((key) => (
                 <option key={key} value={key}>
@@ -70,7 +70,7 @@ export default async function CommunityPage({
               ))}
             </select>
           </label>
-          <button type="submit">খসড়া শুরু করুন</button>
+          <button type="submit">ড্রাফট শুরু করুন</button>
         </form>
       </section>
 
@@ -91,7 +91,7 @@ export default async function CommunityPage({
       </section>
 
       <section aria-labelledby="find">
-        <h2 id="find">প্রকাশিত অভিজ্ঞতা খুঁজুন</h2>
+        <h2 id="find">পাবলিশড এক্সপেরিয়েন্স খুঁজুন</h2>
         <form method="get">
           <label>
             হুবহু নাম
@@ -101,8 +101,8 @@ export default async function CommunityPage({
         </form>
         {found === null ? null : found.length === 0 ? (
           <p>
-            ঠিক এই নামে কোনো প্রকাশিত অভিজ্ঞতা নেই। এর মানে এই নয় যে কারও কোনো অভিজ্ঞতা
-            নেই।
+            ঠিক এই নামে কোনো পাবলিশড এক্সপেরিয়েন্স নেই। এর মানে এই নয় যে কারও কোনো
+            এক্সপেরিয়েন্স নেই।
           </p>
         ) : (
           <ul>

@@ -4,7 +4,7 @@ import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "নোটিশ · বিনিময়" };
+export const metadata = { title: "নোটিফিকেশন · বিনিময়" };
 
 export default async function NotificationsPage() {
   const user = await requireUser();
@@ -17,13 +17,14 @@ export default async function NotificationsPage() {
       <p>
         <a href="/deals">← আমার ডিল</a>
       </p>
-      <h1>নোটিশ</h1>
+      <h1>নোটিফিকেশন</h1>
       <p>
-        এখানে শুধু জানানো হয় কী ঘটেছে। কোনো নোটিশ থেকে সরাসরি কিছু গ্রহণ বা অনুমোদন করা যায়
-        না; সিদ্ধান্ত নিতে ডিলটি খুলুন। এই সংস্করণে ইমেইল বা এসএমএস নোটিশ পাঠানো হয় না।
+        এখানে শুধু জানানো হয় কী ঘটেছে। কোনো নোটিফিকেশন থেকে সরাসরি কিছু গ্রহণ বা অ্যাপ্রুভাল
+        করা যায় না; সিদ্ধান্ত নিতে ডিলটি খুলুন। এই সংস্করণে ইমেইল বা এসএমএস নোটিফিকেশন
+        পাঠানো হয় না।
       </p>
       {notices.length === 0 ? (
-        <p>এখনো কোনো নোটিশ নেই।</p>
+        <p>এখনো কোনো নোটিফিকেশন নেই।</p>
       ) : (
         <ul data-testid="notices">
           {notices.map((notice) => (

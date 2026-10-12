@@ -9,12 +9,14 @@ test("the front page leads with shop search, and the 3D scene never stands in it
   ).newPage();
   await page.goto("/");
   // INV-15: every page says in words that this is a test build.
-  await expect(page.getByTestId("testbar")).toContainText("কোনো আসল টাকা");
+  await expect(page.getByTestId("testbar")).toContainText(
+    "আসল টাকার লেনদেন হয় না",
+  );
 
   // The still image is there for everyone, before and without any script.
-  const scene = page.getByTestId("vault-scene").first();
+  const scene = page.getByTestId("hero-scene");
   const poster = scene.locator("img");
-  await expect(poster).toHaveAttribute("alt", /সিন্দুক/);
+  await expect(poster).toHaveAttribute("alt", /শপ/);
   expect(
     await poster.evaluate((img: HTMLImageElement) => img.naturalWidth),
   ).toBeGreaterThan(0);
@@ -33,12 +35,62 @@ test("the front page leads with shop search, and the 3D scene never stands in it
   await page.keyboard.press("Tab");
   await expect(page.locator(".skip")).toBeFocused();
   await page.locator('.hero input[name="q"]').fill("Nobody Wrote About This");
-  await page.getByRole("button", { name: "দোকান খুঁজুন" }).first().click();
+  await page.locator(".hero-search button").click();
   await page.waitForURL("**/shops?q=*");
-  await expect(page.locator('input[name="q"]')).toHaveValue(
+  await expect(page.locator('main input[name="q"]')).toHaveValue(
     "Nobody Wrote About This",
   );
   await expect(page.getByTestId("no-shops")).toBeVisible();
+});
+
+test("every feature is one step from the front page, in Bangla and in English", async ({
+  browser,
+}) => {
+  const page = await (
+    await browser.newContext({ viewport: { width: 1280, height: 800 } })
+  ).newPage();
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("lang", "bn");
+  // Six doors into the product, each a real link.
+  const features = page.getByTestId("features").locator("a");
+  await expect(features).toHaveCount(6);
+  expect(
+    await features.evaluateAll((links) =>
+      links.map((a) => new URL((a as HTMLAnchorElement).href).pathname),
+    ),
+  ).toEqual([
+    "/shops",
+    "/alerts",
+    "/community",
+    "/community",
+    "/deals",
+    "/research",
+  ]);
+  // Everyday words, not coinages.
+  await expect(page.locator("h1")).toContainText("সেলারকে");
+  await expect(page.getByTestId("categories").locator("a")).toHaveCount(10);
+
+  // English is a full second language and is remembered.
+  await page.getByTestId("lang-switch").click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("h1")).toContainText("check the seller");
+  await expect(page.getByTestId("testbar")).toContainText("test version");
+  await page.goto("/shops");
+  await expect(page.locator("h1")).toHaveText("Shops and sellers");
+  await page.goto("/alerts");
+  await expect(page.getByTestId("allegation-note")).toContainText(
+    "writer's own claim",
+  );
+  // And back, landing on the same page.
+  await page.getByTestId("lang-switch").click();
+  await expect(page).toHaveURL(/\/alerts$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "bn");
+
+  // On a phone the whole list is in the menu.
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto("/");
+  await page.locator(".menu > summary").click();
+  await expect(page.locator(".menu nav a")).toHaveCount(6);
 });
 
 test("V7-34: at 360 pixels nothing overflows and the search is on the first screen; reduced motion is honoured", async ({
@@ -76,6 +128,8 @@ test("automated accessibility checks find no serious problem on the public pages
 }) => {
   for (const path of ["/", "/shops", "/alerts", "/login"]) {
     await page.goto(path);
+    // Contrast is measured on the settled page, not halfway through a fade.
+    await page.waitForTimeout(800);
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
       .analyze();

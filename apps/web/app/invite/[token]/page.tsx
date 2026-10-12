@@ -5,7 +5,7 @@ import { requireUser } from "../../../lib/session";
 import { acceptInviteAction } from "../../deals/actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "আমন্ত্রণ · বিনিময়" };
+export const metadata = { title: "ইনভাইট · বিনিময়" };
 
 export default async function InvitePage({
   params,
@@ -21,7 +21,7 @@ export default async function InvitePage({
 
   return (
     <main>
-      <h1>ডিলে যোগ দেওয়ার আমন্ত্রণ</h1>
+      <h1>ডিলে যোগ দেওয়ার ইনভাইট</h1>
       {error && <p role="alert">{ERROR_TEXT[error] ?? error}</p>}
       {invite ? (
         <>
@@ -31,8 +31,8 @@ export default async function InvitePage({
             আপনি যোগ দেবেন: <strong>{ROLE_TEXT[invite.role]}</strong> হিসেবে
           </p>
           <p>
-            যোগ দিলে আপনি চুক্তির খসড়া দেখতে পাবেন। যোগ দেওয়া মানে শর্তে সম্মতি নয়;
-            সম্মতি আলাদা ধাপ।
+            যোগ দিলে আপনি ডিলের ড্রাফট দেখতে পাবেন। যোগ দেওয়া মানে শর্তে কনসেন্ট নয়;
+            কনসেন্ট আলাদা ধাপ।
           </p>
           <form action={acceptInviteAction}>
             <input type="hidden" name="token" value={token} />

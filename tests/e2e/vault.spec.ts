@@ -81,14 +81,14 @@ test("a seller's secret reaches the buyer encrypted end to end", async ({
   const declarations = submit.locator('input[name="declared"]');
   await declarations.nth(0).check();
   await declarations.nth(1).check();
-  await act(seller, submit.getByRole("button", { name: "সরবরাহ জমা দিন" }));
+  await act(seller, submit.getByRole("button", { name: "ডেলিভারি জমা দিন" }));
   await expect(seller.getByTestId("inspection-key_delivered")).toHaveText("পাস");
   // Submitting moved no money.
   await expect(seller.getByTestId("settlement")).toHaveCount(0);
 
   // The buyer cannot accept until their own checks pass.
   await buyer.goto(dealUrl);
-  await click(buyer, "এই সরবরাহ গ্রহণ করুন");
+  await click(buyer, "এই ডেলিভারি গ্রহণ করুন");
   await expect(buyer.locator('main [role="alert"]')).toContainText(
     "সব আবশ্যক অংশ",
   );
@@ -101,7 +101,7 @@ test("a seller's secret reaches the buyer encrypted end to end", async ({
     "পাস",
   );
 
-  await click(buyer, "এই সরবরাহ গ্রহণ করুন");
+  await click(buyer, "এই ডেলিভারি গ্রহণ করুন");
   await expect(buyer.getByTestId("settlement")).toBeVisible();
 
   // The worker dispatches the payout; the page reports what the ledger says.

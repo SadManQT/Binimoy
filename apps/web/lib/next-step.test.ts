@@ -23,14 +23,14 @@ const done = (snapshot: DealSnapshot) =>
 test("each side is told its own next action, never the other side's", () => {
   expect(
     nextStep({ ...base, parties: 1, agreementState: "DRAFT" }).text,
-  ).toMatch(/আমন্ত্রণ/);
+  ).toMatch(/ইনভাইট/);
   const waiting = {
     ...base,
     agreementState: "AWAITING_ACCEPTANCE",
     funded: false,
   };
   expect(nextStep({ ...waiting, acceptedByMe: false }).text).toMatch(
-    /সম্মতি দিন/,
+    /কনসেন্ট দিন/,
   );
   expect(nextStep({ ...waiting, acceptedByMe: true }).text).toMatch(
     /অন্য পক্ষের/,
@@ -38,10 +38,12 @@ test("each side is told its own next action, never the other side's", () => {
   const unfunded = { ...base, funded: false };
   expect(nextStep(unfunded).text).toMatch(/টাকা জমা দিন/);
   expect(nextStep({ ...unfunded, myRole: "seller" }).text).toMatch(/অপেক্ষা/);
-  expect(nextStep({ ...base, myRole: "seller" }).text).toMatch(/সরবরাহ জমা দিন/);
+  expect(nextStep({ ...base, myRole: "seller" }).text).toMatch(
+    /ডেলিভারি জমা দিন/,
+  );
   expect(nextStep(base).text).toMatch(/অপেক্ষা/);
   const checking = { ...base, package: pkg(["PASSED", "PENDING"]) };
-  expect(nextStep(checking).text).toMatch(/পরীক্ষা করুন/);
+  expect(nextStep(checking).text).toMatch(/চেক করুন/);
   expect(nextStep({ ...checking, myRole: "seller" }).text).toMatch(/অপেক্ষা/);
   expect(
     nextStep({ ...base, package: pkg(["PASSED", "PASSED"]) }).text,
@@ -78,7 +80,7 @@ test("C36.3: a transfer that is not final is never described as complete", () =>
 test("an open dispute comes before everything else, and a failed or unknown check is not progress", () => {
   expect(
     nextStep({ ...base, package: pkg(["PASSED"]), disputeOpen: true }).text,
-  ).toMatch(/বিরোধ/);
+  ).toMatch(/ডিসপিউট/);
   expect(done({ ...base, package: pkg(["PASSED", "UNKNOWN"]) })).toEqual([
     "agreed",
     "funded",

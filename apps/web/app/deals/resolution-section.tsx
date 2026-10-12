@@ -21,11 +21,11 @@ export function DecisionText({ decision }: { decision: Decision }) {
     <div data-testid="decision">
       <p>
         <strong>
-          {decision.kind === "appeal" ? "আপিলের সিদ্ধান্ত" : "পর্যালোচকের সিদ্ধান্ত"}:
+          {decision.kind === "appeal" ? "আপিলের সিদ্ধান্ত" : "রিভিউয়ারের সিদ্ধান্ত"}:
         </strong>{" "}
         {decision.outcome === "UNRESOLVED"
-          ? "তথ্য দিয়ে বিষয়টি নিষ্পত্তি করা যায়নি; অমীমাংসিত।"
-          : `বিক্রেতা ${formatBdt(decision.toSellerMinor)}, ক্রেতা ${formatBdt(decision.toBuyerMinor)}`}
+          ? "তথ্য দিয়ে বিষয়টি সেটেলমেন্ট করা যায়নি; অমীমাংসিত।"
+          : `সেলার ${formatBdt(decision.toSellerMinor)}, বায়ার ${formatBdt(decision.toBuyerMinor)}`}
       </p>
       <dl>
         <dt>যে নিয়ম প্রয়োগ হয়েছে</dt>
@@ -65,7 +65,7 @@ export function ResolutionSection({
       <h3>মীমাংসা</h3>
       {dispute && (
         <p>
-          বিরোধের অবস্থা:{" "}
+          ডিসপিউটের অবস্থা:{" "}
           <strong data-testid="dispute-state">
             {DISPUTE_TEXT[dispute.state] ?? dispute.state}
           </strong>
@@ -88,7 +88,7 @@ export function ResolutionSection({
           {dispute.appealable && (
             <form action={appealAction}>
               {hidden}
-              <p>আপিল করলে টাকা আটকে থাকবে এবং ভিন্ন একজন পর্যালোচক বিষয়টি দেখবেন।</p>
+              <p>আপিল করলে টাকা আটকে থাকবে এবং ভিন্ন একজন রিভিউয়ার বিষয়টি দেখবেন।</p>
               <button type="submit">আপিল করুন</button>
             </form>
           )}
@@ -112,26 +112,26 @@ export function ResolutionSection({
       {dispute?.state === "OPEN" &&
         (mode === "ai_only" ? (
           <p>
-            এই ডিল শুধু-এআই ধরনে, তাই মানব পর্যালোচনা নেই। দুই পক্ষ নিচে সম্মত বণ্টন করতে
-            পারেন। তা না হলে বিরোধটি ৭ দিন পর অমীমাংসিত হিসেবে বন্ধ হবে এবং টাকা আটকে
+            এই ডিল শুধু-এআই ধরনে, তাই হিউম্যান রিভিউ নেই। দুই পক্ষ নিচে সম্মত বণ্টন করতে
+            পারেন। তা না হলে ডিসপিউটটি ৭ দিন পর অমীমাংসিত হিসেবে বন্ধ হবে এবং টাকা আটকে
             থাকবে।
           </p>
         ) : (
           <form action={requestReviewAction}>
             {hidden}
             <p>
-              পর্যালোচক চাইলে বিষয়টি সারিতে যাবে। কখন কেউ দায়িত্ব নেবেন তার নিশ্চয়তা দেওয়া
+              রিভিউয়ার চাইলে বিষয়টি সারিতে যাবে। কখন কেউ দায়িত্ব নেবেন তার নিশ্চয়তা দেওয়া
               হচ্ছে না; সারিতে থাকা মানে কাউকে দেওয়া হয়ে যাওয়া নয়।
             </p>
-            <button type="submit">মানব পর্যালোচনা চাই</button>
+            <button type="submit">হিউম্যান রিভিউ চাই</button>
           </form>
         ))}
 
       {dispute?.state === "UNRESOLVED_CLOSED" && (
         <form action={reopenDisputeAction}>
           {hidden}
-          <p>নতুন গুরুত্বপূর্ণ প্রমাণ থাকলে বিরোধটি আবার খোলা যায়।</p>
-          <button type="submit">বিরোধ আবার খুলুন</button>
+          <p>নতুন গুরুত্বপূর্ণ প্রমাণ থাকলে ডিসপিউটটি আবার খোলা যায়।</p>
+          <button type="submit">ডিসপিউট আবার খুলুন</button>
         </form>
       )}
 
@@ -145,7 +145,7 @@ export function ResolutionSection({
           {proposal && (
             <div data-testid="proposal">
               <p>
-                খোলা প্রস্তাব: বিক্রেতা {formatBdt(proposal.toSellerMinor)}, ক্রেতা{" "}
+                খোলা প্রস্তাব: সেলার {formatBdt(proposal.toSellerMinor)}, বায়ার{" "}
                 {formatBdt(proposal.toBuyerMinor)}
               </p>
               {proposal.proposedByMe ? (
@@ -166,7 +166,7 @@ export function ResolutionSection({
           <form action={proposeResolutionAction}>
             {hidden}
             <label>
-              বিক্রেতা পাবেন (টাকা; বাকিটা ক্রেতা ফেরত পাবেন)
+              সেলার পাবেন (টাকা; বাকিটা বায়ার ফেরত পাবেন)
               <input
                 name="toSellerTaka"
                 required

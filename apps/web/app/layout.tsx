@@ -1,12 +1,17 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
-import { Anek_Bangla, Hind_Siliguri } from "next/font/google";
+import {
+  Anek_Bangla,
+  Hind_Siliguri,
+  Plus_Jakarta_Sans,
+} from "next/font/google";
 import type { ReactNode } from "react";
+import { getI18n } from "../lib/i18n";
 import { getShell } from "../lib/shell";
-import { SiteHeader } from "./components/site-header";
+import { SiteFooter, SiteHeader } from "./components/site-header";
 
-// Bengali first: a display face with character for headings, and a body face
-// chosen for long reading at small sizes. Both carry Latin for mixed text.
+// Bangla: a display face with character for headings, and a body face chosen
+// for long reading at small sizes. English: one clean face for both.
 const anek = Anek_Bangla({
   subsets: ["bengali", "latin"],
   variable: "--font-anek",
@@ -18,47 +23,45 @@ const hind = Hind_Siliguri({
   variable: "--font-hind",
   display: "swap",
 });
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
 
-export const metadata: Metadata = {
-  title: "বিনিময়",
-  description:
-    "ডিজিটাল পণ্যের দোকান ও বিক্রেতা সম্পর্কে অন্যদের অভিজ্ঞতা, প্রকাশিত অভিযোগ ও সতর্কতা। পরীক্ষামূলক সংস্করণ।",
-};
-export const viewport: Viewport = { themeColor: "#0a1013" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return {
+    title: t.brand,
+    description: `${t.home.title} ${t.home.titleMark}. ${t.home.sub}`,
+  };
+}
+export const viewport: Viewport = { themeColor: "#070b18" };
 
 export default async function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const shell = await getShell();
+  const [shell, i18n] = await Promise.all([getShell(), getI18n()]);
   return (
-    <html lang="bn" className={`${anek.variable} ${hind.variable}`}>
+    <html
+      lang={i18n.locale}
+      className={`${anek.variable} ${hind.variable} ${jakarta.variable}`}
+    >
       <body>
         <a className="skip" href="#content">
-          মূল অংশে যান
+          {i18n.t.skip}
         </a>
         {/* INV-15: stated on every page, in words. */}
         <p className="testbar" data-testid="testbar">
-          পরীক্ষামূলক সংস্করণ। এখানে কোনো আসল টাকা লেনদেন হয় না, এবং বিনিময় কোনো দোকানকে
-          যাচাই বা সুপারিশ করে না।
+          {i18n.t.testbar}
         </p>
-        <SiteHeader shell={shell} />
+        <SiteHeader shell={shell} i18n={i18n} />
         <div id="content" className="content">
           {children}
         </div>
-        <footer className="site-footer">
-          <div>
-            <p>
-              বিনিময় অন্যদের লেখা অভিজ্ঞতা ও অভিযোগ দেখায়। প্রকাশিত লেখা লেখকের নিজের
-              বক্তব্য; প্রকাশ মানে বিনিময় ঘটনাটি সত্য বলে যাচাই করেছে, তা নয়।
-            </p>
-            <p>
-              <a href="/shops">দোকান</a> · <a href="/alerts">সতর্কতা</a> ·{" "}
-              <a href="/community">অভিজ্ঞতা লিখুন</a> · <a href="/deals">ডিল</a>
-            </p>
-          </div>
-        </footer>
+        <SiteFooter shell={shell} i18n={i18n} />
       </body>
     </html>
   );

@@ -17,7 +17,7 @@ test("the deal room needs consent, keeps edit history and refuses a pasted passw
   await expect(room.locator('input[name="body"]')).toHaveCount(0);
   await expect(room.getByTestId("ai-may-read")).toContainText("না");
 
-  await click(buyer, "সম্মতি দিচ্ছি");
+  await click(buyer, "কনসেন্ট দিচ্ছি");
   await buyer
     .getByTestId("conversation")
     .locator('input[name="body"]')
@@ -33,7 +33,7 @@ test("the deal room needs consent, keeps edit history and refuses a pasted passw
   await expect(
     seller.getByTestId("conversation").locator('input[name="body"]'),
   ).toHaveCount(0);
-  await click(seller, "সম্মতি দিচ্ছি");
+  await click(seller, "কনসেন্ট দিচ্ছি");
   await expect(seller.getByTestId("ai-may-read")).toContainText("হ্যাঁ");
 
   // A password typed into the room is refused and does not appear.
@@ -71,7 +71,7 @@ test("the deal room needs consent, keeps edit history and refuses a pasted passw
   }).toPass({ timeout: 120_000 });
   const summary = buyer.getByTestId("assessment");
   await expect(summary).toContainText("প্রস্তাব, সিদ্ধান্ত নয়");
-  await expect(summary).toContainText("পরীক্ষামূলক নকল মডেল");
+  await expect(summary).toContainText("টেস্ট মডেল");
   await expect(buyer.getByTestId("assessment-stale")).toHaveCount(0);
 
   // A new message makes that summary out of date, and the page says so.

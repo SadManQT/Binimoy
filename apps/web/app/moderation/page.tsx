@@ -102,9 +102,9 @@ export default async function ModerationPage({
       )}
 
       <section aria-labelledby="alerts">
-        <h2 id="alerts">সাধারণ সতর্কবার্তা</h2>
+        <h2 id="alerts">সাধারণ ওয়ার্নিং</h2>
         <p>
-          একটি ধরনের প্রতারণার কৌশল নিয়ে সাধারণ সতর্কতা, যা “সতর্কতা” পাতায় সবার উপরে দেখায়।
+          একটি ধরনের প্রতারণার কৌশল নিয়ে সাধারণ অ্যালার্ট, যা “অ্যালার্ট” পাতায় সবার উপরে দেখায়।
           এটি আপনার নামে রেকর্ড হয়। নির্দিষ্ট কাউকে দোষী বলবেন না; ফোন নম্বর বা অ্যাকাউন্ট
           নম্বর লিখবেন না। বদলানো যায় না, শুধু তুলে নেওয়া যায়।
         </p>
@@ -114,10 +114,10 @@ export default async function ModerationPage({
             <input name="title" required minLength={8} maxLength={120} />
           </label>
           <label>
-            সতর্কবার্তা
+            ওয়ার্নিং
             <textarea name="body" required minLength={40} maxLength={2000} />
           </label>
-          <button type="submit">সতর্কবার্তা প্রকাশ করুন</button>
+          <button type="submit">ওয়ার্নিং প্রকাশ করুন</button>
         </form>
         {notes.length > 0 && (
           <ul className="rows" data-testid="live-notes">

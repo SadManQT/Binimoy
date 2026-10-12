@@ -15,7 +15,7 @@ export default async function DealsPage() {
     <main className="wide">
       <div className="page-head">
         <h1>আমার ডিল</h1>
-        <p>ধাপে ধাপে যাচাই করে লেনদেন। সব টাকা পরীক্ষামূলক (নকল)।</p>
+        <p>ধাপে ধাপে ভেরিফাই করে লেনদেন। সব টাকা টেস্ট।</p>
       </div>
       <div className="actions">
         <a className="button" href="/deals/new">
@@ -26,7 +26,8 @@ export default async function DealsPage() {
           href="/notifications"
           data-testid="notices-link"
         >
-          নোটিশ{unseen > 0 ? ` (${unseen.toLocaleString("bn-BD")}টি নতুন)` : ""}
+          নোটিফিকেশন
+          {unseen > 0 ? ` (${unseen.toLocaleString("bn-BD")}টি নতুন)` : ""}
         </a>
       </div>
       {deals.length === 0 ? (

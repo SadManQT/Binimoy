@@ -58,7 +58,7 @@ export function TermsFields({
         ))}
       </fieldset>
       <fieldset>
-        <legend>পণ্যের সঠিক পরিচয়</legend>
+        <legend>প্রোডাক্টের সঠিক পরিচয়</legend>
         {template.fields.map((field) => (
           <label key={field.key}>
             {field.label.bn}

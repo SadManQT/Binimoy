@@ -76,7 +76,7 @@ const softwareLicense: Template = {
     en: "Software license or activation key",
   },
   fields: [
-    { key: "product", label: { bn: "পণ্য", en: "Product" }, required: true },
+    { key: "product", label: { bn: "প্রোডাক্ট", en: "Product" }, required: true },
     { key: "edition", label: { bn: "সংস্করণ", en: "Edition" }, required: true },
     { key: "region", label: { bn: "অঞ্চল", en: "Region" }, required: true },
     { key: "duration", label: { bn: "মেয়াদ", en: "Duration" }, required: true },
@@ -97,13 +97,13 @@ const softwareLicense: Template = {
   items: [
     item(
       "license_identity",
-      "পণ্য, সংস্করণ, অঞ্চল, মেয়াদ ও ডিভাইস সীমা চুক্তির সাথে মেলে",
+      "প্রোডাক্ট, সংস্করণ, অঞ্চল, মেয়াদ ও ডিভাইস সীমা ডিলের সাথে মেলে",
       "Product, edition, region, duration and device limit match the agreement",
       "seller_declares",
     ),
     item(
       "distribution_rights",
-      "বিক্রেতার বিতরণের অধিকার ও উৎসের রেকর্ড",
+      "সেলারের বিতরণের অধিকার ও উৎসের রেকর্ড",
       "Seller's distribution rights and source record",
       "seller_declares",
     ),
@@ -116,7 +116,7 @@ const softwareLicense: Template = {
     ),
     item(
       "activation_works",
-      "চুক্তির অ্যাকাউন্ট বা ডিভাইসে অ্যাক্টিভেশন সফল",
+      "ডিলের অ্যাকাউন্ট বা ডিভাইসে অ্যাক্টিভেশন সফল",
       "Activation succeeds on the agreed account or device",
       "buyer_confirms",
       { dependsOn: ["key_delivered"] },
@@ -179,7 +179,7 @@ const digitalFiles: Template = {
     {
       key: "required_functions",
       label: {
-        bn: "যে নির্দিষ্ট কাজগুলো পরীক্ষা করা হবে",
+        bn: "যে নির্দিষ্ট কাজগুলো চেক করা হবে",
         en: "Specific functions to be tested",
       },
       required: true,
@@ -188,7 +188,7 @@ const digitalFiles: Template = {
   items: [
     item(
       "manifest_agreed",
-      "ফাইলের তালিকা, ফরম্যাট ও বর্ণনা চুক্তির সাথে মেলে",
+      "ফাইলের তালিকা, ফরম্যাট ও বর্ণনা ডিলের সাথে মেলে",
       "File manifest, formats and description match the agreement",
       "seller_declares",
     ),
@@ -221,14 +221,14 @@ const digitalFiles: Template = {
     ),
     item(
       "functions_tested",
-      "চুক্তিতে লেখা কাজগুলো পরীক্ষায় চলে",
+      "ডিলে লেখা কাজগুলো চেকয় চলে",
       "The functions named in the agreement work when tested",
       "buyer_confirms",
       { dependsOn: ["files_open"] },
     ),
     item(
       "subjective_quality",
-      "নান্দনিক মান নিয়ে ক্রেতার মত",
+      "নান্দনিক মান নিয়ে বায়ারের মত",
       "Buyer's opinion of creative quality",
       "buyer_confirms",
       { mandatory: false, subjective: true },
@@ -253,7 +253,7 @@ const accountTransfer: Template = {
   version: 1,
   categoryId: "CAT-01",
   name: {
-    bn: "অনুমোদিত অ্যাকাউন্ট বা ওয়ার্কস্পেস হস্তান্তর (পরীক্ষামূলক)",
+    bn: "অনুমোদিত অ্যাকাউন্ট বা ওয়ার্কস্পেস হস্তান্তর (টেস্ট)",
     en: "Permitted account or workspace transfer (synthetic)",
   },
   fields: [
@@ -315,7 +315,7 @@ const accountTransfer: Template = {
     ),
     item(
       "recovery_with_buyer",
-      "রিকভারি ইমেইল ও ফোন ক্রেতার নিয়ন্ত্রণে, বিক্রেতারটি সরানো",
+      "রিকভারি ইমেইল ও ফোন বায়ারের নিয়ন্ত্রণে, সেলারেরটি সরানো",
       "Recovery channels are the buyer's; the seller's are removed",
       "mock_account.recovery_controlled_by_buyer",
       { dependsOn: ["ownership_transferred"] },
@@ -323,7 +323,7 @@ const accountTransfer: Template = {
     // The buyer sets these at the provider. They are never typed into Binimoy.
     item(
       "buyer_own_credentials",
-      "ক্রেতা প্রোভাইডারে নিজের নতুন পাসওয়ার্ড ও MFA বসিয়েছেন",
+      "বায়ার প্রোভাইডারে নিজের নতুন পাসওয়ার্ড ও MFA বসিয়েছেন",
       "Buyer set their own new password and MFA at the provider",
       "buyer_confirms",
       { dependsOn: ["ownership_transferred"] },
@@ -337,21 +337,21 @@ const accountTransfer: Template = {
     ),
     item(
       "assets_present",
-      "চুক্তিতে লেখা সম্পদ ও অনুমতি আছে",
+      "ডিলে লেখা সম্পদ ও অনুমতি আছে",
       "Assets and permissions listed in the agreement are present",
       "buyer_confirms",
       { dependsOn: ["ownership_transferred"] },
     ),
     item(
       "fresh_login",
-      "নতুন ডিভাইস থেকে ক্রেতার লগইন ও প্রয়োজনীয় কাজ চলে",
+      "নতুন ডিভাইস থেকে বায়ারের লগইন ও প্রয়োজনীয় কাজ চলে",
       "Fresh buyer login and required capabilities work",
       "buyer_confirms",
       { dependsOn: ["buyer_own_credentials"] },
     ),
     item(
       "seller_data_removed",
-      "বিক্রেতার ব্যক্তিগত তথ্য ও পেমেন্ট পদ্ধতি সরানো",
+      "সেলারের ব্যক্তিগত তথ্য ও পেমেন্ট পদ্ধতি সরানো",
       "Seller's personal data and payment methods removed",
       "seller_declares",
       { mandatory: false },
@@ -369,7 +369,7 @@ const accountTransfer: Template = {
       en: "A password change does not prove permanent control; a provider may restore the account to its original owner.",
     },
     {
-      bn: "এটি পরীক্ষামূলক নকল প্রোভাইডার; বাস্তব প্রোভাইডারে একই যাচাই পাওয়া যাবে এমন দাবি নয়।",
+      bn: "এটি টেস্ট প্রোভাইডার; বাস্তব প্রোভাইডারে একই ভেরিফাই পাওয়া যাবে এমন দাবি নয়।",
       en: "This uses a synthetic mock provider; it is not a claim that a real provider offers the same checks.",
     },
   ],
@@ -382,7 +382,7 @@ const field = (key: string, bn: string, en: string, required = true) => ({
 });
 const risk = (bn: string, en: string) => ({ bn, en });
 const SYNTHETIC = risk(
-  "এটি পরীক্ষামূলক নকল প্রোভাইডার; বাস্তব প্রোভাইডারে একই যাচাই পাওয়া যাবে এমন দাবি নয়।",
+  "এটি টেস্ট প্রোভাইডার; বাস্তব প্রোভাইডারে একই ভেরিফাই পাওয়া যাবে এমন দাবি নয়।",
   "This uses a synthetic mock provider; it is not a claim that a real provider offers the same checks.",
 );
 const template = (
@@ -399,7 +399,7 @@ const gameAccount = template({
   templateId: "game_account",
   categoryId: "CAT-02",
   name: {
-    bn: "গেম অ্যাকাউন্ট হস্তান্তর (পরীক্ষামূলক)",
+    bn: "গেম অ্যাকাউন্ট হস্তান্তর (টেস্ট)",
     en: "Game account transfer (synthetic)",
   },
   fields: [
@@ -425,7 +425,7 @@ const gameAccount = template({
     ),
     item(
       "attributes_match",
-      "র‍্যাঙ্ক ও ইনভেন্টরি প্রকাশকের রেকর্ডে চুক্তির সাথে মেলে",
+      "র‍্যাঙ্ক ও ইনভেন্টরি প্রকাশকের রেকর্ডে ডিলের সাথে মেলে",
       "Rank and inventory match the agreement in the publisher's record",
       "mock_game.attributes_match",
       { dependsOn: ["account_identity"] },
@@ -452,28 +452,28 @@ const gameAccount = template({
     ),
     item(
       "recovery_with_buyer",
-      "রিকভারি ইমেইল ও ফোন ক্রেতার নিয়ন্ত্রণে",
+      "রিকভারি ইমেইল ও ফোন বায়ারের নিয়ন্ত্রণে",
       "Recovery email and phone are the buyer's",
       "mock_account.recovery_controlled_by_buyer",
       { dependsOn: ["ownership_transferred"] },
     ),
     item(
       "buyer_own_credentials",
-      "ক্রেতা প্রকাশকের কাছে নিজের নতুন পাসওয়ার্ড ও MFA বসিয়েছেন",
+      "বায়ার প্রকাশকের কাছে নিজের নতুন পাসওয়ার্ড ও MFA বসিয়েছেন",
       "Buyer set their own new password and MFA at the publisher",
       "buyer_confirms",
       { dependsOn: ["ownership_transferred"] },
     ),
     item(
       "linked_accounts_removed",
-      "বিক্রেতার সংযুক্ত প্রকাশক অ্যাকাউন্ট ও সেশন সরানো",
+      "সেলারের সংযুক্ত প্রকাশক অ্যাকাউন্ট ও সেশন সরানো",
       "Seller's linked publisher accounts and sessions removed",
       "mock_account.prior_sessions_revoked",
       { dependsOn: ["buyer_own_credentials"] },
     ),
     item(
       "inventory_seen",
-      "ক্রেতা লগইন করে প্রতিশ্রুত ইনভেন্টরি দেখেছেন",
+      "বায়ার লগইন করে প্রতিশ্রুত ইনভেন্টরি দেখেছেন",
       "Buyer logged in and saw the promised inventory",
       "buyer_confirms",
       { dependsOn: ["buyer_own_credentials"] },
@@ -498,7 +498,7 @@ const topUp = template({
   templateId: "game_topup",
   categoryId: "CAT-03",
   name: {
-    bn: "গেম টপ-আপ ও ক্রেডিট (পরীক্ষামূলক)",
+    bn: "গেম টপ-আপ ও ক্রেডিট (টেস্ট)",
     en: "Game top-ups and credits (synthetic)",
   },
   fields: [
@@ -511,34 +511,34 @@ const topUp = template({
   items: [
     item(
       "supplier_authorized",
-      "সরবরাহকারী অনুমোদিত এবং অর্ডার আইডি আছে",
+      "ডেলিভারিকারী অনুমোদিত এবং অর্ডার আইডি আছে",
       "Supplier is authorized and an order ID exists",
       "mock_topup.supplier_authorized",
     ),
     item(
       "fulfilled_to_destination",
-      "সরবরাহকারীর রেকর্ডে টপ-আপ ঠিক চুক্তির প্লেয়ার আইডিতে গেছে",
+      "ডেলিভারিকারীর রেকর্ডে টপ-আপ ঠিক ডিলের প্লেয়ার আইডিতে গেছে",
       "Supplier's record shows fulfillment to exactly the agreed player ID",
       "mock_topup.fulfilled_to_destination",
       { dependsOn: ["supplier_authorized"] },
     ),
     item(
       "quantity_matches",
-      "পাঠানো পরিমাণ চুক্তির সাথে মেলে, এবং অর্ডারটি একবারই পূরণ হয়েছে",
+      "পাঠানো পরিমাণ ডিলের সাথে মেলে, এবং অর্ডারটি একবারই পূরণ হয়েছে",
       "Quantity sent matches the agreement and the order was fulfilled once",
       "mock_topup.quantity_matches",
       { dependsOn: ["fulfilled_to_destination"] },
     ),
     item(
       "order_reference",
-      "বিক্রেতা অর্ডারের রেফারেন্স দিয়েছেন",
+      "সেলার অর্ডারের রেফারেন্স দিয়েছেন",
       "Seller gave the order reference",
       "seller_declares",
       { mandatory: false },
     ),
     item(
       "balance_seen",
-      "ক্রেতা গেমে ব্যালেন্স দেখেছেন",
+      "বায়ার গেমে ব্যালেন্স দেখেছেন",
       "Buyer saw the balance in the game",
       "buyer_confirms",
       { mandatory: false },
@@ -552,7 +552,7 @@ const topUp = template({
       "A top-up sent to a wrong ID cannot be reversed. Check the player ID before funding.",
     ),
     risk(
-      "বিক্রেতা 'পাঠিয়েছি' বললেই হবে না; সরবরাহকারীর রেকর্ড চুক্তির আইডির সাথে না মিললে তালিকা অসম্পূর্ণ থাকে।",
+      "সেলার 'পাঠিয়েছি' বললেই হবে না; ডেলিভারিকারীর রেকর্ড ডিলের আইডির সাথে না মিললে তালিকা অসম্পূর্ণ থাকে।",
       "A seller saying 'sent' is not enough; if the supplier's record does not match the agreed ID the checklist stays incomplete.",
     ),
     SYNTHETIC,
@@ -563,7 +563,7 @@ const saas = template({
   templateId: "saas_subscription",
   categoryId: "CAT-05",
   name: {
-    bn: "সাবস্ক্রিপশন বা SaaS অ্যাক্সেস (পরীক্ষামূলক)",
+    bn: "সাবস্ক্রিপশন বা SaaS অ্যাক্সেস (টেস্ট)",
     en: "Subscription or SaaS access (synthetic)",
   },
   fields: [
@@ -575,20 +575,20 @@ const saas = template({
     field("renewal", "নবায়নের নিয়ম", "Renewal behavior"),
     field(
       "buyer_account",
-      "ক্রেতার নিজের অ্যাকাউন্ট বা ওয়ার্কস্পেস",
+      "বায়ারের নিজের অ্যাকাউন্ট বা ওয়ার্কস্পেস",
       "Buyer's own account or workspace",
     ),
   ],
   items: [
     item(
       "plan_matches",
-      "প্রোভাইডারের রেকর্ডে প্ল্যান, মেয়াদ ও আসন সংখ্যা চুক্তির সাথে মেলে",
+      "প্রোভাইডারের রেকর্ডে প্ল্যান, মেয়াদ ও আসন সংখ্যা ডিলের সাথে মেলে",
       "Provider's record shows the agreed plan, duration and seat count",
       "mock_saas.plan_matches",
     ),
     item(
       "fulfilled_into_buyer_account",
-      "এনটাইটেলমেন্ট ক্রেতার নিজের অ্যাকাউন্টে, সঠিক ভূমিকাসহ",
+      "এনটাইটেলমেন্ট বায়ারের নিজের অ্যাকাউন্টে, সঠিক ভূমিকাসহ",
       "Entitlement is in the buyer's own account with the correct role",
       "mock_saas.role_and_seats",
       { dependsOn: ["plan_matches"] },
@@ -601,20 +601,20 @@ const saas = template({
     ),
     item(
       "admin_removal_disclosed",
-      "বাইরের কোনো অ্যাডমিন পরে ক্রেতাকে সরাতে পারেন কি না জানানো হয়েছে",
+      "বাইরের কোনো অ্যাডমিন পরে বায়ারকে সরাতে পারেন কি না জানানো হয়েছে",
       "Whether an external administrator can later remove the buyer is disclosed",
       "seller_declares",
     ),
     item(
       "access_usable",
-      "ক্রেতা লগইন করে প্রতিশ্রুত ফিচার ব্যবহার করতে পারছেন",
+      "বায়ার লগইন করে প্রতিশ্রুত ফিচার ব্যবহার করতে পারছেন",
       "Buyer can log in and use the promised features",
       "buyer_confirms",
       { dependsOn: ["fulfilled_into_buyer_account"] },
     ),
     item(
       "dates_confirmed",
-      "শুরুর ও শেষের তারিখ ক্রেতা মিলিয়ে দেখেছেন",
+      "শুরুর ও শেষের তারিখ বায়ার মিলিয়ে দেখেছেন",
       "Buyer checked the effective start and end dates",
       "buyer_confirms",
       { dependsOn: ["access_usable"] },
@@ -633,7 +633,7 @@ const giftCard = template({
   templateId: "gift_card",
   categoryId: "CAT-06",
   name: {
-    bn: "গিফট কার্ড বা ভাউচার (পরীক্ষামূলক)",
+    bn: "গিফট কার্ড বা ভাউচার (টেস্ট)",
     en: "Gift card or voucher (synthetic)",
   },
   fields: [
@@ -666,7 +666,7 @@ const giftCard = template({
     ),
     item(
       "redeemed_by_buyer",
-      "ক্রেতা নিজের অ্যাকাউন্টে কোড ব্যবহার করতে পেরেছেন",
+      "বায়ার নিজের অ্যাকাউন্টে কোড ব্যবহার করতে পেরেছেন",
       "Buyer redeemed the code on their own account",
       "buyer_confirms",
       { dependsOn: ["code_delivered"] },
@@ -674,7 +674,7 @@ const giftCard = template({
   ],
   residualRisks: [
     risk(
-      "কোড দেখা মানে ব্যবহার করা নয়। ইস্যুকারী যাচাই না করতে পারলে ফল 'অজানা' থাকে, স্বয়ংক্রিয় মীমাংসা হয় না।",
+      "কোড দেখা মানে ব্যবহার করা নয়। ইস্যুকারী ভেরিফাই না করতে পারলে ফল 'অজানা' থাকে, স্বয়ংক্রিয় মীমাংসা হয় না।",
       "Viewing a code is not redeeming it. If the issuer cannot verify, the result stays unknown and nothing is resolved automatically.",
     ),
     SYNTHETIC,
@@ -685,7 +685,7 @@ const sourceCode = template({
   templateId: "source_code",
   categoryId: "CAT-08",
   name: {
-    bn: "সফটওয়্যার বা সোর্স কোড প্রকল্প (পরীক্ষামূলক)",
+    bn: "সফটওয়্যার বা সোর্স কোড প্রকল্প (টেস্ট)",
     en: "Software or source-code project (synthetic)",
   },
   fields: [
@@ -697,7 +697,7 @@ const sourceCode = template({
       "বিল্ডের নির্দেশনা ও নির্ভরতা",
       "Build instructions and dependencies",
     ),
-    field("functional_tests", "যে কাজগুলো পরীক্ষা হবে", "Agreed functional tests"),
+    field("functional_tests", "যে কাজগুলো চেক হবে", "Agreed functional tests"),
     field("license", "লাইসেন্স ও অধিকার", "License rights"),
     field(
       "support_scope",
@@ -708,7 +708,7 @@ const sourceCode = template({
   items: [
     item(
       "manifest_agreed",
-      "সংস্করণ ও ফাইলের তালিকা চুক্তির সাথে মেলে",
+      "সংস্করণ ও ফাইলের তালিকা ডিলের সাথে মেলে",
       "Version and file manifest match the agreement",
       "seller_declares",
     ),
@@ -720,7 +720,7 @@ const sourceCode = template({
     ),
     item(
       "secrets_removed",
-      "বিক্রেতার গোপন কি ও তৃতীয় পক্ষের ক্রেডেনশিয়াল সরানো",
+      "সেলারের গোপন কি ও তৃতীয় পক্ষের ক্রেডেনশিয়াল সরানো",
       "Seller secrets and third-party credentials removed",
       "seller_declares",
     ),
@@ -733,14 +733,14 @@ const sourceCode = template({
     ),
     item(
       "build_and_tests",
-      "আলাদা পরিবেশে বিল্ড ও সম্মত পরীক্ষা পাস করেছে",
+      "আলাদা পরিবেশে বিল্ড ও সম্মত চেক পাস করেছে",
       "Build and agreed tests pass in an isolated environment",
       "mock_build.tests_pass",
       { dependsOn: ["archive_delivered"] },
     ),
     item(
       "builds_for_buyer",
-      "ক্রেতার পরিবেশে নির্দেশনা মেনে বিল্ড হয়",
+      "বায়ারের পরিবেশে নির্দেশনা মেনে বিল্ড হয়",
       "Builds in the buyer's environment following the instructions",
       "buyer_confirms",
       { dependsOn: ["archive_delivered"] },
@@ -762,11 +762,11 @@ const sourceCode = template({
   ],
   residualRisks: [
     risk(
-      "আর্কাইভ থাকা মানে প্রকল্প বিল্ড হয় বা প্রতিশ্রুত কাজ আছে, তা নয়। পরীক্ষার ফল শুধু যে পরীক্ষা চালানো হয়েছে তার জন্য।",
+      "আর্কাইভ থাকা মানে প্রকল্প বিল্ড হয় বা প্রতিশ্রুত কাজ আছে, তা নয়। চেকের ফল শুধু যে চেক চালানো হয়েছে তার জন্য।",
       "An archive existing does not prove the project builds or contains the promised work. A test result covers only the tests that ran.",
     ),
     risk(
-      "এই সংস্করণে কোড আসলে চালানো হয় না; বিল্ডের ফল একটি নকল রানার থেকে আসে।",
+      "এই সংস্করণে কোড আসলে চালানো হয় না; বিল্ডের ফল একটি টেস্ট রানার থেকে আসে।",
       "This version does not actually run code; the build result comes from a mock runner.",
     ),
   ],
@@ -776,7 +776,7 @@ const domainSite = template({
   templateId: "domain_website",
   categoryId: "CAT-09",
   name: {
-    bn: "ডোমেইন, ওয়েবসাইট ও হোস্টিং স্থানান্তর (পরীক্ষামূলক)",
+    bn: "ডোমেইন, ওয়েবসাইট ও হোস্টিং স্থানান্তর (টেস্ট)",
     en: "Domain, website and hosting migration (synthetic)",
   },
   fields: [
@@ -800,7 +800,7 @@ const domainSite = template({
     ),
     item(
       "registrar_transfer",
-      "রেজিস্ট্রারের রেকর্ডে ডোমেইনটি ক্রেতার নামে",
+      "রেজিস্ট্রারের রেকর্ডে ডোমেইনটি বায়ারের নামে",
       "Registrar's record shows the domain with the buyer",
       "mock_registrar.transfer_confirmed",
       { dependsOn: ["transfer_lock_disclosed"] },
@@ -828,14 +828,14 @@ const domainSite = template({
     ),
     item(
       "buyer_admin_and_billing",
-      "অ্যাডমিন অ্যাক্সেস ও বিলিং ক্রেতার নিয়ন্ত্রণে",
+      "অ্যাডমিন অ্যাক্সেস ও বিলিং বায়ারের নিয়ন্ত্রণে",
       "Administrator access and billing are the buyer's",
       "buyer_confirms",
       { dependsOn: ["registrar_transfer"] },
     ),
     item(
       "seller_access_revoked",
-      "বিক্রেতার অ্যাক্সেস সরানো হয়েছে",
+      "সেলারের অ্যাক্সেস সরানো হয়েছে",
       "Seller's access revoked",
       "seller_declares",
       { mandatory: false },
@@ -854,7 +854,7 @@ const courseAccess = template({
   templateId: "course_access",
   categoryId: "CAT-10",
   name: {
-    bn: "কোর্স ও হস্তান্তরযোগ্য ডিজিটাল অ্যাক্সেস (পরীক্ষামূলক)",
+    bn: "কোর্স ও হস্তান্তরযোগ্য ডিজিটাল অ্যাক্সেস (টেস্ট)",
     en: "Courses and transferable digital access (synthetic)",
   },
   fields: [
@@ -877,21 +877,21 @@ const courseAccess = template({
     ),
     item(
       "enrolled",
-      "ভর্তি ঠিক চুক্তির অ্যাকাউন্টে নিশ্চিত",
+      "ভর্তি ঠিক ডিলের অ্যাকাউন্টে নিশ্চিত",
       "Enrollment confirmed on exactly the agreed account",
       "mock_enrollment.enrolled_at_destination",
       { dependsOn: ["transfer_permitted"] },
     ),
     item(
       "duration_matches",
-      "মেয়াদ ও প্রতিশ্রুত ফিচার চুক্তির সাথে মেলে",
+      "মেয়াদ ও প্রতিশ্রুত ফিচার ডিলের সাথে মেলে",
       "Duration and promised features match the agreement",
       "mock_enrollment.duration_matches",
       { dependsOn: ["enrolled"] },
     ),
     item(
       "buyer_can_open",
-      "ক্রেতা কোর্স খুলতে পারছেন",
+      "বায়ার কোর্স খুলতে পারছেন",
       "Buyer can open the course",
       "buyer_confirms",
       { mandatory: false },
@@ -961,7 +961,7 @@ const serviceMilestones = template({
     ),
     item(
       "subjective_quality",
-      "মান নিয়ে ক্রেতার মত",
+      "মান নিয়ে বায়ারের মত",
       "Buyer's opinion of quality",
       "buyer_confirms",
       { mandatory: false, subjective: true },
