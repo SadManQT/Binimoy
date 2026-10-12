@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { getVaultRoom, matrixUserId } from "@lp/adapters";
 import { formatBdt, loadConfig } from "@lp/contracts";
 import { getDealView } from "@lp/db/agreements";
+import { getConversation } from "@lp/db/conversation";
 import { getDeliveryView } from "@lp/db/delivery";
 import { dealBalances, getFunding } from "@lp/db/ledger";
 import { getDisputeView } from "@lp/db/review";
@@ -17,6 +18,7 @@ import {
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
 import { agreementAction, createInviteAction } from "../actions";
+import { ConversationSection } from "../conversation-section";
 import { DeliverySection } from "../delivery-section";
 import { FundingSection } from "../funding-section";
 import { ResolutionSection } from "../resolution-section";
@@ -63,6 +65,11 @@ export default async function DealPage({
   const resolution = delivery
     ? await getDisputeView(pool(), user.id, deal.dealId)
     : null;
+  // The room opens once both parties are in the deal.
+  const conversation =
+    deal.parties.length === 2
+      ? await getConversation(pool(), { userId: user.id, dealId: deal.dealId })
+      : null;
   const declarable = terms.items
     .filter((item) => item.predicate === "seller_declares")
     .map((item) => ({
@@ -332,6 +339,15 @@ export default async function DealPage({
           </details>
         )}
       </section>
+
+      {conversation && (
+        <section aria-label="কথোপকথন">
+          <ConversationSection
+            dealId={deal.dealId}
+            conversation={conversation}
+          />
+        </section>
+      )}
     </main>
   );
 }

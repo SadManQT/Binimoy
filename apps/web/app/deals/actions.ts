@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { getVaultRoom, matrixUserId } from "@lp/adapters";
 import { loadConfig, takaToMinor } from "@lp/contracts";
+import { withdrawMonitoringConsent } from "@lp/db/access";
 import {
   type AgreementCommand,
   acceptInvite,
@@ -11,6 +12,12 @@ import {
   createInvite,
   getDealView,
 } from "@lp/db/agreements";
+import {
+  acceptMonitoring,
+  postMessage,
+  reportSecretExposure,
+  reviseMessage,
+} from "@lp/db/conversation";
 import {
   acceptDelivery,
   recordInspection,
@@ -346,3 +353,53 @@ export const requestReviewAction = disputeStep(requestReview);
 export const appealAction = disputeStep(appealDecision);
 export const waiveAppealAction = disputeStep(waiveAppeal);
 export const reopenDisputeAction = disputeStep(reopenDispute);
+
+export async function acceptMonitoringAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  back(dealId, await acceptMonitoring(pool(), user.id, dealId));
+}
+
+export async function withdrawMonitoringAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  await withdrawMonitoringConsent(pool(), { dealId, userId: user.id });
+  redirect(`/deals/${dealId}`);
+}
+
+export async function postMessageAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  back(
+    dealId,
+    await postMessage(pool(), {
+      userId: user.id,
+      dealId,
+      body: text(form, "body"),
+    }),
+  );
+}
+
+export async function reviseMessageAction(form: FormData) {
+  const user = await requireUser();
+  back(
+    text(form, "dealId"),
+    await reviseMessage(pool(), {
+      userId: user.id,
+      messageId: text(form, "messageId"),
+      // An empty edit is a deletion.
+      body: text(form, "intent") === "delete" ? null : text(form, "body"),
+    }),
+  );
+}
+
+export async function reportSecretAction(form: FormData) {
+  const user = await requireUser();
+  back(
+    text(form, "dealId"),
+    await reportSecretExposure(pool(), {
+      userId: user.id,
+      messageId: text(form, "messageId"),
+    }),
+  );
+}
