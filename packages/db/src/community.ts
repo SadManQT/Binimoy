@@ -1,5 +1,5 @@
 import type { ErrorCode } from "@lp/contracts";
-import { looksLikeSecret } from "@lp/domain";
+import { looksLikeSecret, textSimilarity } from "@lp/domain";
 import type { Pool } from "./index";
 
 // Spec C9 and D.10: a community report is a user's own account of what
@@ -544,6 +544,9 @@ export type ReportView = {
   narrative?: string;
   amountMinor?: string | null;
   assignedToMe: boolean;
+  // For moderators: the closest match, 0 to 1, between this text and any
+  // other report on the same shop. A hint that it may be a copy, not proof.
+  similarity?: number;
   canAppeal: boolean;
   publishedAt: string | null;
   responseDueAt: string | null;
@@ -587,6 +590,19 @@ export async function getReport(
   if (!role) return null;
   const insider = role !== "public";
   const assignedToMe = role === "moderator" && r.moderator_id === me;
+  let similarity: number | undefined;
+  if (role === "moderator" && r.public_text) {
+    const others = await pool.query(
+      `select public_text from community_report
+       where subject_id = $1 and id <> $2 and state <> 'DRAFT' and public_text <> ''
+       order by created_at desc limit 50`,
+      [r.subject_id, r.id],
+    );
+    similarity = Math.max(
+      0,
+      ...others.rows.map((o) => textSimilarity(r.public_text, o.public_text)),
+    );
+  }
 
   const history = insider
     ? (
@@ -636,6 +652,7 @@ export async function getReport(
       ? { narrative: r.narrative, amountMinor: r.amount_minor }
       : {}),
     assignedToMe,
+    ...(similarity === undefined ? {} : { similarity }),
     canAppeal: role === "author" && r.state === "NOT_PUBLISHED" && r.appealable,
     publishedAt: r.published_at?.toISOString() ?? null,
     responseDueAt: r.response_due_at?.toISOString() ?? null,

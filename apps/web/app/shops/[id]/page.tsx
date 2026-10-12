@@ -1,9 +1,15 @@
 import { getShop } from "@lp/db/shops";
+import { reviewHighlights } from "@lp/domain";
 import { notFound } from "next/navigation";
 import { REVIEW_TONE } from "../../../lib/copy";
 import { fill, getI18n } from "../../../lib/i18n";
 import { pool } from "../../../lib/pool";
-import { ComplaintLine, Rating, TypeBar } from "../../components/shop-ui";
+import {
+  ComplaintLine,
+  Rating,
+  TrustBadge,
+  TypeBar,
+} from "../../components/shop-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +44,7 @@ export default async function ShopPage({
     ? shop.reviews.filter((r) => r.experienceType === type)
     : shop.reviews;
   const name = encodeURIComponent(shop.name);
+  const highlights = reviewHighlights(shop.reviews.map((r) => r.text));
   const filters = [
     ["", t.shop.filterAll],
     ["negative", t.shop.filterBad],
@@ -87,7 +94,35 @@ export default async function ShopPage({
             <span>{t.shop.reports}</span>
           </div>
         </div>
+        <div className="trust-panel" data-testid="trust-panel">
+          <h3>{t.trust.title}</h3>
+          <p className="meta">
+            <TrustBadge shop={shop} i18n={i18n} />
+            {shop.trust.score !== null && <span>{t.trust.outOf}</span>}
+          </p>
+          <ul>
+            {shop.trust.reasons.map((reason) => (
+              <li key={reason}>{t.trust.reasons[reason]}</li>
+            ))}
+          </ul>
+          <p>
+            <small>{t.trust.how}</small>
+          </p>
+        </div>
         <TypeBar shop={shop} i18n={i18n} />
+        {highlights.length > 0 && (
+          <div className="highlights" data-testid="highlights">
+            <h3>{t.shop.highlights}</h3>
+            <ul>
+              {highlights.map((h) => (
+                <li key={h.term}>
+                  {h.term} <span>{num(h.reviews)}</span>
+                </li>
+              ))}
+            </ul>
+            <small>{t.shop.highlightsNote}</small>
+          </div>
+        )}
         <p>
           <ComplaintLine shop={shop} i18n={i18n} />
         </p>

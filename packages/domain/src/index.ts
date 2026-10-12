@@ -26,3 +26,16 @@ export {
   type ReportType,
 } from "./research";
 export { looksLikeSecret } from "./secrets";
+export {
+  type Highlight,
+  reviewHighlights,
+  textSimilarity,
+} from "./text-signals";
+export {
+  MIN_REVIEWS,
+  type TrustInput,
+  type TrustLevel,
+  type TrustReason,
+  type TrustSignal,
+  trustSignal,
+} from "./trust";

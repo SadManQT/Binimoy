@@ -242,6 +242,14 @@ export default async function ReportPage({
         </>
       ) : null}
 
+      {report.similarity !== undefined && report.similarity >= 0.6 ? (
+        <p className="notice" data-testid="similarity-hint">
+          এই লেখাটা একই শপ নিয়ে আরেকটা লেখার সাথে{" "}
+          {Math.round(report.similarity * 100)}% মিলে যায়। কপি করা হতে পারে; এটা শুধু
+          একটা ইঙ্গিত, প্রমাণ না। সিদ্ধান্ত আপনার।
+        </p>
+      ) : null}
+
       {report.assignedToMe && report.state === "UNDER_REVIEW" ? (
         <section aria-labelledby="decide" data-testid="moderate">
           <h2 id="decide">মডারেটরের সিদ্ধান্ত</h2>

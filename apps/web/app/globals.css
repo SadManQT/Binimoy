@@ -1924,3 +1924,59 @@ html[lang="bn"] .flow li::before {
 .filters a[aria-current="true"] svg {
   color: inherit;
 }
+
+/* Trust signal: a level in words, an icon, and the number behind it. */
+.chip.trust {
+  gap: 0.4rem;
+  padding-block: 0.3rem;
+}
+.chip.trust b {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+.trust-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--line-strong);
+  background: var(--ink-950);
+}
+.trust-panel ul {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Pages cross-fade into each other where the browser supports it. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+.highlights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.highlights ul {
+  list-style: none;
+  padding: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.highlights li {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: var(--ink-800);
+  border: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+.highlights li span {
+  color: var(--teal);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  margin-left: 0.25rem;
+}

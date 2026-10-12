@@ -3,7 +3,7 @@ import { listShops, shopCategoryCounts } from "@lp/db/shops";
 import { fill, getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { CategoryIcon } from "../components/category-icon";
-import { ComplaintLine, Rating } from "../components/shop-ui";
+import { ComplaintLine, Rating, TrustBadge } from "../components/shop-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -86,11 +86,19 @@ export default async function ShopsPage({
 
       <p className="meta" data-testid="shop-count">
         <span>{fill(t.shops.count, { n: num(shops.length) })}</span>
-        {sort === "most" ? (
-          <a href={link({ sort: "" })}>{t.shops.sortRecent}</a>
-        ) : (
-          <a href={link({ sort: "most" })}>{t.shops.sortMost}</a>
-        )}
+        {(
+          [
+            ["", t.shops.sortRecent],
+            ["most", t.shops.sortMost],
+            ["trust", t.trust.sort],
+          ] as const
+        )
+          .filter(([value]) => value !== sort)
+          .map(([value, label]) => (
+            <a key={value} href={link({ sort: value })}>
+              {label}
+            </a>
+          ))}
       </p>
 
       {shops.length === 0 ? (
@@ -135,7 +143,8 @@ export default async function ShopsPage({
                   {fill(t.shops.latest, { date: date(shop.lastPublishedAt) })}
                 </span>
               </div>
-              <div>
+              <div className="meta">
+                <TrustBadge shop={shop} i18n={i18n} />
                 <ComplaintLine shop={shop} i18n={i18n} />
               </div>
             </li>

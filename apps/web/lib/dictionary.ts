@@ -117,12 +117,12 @@ const bn = {
     limitsTitle: "যেটা আমরা করি না",
     limits: [
       {
-        title: "কাউকে স্ক্যামার বা ট্রাস্টেড বলি না",
-        body: "আমরা দেখাই কে কী লিখেছে আর সেলার কী বলেছে। সিদ্ধান্ত আপনার।",
+        title: "ট্রাস্ট সিগন্যাল একটা হিসাব, রায় না",
+        body: "রিভিউ, রেটিং আর রিপ্লাই থেকে হিসাব করা। আমরা কাউকে তদন্ত করি না; সিদ্ধান্ত আপনার।",
       },
       {
         title: "রেটিং আমাদের দেওয়া না",
-        body: "রিভিউয়ারদের রেটিংয়ের গড়। শপ রেটিং দিয়ে সাজানো হয় না।",
+        body: "রিভিউয়ারদের দেওয়া রেটিংয়ের গড়, বিনিময়ের মূল্যায়ন না।",
       },
       {
         title: "রিপোর্ট মানেই প্রমাণ না",
@@ -152,7 +152,7 @@ const bn = {
     ratings: "{n}টি রেটিং",
     latest: "সর্বশেষ {date}",
     disclaimer:
-      "এই লিস্ট কোনো রেকমেন্ডেশন না, আর রেটিং দিয়ে সাজানো না। রেটিং হলো রিভিউয়ারদের দেওয়া নম্বরের গড়। লিস্টে না থাকা মানে শুধু এখানে এখনো কিছু পাবলিশ হয়নি।",
+      "এই লিস্ট কোনো রেকমেন্ডেশন না। রেটিং হলো রিভিউয়ারদের দেওয়া নম্বরের গড়, আর ট্রাস্ট সিগন্যাল পাবলিশড রিভিউ থেকে হিসাব করা। লিস্টে না থাকা মানে শুধু এখানে এখনো কিছু পাবলিশ হয়নি।",
     noComplaints: "কোনো রিপোর্ট নেই",
     complaints: "{n}টি রিপোর্ট",
     answered: "{n}টিতে রিপ্লাই",
@@ -186,6 +186,9 @@ const bn = {
     resolution: "লেখক পরে জানিয়েছেন: সমাধান হয়েছে",
     correction: "লেখকের আপডেট",
     open: "রিপ্লাই দিন বা পুরোটা দেখুন",
+    highlights: "রিভিউয়াররা যা বেশি বলেছেন",
+    highlightsNote:
+      "অন্তত দুটো আলাদা রিভিউতে আসা শব্দ, অটোমেটিক গোনা। সংখ্যাটা হলো কয়টা রিভিউতে আছে।",
   },
   alerts: {
     title: "স্ক্যাম অ্যালার্ট",
@@ -198,6 +201,27 @@ const bn = {
     resolved: "লেখক জানিয়েছেন সমাধান হয়েছে",
     open: "পুরো লেখা ও রিপ্লাই",
     report: "স্ক্যাম রিপোর্ট করুন",
+  },
+  trust: {
+    title: "ট্রাস্ট সিগন্যাল",
+    levels: {
+      strong: "ভালো সিগন্যাল",
+      mixed: "মিশ্র সিগন্যাল",
+      caution: "সাবধান থাকুন",
+      unknown: "ডেটা কম",
+    },
+    outOf: "১০০-এর মধ্যে",
+    how: "এটা এই শপের পাবলিশড রিভিউ, রেটিং আর রিপোর্টের রিপ্লাই থেকে হিসাব করা একটা সংখ্যা। কেউ তদন্ত করেনি, আর নতুন রিভিউ এলে এটা বদলায়। ৩টার কম রিভিউ থাকলে কোনো সিগন্যাল দেখানো হয় না।",
+    sort: "ট্রাস্ট সিগন্যাল অনুযায়ী",
+    reasons: {
+      FEW_REVIEWS: "৩টার কম রিভিউ, তাই হিসাব করা হয়নি",
+      MOSTLY_GOOD: "বেশিরভাগ রিভিউ ভালো",
+      HIGH_RATING: "রেটিংয়ের গড় বেশি",
+      LOW_RATING: "রেটিংয়ের গড় কম",
+      UNRESOLVED_REPORTS: "রিপ্লাই ছাড়া স্ক্যাম রিপোর্ট আছে",
+      REPORTS_ANSWERED: "সেলার রিপোর্টের রিপ্লাই দিয়েছেন",
+      REPORTS_RESOLVED: "কিছু রিপোর্ট সমাধান হয়েছে বলে লেখক জানিয়েছেন",
+    },
   },
   types: {
     positive: "ভালো এক্সপেরিয়েন্স",
@@ -340,12 +364,12 @@ const en: Dictionary = {
     limitsTitle: "What we do not do",
     limits: [
       {
-        title: "We do not call anyone a scammer or trusted",
-        body: "We show what people wrote and what the seller said. The decision is yours.",
+        title: "The trust signal is arithmetic, not a verdict",
+        body: "It is calculated from reviews, ratings and replies. We investigate nobody; the decision is yours.",
       },
       {
         title: "Ratings are not ours",
-        body: "They are the average of reviewers' ratings. Shops are not ordered by rating.",
+        body: "They are the average of reviewers' own ratings, not Binimoy's assessment.",
       },
       {
         title: "A report is not proof",
@@ -375,7 +399,7 @@ const en: Dictionary = {
     ratings: "{n} ratings",
     latest: "Latest {date}",
     disclaimer:
-      "This list is not a recommendation and is not ordered by rating. A rating is the average of reviewers' own scores. A shop that is not listed simply has nothing published here yet.",
+      "This list is not a recommendation. A rating is the average of reviewers' own scores, and the trust signal is calculated from published reviews. A shop that is not listed simply has nothing published here yet.",
     noComplaints: "No reports",
     complaints: "{n} reports",
     answered: "{n} replied to",
@@ -409,6 +433,9 @@ const en: Dictionary = {
     resolution: "The writer later said: resolved",
     correction: "Writer's update",
     open: "Reply or see the full post",
+    highlights: "What reviewers mention most",
+    highlightsNote:
+      "Words that appear in at least two different reviews, counted automatically. The number is how many reviews use the word.",
   },
   alerts: {
     title: "Scam alerts",
@@ -421,6 +448,27 @@ const en: Dictionary = {
     resolved: "The writer says it was resolved",
     open: "Full post and replies",
     report: "Report a scam",
+  },
+  trust: {
+    title: "Trust signal",
+    levels: {
+      strong: "Good signals",
+      mixed: "Mixed signals",
+      caution: "Be careful",
+      unknown: "Not enough data",
+    },
+    outOf: "out of 100",
+    how: "This number is calculated from this shop's published reviews, ratings and replies to reports. Nobody investigated, and it changes as new reviews arrive. No signal is shown for a shop with fewer than 3 reviews.",
+    sort: "By trust signal",
+    reasons: {
+      FEW_REVIEWS: "Fewer than 3 reviews, so nothing was calculated",
+      MOSTLY_GOOD: "Most reviews are good",
+      HIGH_RATING: "High average rating",
+      LOW_RATING: "Low average rating",
+      UNRESOLVED_REPORTS: "Scam reports with no reply",
+      REPORTS_ANSWERED: "The seller replied to reports",
+      REPORTS_RESOLVED: "Writers say some reports were resolved",
+    },
   },
   types: {
     positive: "Good experience",

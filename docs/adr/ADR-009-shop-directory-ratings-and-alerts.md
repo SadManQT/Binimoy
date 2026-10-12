@@ -40,3 +40,18 @@ Build everything asked for that those limits allow, and state the two places whe
 - Amber, not red, marks complaints.
 - The directory is small until people write: there is no imported data and no scraping.
 - Ratings can be gamed by several accounts. The limits above slow that down; they do not stop it.
+
+## Amendment, 2026-10-13: trust signal
+
+The owner read the decision above and chose to add a trust indicator, stating that this is a student research project on synthetic data. Recorded here because it departs from spec C7.1 and C36.4.
+
+- Each shop with three or more published reviews gets a **trust signal**: a level (good signals, mixed signals, be careful) and a 0 to 100 number. Below three reviews it says "not enough data".
+- It is arithmetic in `packages/domain/src/trust.ts` on published counts: share of good reviews, average rating, and reports weighted by whether they were answered or resolved. No model is involved.
+- The reasons are always listed beside it, with a sentence saying nobody investigated.
+- Shops can be sorted by it.
+
+Still not done: the platform does not write "scammer" about anyone, and a report remains labelled as its writer's claim.
+
+Also added the same day, both plain counting and labelled as automatic: **review highlights** (words used in at least two reviews of a shop) and a **similarity hint** for moderators when a report closely matches another on the same shop.
+
+Before any use with real shops and real people, this amendment needs the legal review the original decision called for.

@@ -1,4 +1,5 @@
 import type { ErrorCode } from "@lp/contracts";
+import { type TrustSignal, trustSignal } from "@lp/domain";
 import {
   type ExperienceType,
   type FollowupKind,
@@ -18,9 +19,9 @@ import type { Pool } from "./index";
 // in the directory because someone's experience of it was published, never
 // because someone looked it up (D.9: lookups are private).
 //
-// What this file deliberately does not do (spec C7.1, C36.4, D.10): compute a
-// trust score, label a shop safe or a scam, or rank shops by rating. It
-// counts what people wrote and whether it was answered.
+// Each shop also carries a trust signal: arithmetic on those published
+// numbers, added on the owner's decision (ADR-009 amendment). It is shown
+// with its reasons and is not an investigation of anyone.
 
 type Failure<E extends ErrorCode> = { ok: false; error: E };
 const fail = <E extends ErrorCode>(error: E): Failure<E> => ({
@@ -80,6 +81,8 @@ export type ShopSummary = {
   ratingAverage: number | null;
   firstPublishedAt: string;
   lastPublishedAt: string;
+  // Arithmetic on the numbers above (see @lp/domain trust.ts).
+  trust: TrustSignal;
 };
 
 // biome-ignore lint/suspicious/noExplicitAny: one database row
@@ -101,10 +104,18 @@ const summary = (row: any): ShopSummary => ({
   ratingAverage: row.rating_average,
   firstPublishedAt: (row.first_at as Date).toISOString(),
   lastPublishedAt: (row.last_at as Date).toISOString(),
+  trust: trustSignal({
+    published: row.published,
+    positive: row.positive,
+    negative: row.negative,
+    answered: row.answered,
+    resolved: row.resolved,
+    ratingAverage: row.rating_average,
+    ratingCount: row.rating_count,
+  }),
 });
 
-// `sort` is by recency or by how much has been written. There is no order by
-// rating: a list that put "better" shops first would be a ranking (C36.4).
+// `sort`: recency (default), how much has been written, or trust signal.
 export async function listShops(
   pool: Pool,
   input: { q?: string; category?: string; sort?: string } = {},
@@ -127,7 +138,13 @@ export async function listShops(
       input.sort ?? "",
     ],
   );
-  return rows.map(summary);
+  const shops = rows.map(summary);
+  // Strongest signal first; shops without enough reviews keep their place
+  // at the end rather than being ranked on almost nothing.
+  if (input.sort === "trust") {
+    shops.sort((a, b) => (b.trust.score ?? -1) - (a.trust.score ?? -1));
+  }
+  return shops;
 }
 
 export async function shopCategoryCounts(
