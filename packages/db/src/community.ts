@@ -39,10 +39,10 @@ export type FollowupKind = "RESPONSE" | "CORRECTION" | "RESOLUTION";
 // moderator still reads every text before it is published.
 const LONG_NUMBER = /(?:\d[ -]?){9,}/u;
 const EMAIL = /\S+@\S+\.\S+/u;
-const hasIdentifier = (text: string) =>
+export const hasIdentifier = (text: string) =>
   LONG_NUMBER.test(text) || EMAIL.test(text) || looksLikeSecret(text);
 
-const isModerator = async (pool: Pool, userId: string) =>
+export const isModerator = async (pool: Pool, userId: string) =>
   (
     await pool.query(
       "select 1 from staff_role where user_id = $1 and role = 'moderator' and revoked_at is null",
@@ -73,6 +73,10 @@ async function load(pool: Pool, reportId: string): Promise<Row | null> {
   return rows[0] ?? null;
 }
 
+const isDuplicate = (error: unknown) =>
+  (error as { code?: string; constraint?: string }).code === "23505" &&
+  (error as { constraint?: string }).constraint === "community_report_one_live";
+
 // Changes a report only if it is still in the state the caller checked, and
 // records the event in the same statement.
 async function move(
@@ -98,6 +102,31 @@ async function move(
   return result.rowCount === 1 ? { ok: true } : fail("ILLEGAL_TRANSITION");
 }
 
+// The kinds of shop people browse by, and what a complaint may allege.
+export const SHOP_CATEGORY_KEYS = [
+  "game_topup",
+  "game_accounts",
+  "software",
+  "subscriptions",
+  "gift_cards",
+  "digital_services",
+  "courses",
+  "domains_hosting",
+  "social_accounts",
+  "other",
+] as const;
+export type ShopCategory = (typeof SHOP_CATEGORY_KEYS)[number];
+export const ISSUE_KEYS = [
+  "not_delivered",
+  "wrong_item",
+  "access_revoked",
+  "no_refund",
+  "blocked_after_payment",
+  "impersonation",
+  "other",
+] as const;
+export type Issue = (typeof ISSUE_KEYS)[number];
+
 export type DraftInput = {
   userId: string;
   reportId?: string;
@@ -108,6 +137,12 @@ export type DraftInput = {
   amountMinor: string | null;
   narrative: string;
   publicText: string;
+  // The reviewer's own 1 to 5 rating of this experience.
+  rating?: number | null;
+  // What a complaint alleges. Only for a negative or mixed experience.
+  issue?: string | null;
+  // Sets the shop's browsing category if it has none yet.
+  shopCategory?: string;
 };
 
 // C9.1: an incomplete report is a private draft. Saving never publishes.
@@ -126,6 +161,9 @@ export async function saveDraft(
   const subject = input.subject.replace(/\s+/g, " ").trim();
   const eventDate = input.eventDate || null;
   const amount = input.amountMinor || null;
+  const rating = input.rating ?? null;
+  const issue = input.issue || null;
+  const shopCategory = input.shopCategory || null;
   if (
     !(EXPERIENCE as readonly string[]).includes(input.experienceType) ||
     input.category.length > 60 ||
@@ -134,7 +172,13 @@ export async function saveDraft(
     (eventDate !== null &&
       (!/^\d{4}-\d{2}-\d{2}$/.test(eventDate) ||
         Number.isNaN(Date.parse(eventDate)))) ||
-    (amount !== null && !/^[1-9]\d{0,14}$/.test(amount))
+    (amount !== null && !/^[1-9]\d{0,14}$/.test(amount)) ||
+    (rating !== null && ![1, 2, 3, 4, 5].includes(rating)) ||
+    (issue !== null &&
+      (!(ISSUE_KEYS as readonly string[]).includes(issue) ||
+        !["negative", "mixed"].includes(input.experienceType))) ||
+    (shopCategory !== null &&
+      !(SHOP_CATEGORY_KEYS as readonly string[]).includes(shopCategory))
   ) {
     return fail("VALIDATION_FAILED");
   }
@@ -146,6 +190,8 @@ export async function saveDraft(
     amount,
     input.narrative.trim(),
     input.publicText.trim(),
+    rating,
+    issue,
   ];
 
   if (input.reportId) {
@@ -153,11 +199,18 @@ export async function saveDraft(
     if (!row || row.author_id !== input.userId) return fail("NOT_AUTHORIZED");
     const { rows } = await pool.query(
       `update community_report set category = $3, experience_type = $4, event_date = $5,
-         amount_minor = $6, narrative = $7, public_text = $8, version = version + 1
+         amount_minor = $6, narrative = $7, public_text = $8, rating = $9, issue = $10,
+         version = version + 1
        where id = $1 and author_id = $2 and state in ('DRAFT', 'NEEDS_INFORMATION')
-       returning version`,
+       returning version, subject_id`,
       [input.reportId, input.userId, ...fields],
     );
+    if (rows[0] && shopCategory) {
+      await pool.query(
+        "update subject set category = $2 where id = $1 and category is null",
+        [rows[0].subject_id, shopCategory],
+      );
+    }
     return rows[0]
       ? { ok: true, reportId: input.reportId, version: rows[0].version }
       : fail("ILLEGAL_TRANSITION");
@@ -169,16 +222,18 @@ export async function saveDraft(
   // C7.2: the name as written. Similar names stay separate subjects.
   const { rows } = await pool.query(
     `with s as (
-       insert into subject (display_name, normalized_key) values ($1, $2)
-       on conflict (normalized_key) do update set display_name = subject.display_name
+       insert into subject (display_name, normalized_key, category) values ($1, $2, $12)
+       -- The first reporter's category stands; a later one fills a blank only.
+       on conflict (normalized_key) do update
+         set category = coalesce(subject.category, excluded.category)
        returning id
      )
      insert into community_report
        (author_id, subject_id, category, experience_type, event_date, amount_minor,
-        narrative, public_text)
-     select $3, s.id, $4, $5, $6, $7, $8, $9 from s
+        narrative, public_text, rating, issue)
+     select $3, s.id, $4, $5, $6, $7, $8, $9, $10, $11 from s
      returning id, version`,
-    [subject, subject.toLowerCase(), input.userId, ...fields],
+    [subject, subject.toLowerCase(), input.userId, ...fields, shopCategory],
   );
   return { ok: true, reportId: rows[0].id, version: rows[0].version };
 }
@@ -195,6 +250,7 @@ export async function submitReport(
     | "VERSION_CONFLICT"
     | "VALIDATION_FAILED"
     | "BUDGET_EXHAUSTED"
+    | "DUPLICATE_REPORT"
   >
 > {
   const row = await load(pool, input.reportId);
@@ -213,16 +269,22 @@ export async function submitReport(
   );
   if (used.rows[0].n >= SUBMISSION_DAILY_BUDGET)
     return fail("BUDGET_EXHAUSTED");
-  const result = await pool.query(
-    `with changed as (
-       update community_report set state = 'SUBMITTED', moderator_id = null
-       where id = $1 and state = $2 and version = $3 returning id
-     )
-     insert into community_report_event (report_id, actor_id, kind)
-     select id, $4, 'SUBMITTED' from changed`,
-    [input.reportId, row.state, input.expectedVersion, input.userId],
-  );
-  return result.rowCount === 1 ? { ok: true } : fail("VERSION_CONFLICT");
+  try {
+    const result = await pool.query(
+      `with changed as (
+         update community_report set state = 'SUBMITTED', moderator_id = null
+         where id = $1 and state = $2 and version = $3 returning id
+       )
+       insert into community_report_event (report_id, actor_id, kind)
+       select id, $4, 'SUBMITTED' from changed`,
+      [input.reportId, row.state, input.expectedVersion, input.userId],
+    );
+    return result.rowCount === 1 ? { ok: true } : fail("VERSION_CONFLICT");
+  } catch (error) {
+    // One live report per person per shop (community_report_one_live).
+    if (isDuplicate(error)) return fail("DUPLICATE_REPORT");
+    throw error;
+  }
 }
 
 // C9.4: withdrawing says nothing about whether the report was true. The text
@@ -265,6 +327,8 @@ export async function appealReport(
   if (reason.length < MIN_REASON || reason.length > 1000) {
     return fail("VALIDATION_FAILED");
   }
+  // ponytail: an appeal that collides with the author's other live report on
+  // the same shop surfaces as a database error. Handle it if it ever happens.
   return move(pool, {
     reportId: input.reportId,
     from: "NOT_PUBLISHED",
@@ -469,6 +533,8 @@ export type ReportView = {
   subject: string;
   category: string;
   experienceType: ExperienceType;
+  rating: number | null;
+  issue: Issue | null;
   eventDate: string | null;
   state: ReportState;
   version: number;
@@ -560,6 +626,8 @@ export async function getReport(
     subject: r.subject,
     category: r.category,
     experienceType: r.experience_type,
+    rating: r.rating,
+    issue: r.issue,
     eventDate: r.event_day,
     state: r.state,
     version: r.version,
