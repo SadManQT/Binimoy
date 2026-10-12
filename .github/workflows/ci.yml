@@ -20,6 +20,8 @@ jobs:
     env:
       APP_ENV: test
       DATABASE_URL: postgres://lp:lp_ci_only@localhost:5432/lp
+      APP_URL: http://localhost:3000
+      AUTH_SECRET: ci-only-secret-0123456789abcdef0123456789
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

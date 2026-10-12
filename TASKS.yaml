@@ -12,7 +12,7 @@ tasks:
     evidence: [docs/handoffs/LP-001.md]
     blockers: []
   - {id: LP-002, title: "Contracts, role matrix, state machine, DB baseline", status: IN_REVIEW, owner: claude-code, branch: lp-002-contracts, base_sha: f4b6ca9, depends_on: [LP-001], evidence: [docs/handoffs/LP-002.md], blockers: []}
-  - {id: LP-003, title: "Auth/session integration and consent records", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-002], evidence: [], blockers: []}
+  - {id: LP-003, title: "Auth/session integration and consent records", status: IN_REVIEW, owner: claude-code, branch: lp-003-auth, base_sha: lp-002-contracts, depends_on: [LP-002], evidence: [docs/handoffs/LP-003.md], blockers: []}
   - {id: LP-004, title: "Category engine, agreements, invitations, first three templates", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-003], evidence: [], blockers: []}
   - {id: LP-005, title: "Ledger, mock funding and outbox", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-002, LP-003], evidence: [], blockers: []}
   - {id: LP-006, title: "Monitored conversation and evidence versions", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-003, LP-004], evidence: [], blockers: []}

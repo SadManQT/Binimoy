@@ -214,9 +214,17 @@
     "phase": "P0",
     "ownerTask": "LP-003",
     "acceptance": "Independent users, role denial, revoked sessions and missing-device-key paths work",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/adapters/src/auth.ts",
+      "apps/web/app/login",
+      "apps/web/app/account",
+      "packages/db/src/access.ts"
+    ],
+    "acceptanceTests": [
+      "packages/adapters/src/auth.int.test.ts",
+      "packages/db/src/access.int.test.ts"
+    ],
     "evidence": []
   },
   {

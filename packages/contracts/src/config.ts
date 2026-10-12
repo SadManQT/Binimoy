@@ -2,10 +2,24 @@ import { z } from "zod";
 
 const mode = z.enum(["fixture", "live"]).default("fixture");
 
+const SOCIAL = ["google", "facebook", "github"] as const;
+type SocialProvider = (typeof SOCIAL)[number];
+type Social = Partial<
+  Record<SocialProvider, { clientId: string; clientSecret: string }>
+>;
+
 const schema = z
   .object({
     APP_ENV: z.enum(["local", "test", "staging", "production"]),
     DATABASE_URL: z.string().min(1),
+    APP_URL: z.string().regex(/^https?:\/\/[^/]+$/),
+    AUTH_SECRET: z.string().min(32),
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
+    FACEBOOK_CLIENT_ID: z.string().optional(),
+    FACEBOOK_CLIENT_SECRET: z.string().optional(),
+    GITHUB_CLIENT_ID: z.string().optional(),
+    GITHUB_CLIENT_SECRET: z.string().optional(),
     PAYMENT_MODE: z.literal("mock").default("mock"),
     VERIFIER_MODE: z.literal("mock").default("mock"),
     RESEARCH_MODE: mode,
@@ -30,6 +44,34 @@ const schema = z
           "AI_MODE=live needs MODEL_API_KEY. Set it, or set AI_MODE=fixture.",
       });
     }
+    // A provider with only half its credentials would fail at sign-in time.
+    for (const provider of SOCIAL) {
+      const upper = provider.toUpperCase();
+      for (const [have, need] of [
+        ["ID", "SECRET"],
+        ["SECRET", "ID"],
+      ] as const) {
+        const env = c as Record<string, string | undefined>;
+        if (env[`${upper}_CLIENT_${have}`] && !env[`${upper}_CLIENT_${need}`]) {
+          ctx.addIssue({
+            code: "custom",
+            path: [`${upper}_CLIENT_${need}`],
+            message: `${upper}_CLIENT_${have} is set, so ${upper}_CLIENT_${need} is required too.`,
+          });
+        }
+      }
+    }
+  })
+  .transform((c) => {
+    const env = c as Record<string, string | undefined>;
+    const social: Social = {};
+    for (const provider of SOCIAL) {
+      const clientId = env[`${provider.toUpperCase()}_CLIENT_ID`];
+      const clientSecret = env[`${provider.toUpperCase()}_CLIENT_SECRET`];
+      if (clientId && clientSecret)
+        social[provider] = { clientId, clientSecret };
+    }
+    return { ...c, social };
   });
 
 export type Config = z.infer<typeof schema>;

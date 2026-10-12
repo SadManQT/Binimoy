@@ -7,7 +7,7 @@ if (existsSync("../../.env")) process.loadEnvFile("../../.env");
 
 const config: NextConfig = {
   output: "standalone",
-  transpilePackages: ["@lp/contracts", "@lp/db"],
+  transpilePackages: ["@lp/adapters", "@lp/contracts", "@lp/db"],
 };
 
 export default config;

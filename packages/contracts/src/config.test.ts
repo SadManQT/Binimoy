@@ -4,6 +4,8 @@ import { loadConfig } from "./config";
 const base = {
   APP_ENV: "local",
   DATABASE_URL: "postgres://u:p@localhost:5432/db",
+  APP_URL: "http://localhost:3000",
+  AUTH_SECRET: "0123456789abcdef0123456789abcdef",
 };
 
 test("defaults to mock and fixture modes", () => {
@@ -27,9 +29,7 @@ test("empty strings from a copied .env.example count as unset", () => {
 });
 
 test("APP_ENV must be explicit", () => {
-  expect(() => loadConfig({ DATABASE_URL: base.DATABASE_URL })).toThrow(
-    /APP_ENV/,
-  );
+  expect(() => loadConfig({ ...base, APP_ENV: undefined })).toThrow(/APP_ENV/);
 });
 
 test("live research without a key fails and names the variable", () => {
@@ -66,4 +66,37 @@ test("error text never echoes a supplied key value", () => {
   }
   expect(message).toContain("PAYMENT_MODE");
   expect(message).not.toContain("sk-secret-value");
+});
+
+test("a short auth secret is refused", () => {
+  expect(() => loadConfig({ ...base, AUTH_SECRET: "too-short" })).toThrow(
+    /AUTH_SECRET/,
+  );
+});
+
+test("APP_URL must be a real http(s) origin", () => {
+  expect(() => loadConfig({ ...base, APP_URL: "localhost:3000" })).toThrow(
+    /APP_URL/,
+  );
+});
+
+test("no social provider is enabled unless its credentials are set", () => {
+  expect(loadConfig(base).social).toEqual({});
+});
+
+test("a social provider with both credentials is enabled", () => {
+  const config = loadConfig({
+    ...base,
+    GOOGLE_CLIENT_ID: "id",
+    GOOGLE_CLIENT_SECRET: "secret",
+  });
+  expect(config.social).toEqual({
+    google: { clientId: "id", clientSecret: "secret" },
+  });
+});
+
+test("half-configured social credentials stop startup and name the provider", () => {
+  expect(() => loadConfig({ ...base, FACEBOOK_CLIENT_ID: "id" })).toThrow(
+    /FACEBOOK_CLIENT_SECRET/,
+  );
 });

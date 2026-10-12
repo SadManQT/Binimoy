@@ -7,11 +7,13 @@ Source of truth: `docs/MASTER_SPEC.md`. Current state: `STATUS.md`.
 Requires Node (see `.nvmrc`), pnpm (version in `package.json` `packageManager`), and a PostgreSQL database.
 
     pnpm install
-    cp .env.example .env      # then set DATABASE_URL
+    cp .env.example .env      # then set DATABASE_URL and AUTH_SECRET
     pnpm run setup            # applies the database schema
     pnpm dev
 
-Web: http://localhost:3000 · Health: http://localhost:3000/api/health
+Web: http://localhost:3000 · Login: /login · Health: /api/health
+
+In local mode, sign-in links and codes are not sent; read them at /dev/messages.
 
 ### Database
 

@@ -184,12 +184,18 @@ importers:
 
   apps/web:
     dependencies:
+      '@lp/adapters':
+        specifier: workspace:*
+        version: link:../../packages/adapters
       '@lp/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
       '@lp/db':
         specifier: workspace:*
         version: link:../../packages/db
+      better-auth:
+        specifier: 1.7.7
+        version: 1.7.7(next@16.4.0(@types/node@24.19.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(pg@8.23.1)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(vitest@5.0.3(@types/node@24.19.2)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(tsx@4.23.15)))
       next:
         specifier: 16.4.0
         version: 16.4.0(@types/node@24.19.2)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
