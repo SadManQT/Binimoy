@@ -12,7 +12,8 @@ afterAll(() => pool.end());
 
 async function newUser(): Promise<string> {
   const { rows } = await pool.query(
-    "insert into app_user default values returning id",
+    "insert into app_user (name, email) values ('Test', $1) returning id",
+    [`u-${randomUUID()}@example.test`],
   );
   return rows[0].id;
 }
