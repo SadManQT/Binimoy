@@ -6,7 +6,8 @@
     ".": "./src/index.ts",
     "./migrate": "./src/migrate.ts",
     "./testing": "./src/testing.ts",
-    "./commands": "./src/commands.ts"
+    "./commands": "./src/commands.ts",
+    "./access": "./src/access.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
