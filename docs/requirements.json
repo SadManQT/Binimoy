@@ -329,9 +329,13 @@
     "phase": "P0",
     "ownerTask": "LP-005",
     "acceptance": "Conservation, bad invoices, duplicates, under/overpayment and safe integer boundaries pass",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/ledger.ts",
+      "packages/db/migrations/0006_ledger.sql",
+      "apps/web/app/deals/funding-section.tsx"
+    ],
+    "acceptanceTests": ["packages/db/src/ledger.int.test.ts"],
     "evidence": []
   },
   {

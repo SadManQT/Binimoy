@@ -63,6 +63,19 @@ A command may pass an `apply` hook to `executeCommand`. The hook runs inside the
 
 Additional codes raised by LP-004: `COUNTERPARTY_MISSING`, `INVITE_INVALID`.
 
+## Locking
+
+Every command locks the deal row first and the aggregate row second. Hooks may therefore read and change the same deal's other aggregates without racing. `systemTransition` applies a consequential transition to another aggregate inside the calling command's transaction.
+
+## Ledger and funding
+
+Code: `packages/db/src/ledger.ts`.
+
+- The journal is the only source of balances. An entry is one economic fact with a unique `ref`; posting the same `ref` twice does nothing.
+- Accounts: `mock_clearing` (what the provider says it received) and the liabilities `held`, `reserved`, `seller_paid`, `buyer_refunded`, `fee_collected`, `unapplied`.
+- Only an authenticated provider event can move an invoice to `CONFIRMED`. The event must match the invoice's amount and currency exactly; anything else is recorded as unapplied and the invoice goes to `RECONCILIATION_REQUIRED`.
+- Provider callback: `POST /api/webhooks/mock-payment` with header `x-mock-signature` (HMAC-SHA256 of the raw body). 401 for a bad signature, 400 for a malformed body, otherwise `{ "outcome": ... }`.
+
 ## Events
 
 Type `DomainEvent` in `packages/contracts/src/command.ts`; table `event`.

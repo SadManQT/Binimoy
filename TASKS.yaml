@@ -2,7 +2,7 @@ schema_version: 1
 tasks:
   - id: LP-001
     title: Bootstrap reproducible workspace
-    status: IN_REVIEW
+    status: MERGED
     owner: claude-code
     branch: lp-001-bootstrap
     base_sha: b8244aeecdc10efc263b89e5c4e7dcd82c6b7c47
@@ -11,10 +11,10 @@ tasks:
     acceptance: [clean_install, fixture_startup, runtime_pinned]
     evidence: [docs/handoffs/LP-001.md]
     blockers: []
-  - {id: LP-002, title: "Contracts, role matrix, state machine, DB baseline", status: IN_REVIEW, owner: claude-code, branch: lp-002-contracts, base_sha: f4b6ca9, depends_on: [LP-001], evidence: [docs/handoffs/LP-002.md], blockers: []}
-  - {id: LP-003, title: "Auth/session integration and consent records", status: IN_REVIEW, owner: claude-code, branch: lp-003-auth, base_sha: lp-002-contracts, depends_on: [LP-002], evidence: [docs/handoffs/LP-003.md], blockers: []}
-  - {id: LP-004, title: "Category engine, agreements, invitations, first three templates", status: IN_REVIEW, owner: claude-code, branch: lp-004-agreements, base_sha: lp-003-auth, depends_on: [LP-003], evidence: [docs/handoffs/LP-004.md], blockers: []}
-  - {id: LP-005, title: "Ledger, mock funding and outbox", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-002, LP-003], evidence: [], blockers: []}
+  - {id: LP-002, title: "Contracts, role matrix, state machine, DB baseline", status: MERGED, owner: claude-code, branch: lp-002-contracts, base_sha: f4b6ca9, depends_on: [LP-001], evidence: [docs/handoffs/LP-002.md], blockers: []}
+  - {id: LP-003, title: "Auth/session integration and consent records", status: MERGED, owner: claude-code, branch: lp-003-auth, base_sha: lp-002-contracts, depends_on: [LP-002], evidence: [docs/handoffs/LP-003.md], blockers: []}
+  - {id: LP-004, title: "Category engine, agreements, invitations, first three templates", status: MERGED, owner: claude-code, branch: lp-004-agreements, base_sha: lp-003-auth, depends_on: [LP-003], evidence: [docs/handoffs/LP-004.md], blockers: []}
+  - {id: LP-005, title: "Ledger, mock funding and outbox", status: IN_REVIEW, owner: claude-code, branch: chunk-money, base_sha: main, depends_on: [LP-002, LP-003], evidence: [docs/handoffs/LP-005.md], blockers: []}
   - {id: LP-006, title: "Monitored conversation and evidence versions", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-003, LP-004], evidence: [], blockers: []}
   - {id: LP-007, title: "Secret vault and device/key behavior", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-003, LP-004], evidence: [], blockers: []}
   - {id: LP-008, title: "Mock provider and guided inspections", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-004, LP-007], evidence: [], blockers: []}

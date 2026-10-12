@@ -9,7 +9,22 @@ export const ERROR_TEXT: Record<string, string> = {
   IDEMPOTENCY_CONFLICT: "এই অনুরোধ আগে অন্য তথ্য দিয়ে পাঠানো হয়েছিল। পাতা রিফ্রেশ করুন।",
   ILLEGAL_TRANSITION: "চুক্তির এই অবস্থায় কাজটি করা যায় না।",
   COUNTERPARTY_MISSING: "অন্য পক্ষ এখনো যোগ দেননি। আগে আমন্ত্রণ লিংক পাঠান।",
+  ALREADY_FUNDED: "পেমেন্ট শুরু হয়ে গেছে, তাই ডিল আর বাতিল করা যায় না।",
+  REVIEWER_NOT_ASSIGNED:
+    "এই ডিলে শুরু থেকেই মানব রিভিউয়ার দরকার, কিন্তু এখনো কাউকে নিযুক্ত করা যায় না। তাই টাকা জমা দেওয়া যাবে না।",
+  INVOICE_EXPIRED: "ইনভয়েসের মেয়াদ শেষ। নতুন ইনভয়েস তৈরি করুন।",
+  TEST_MODE_REQUIRED: "এই সংস্করণে শুধু পরীক্ষামূলক (নকল) পেমেন্ট চলে।",
   INVITE_INVALID: "আমন্ত্রণটি আর কার্যকর নয়: মেয়াদ শেষ, ব্যবহৃত বা বাতিল।",
+};
+
+export const FUNDING_TEXT: Record<string, string> = {
+  CREATED: "ইনভয়েস তৈরি, পেমেন্ট শুরু হয়নি",
+  PENDING: "পেমেন্ট শুরু হয়েছে, প্রোভাইডারের নিশ্চিতকরণের অপেক্ষা",
+  CONFIRMED: "টাকা জমা নিশ্চিত, নিরাপদ হিসাবে আটকে রাখা",
+  EXPIRED: "ইনভয়েসের মেয়াদ শেষ",
+  CANCELLED: "ইনভয়েস বাতিল",
+  RECONCILIATION_REQUIRED:
+    "পরিমাণ মেলেনি: টাকা জমা হিসেবে গণ্য হয়নি, হিসাব মেলানো দরকার",
 };
 
 export const STATE_TEXT: Record<string, string> = {

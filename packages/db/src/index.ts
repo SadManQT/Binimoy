@@ -4,10 +4,12 @@ export type Pool = pg.Pool;
 
 // `schema` confines every connection to one schema; integration tests use it.
 export function createPool(connectionString: string, schema?: string): Pool {
-  const pool = new pg.Pool({
-    connectionString,
-    ...(schema ? { options: `-c search_path=${schema}` } : {}),
-  });
+  // Ends a transaction left idle by a dead process, so it cannot keep a deal
+  // lock. The Supabase pooler drops this option, so migration 0007 also sets
+  // it on the role; this line covers direct connections.
+  const settings = ["-c idle_in_transaction_session_timeout=30000"];
+  if (schema) settings.push(`-c search_path=${schema}`);
+  const pool = new pg.Pool({ connectionString, options: settings.join(" ") });
   // A server-side drop of an idle connection (restart, pooler timeout) emits
   // 'error' on the pool. Unhandled, it kills the process; the pool reconnects
   // on the next query. Log the message only: the error object holds the password.
