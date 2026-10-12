@@ -1,4 +1,11 @@
 export {
+  type Assessment,
+  type AssessmentProblem,
+  assessmentSchema,
+  NEXT_STEPS,
+  validateAssessment,
+} from "./assessment";
+export {
   type AggregateType,
   allowedTargets,
   checkTransition,
