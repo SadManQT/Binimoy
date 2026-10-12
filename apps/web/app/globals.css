@@ -1980,3 +1980,230 @@ html[lang="bn"] .flow li::before {
   font-size: 0.8rem;
   margin-left: 0.25rem;
 }
+
+/* ---------- depth and motion ---------- */
+
+/* Small 3D objects beside headings. */
+.page-head.with-3d {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.5rem;
+}
+.page-head.with-3d > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.mini3d {
+  width: clamp(6rem, 22vw, 11rem);
+  aspect-ratio: 1;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease);
+}
+.mini3d[data-ready="true"] {
+  opacity: 1;
+}
+.mini3d canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.mini3d.dial {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 7.5rem;
+}
+.trust-panel,
+.versus > section {
+  position: relative;
+}
+.trust-panel > h3,
+.versus > section > h2 {
+  padding-right: 8rem;
+  min-height: 3.5rem;
+}
+
+/* Cards lean toward the pointer and catch a light. */
+[data-tilt] {
+  transform: perspective(900px) rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition:
+    transform 0.25s var(--ease),
+    border-color 0.25s var(--ease);
+  position: relative;
+}
+[data-tilt]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    18rem circle at var(--gx, 50%) var(--gy, 0%),
+    #ffffff14,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.25s var(--ease);
+}
+[data-tilt]:hover::after {
+  opacity: 1;
+}
+.features a[data-tilt]:hover {
+  transform: perspective(900px) rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg)) translateY(-3px);
+}
+.features a[data-tilt] img {
+  transform: translateZ(40px);
+}
+
+/* The hero: slow light behind the words, and a drawn line under the call. */
+.hero-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% auto auto;
+  width: 60rem;
+  height: 40rem;
+  background: conic-gradient(
+    from 120deg at 50% 50%,
+    #17a08c33,
+    #3b4fd826,
+    #ffb84d14,
+    #17a08c33
+  );
+  filter: blur(90px);
+  pointer-events: none;
+}
+.hero-wrap > * {
+  position: relative;
+}
+.hero h1 em {
+  position: relative;
+  width: fit-content;
+}
+.hero h1 em::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.12em;
+  height: 0.16em;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--teal), #2fe0c400);
+  transform-origin: left;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-wrap::before {
+    animation: drift 26s linear infinite;
+  }
+  .hero h1 em::after {
+    animation: draw 0.9s 0.3s var(--ease) both;
+  }
+  .hero-copy > * {
+    animation: rise 0.6s var(--ease) both;
+  }
+  .hero-copy > :nth-child(2) {
+    animation-delay: 0.08s;
+  }
+  .hero-copy > :nth-child(3) {
+    animation-delay: 0.16s;
+  }
+  .hero-copy > :nth-child(4) {
+    animation-delay: 0.24s;
+  }
+}
+@keyframes drift {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Latest reports, passing by under the hero. One marquee on the page. */
+.ticker {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: #1c1508;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+.ticker-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  background: var(--amber);
+  color: #241600;
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 1;
+}
+.ticker-track {
+  display: flex;
+  white-space: nowrap;
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 4%,
+    #000 96%,
+    transparent
+  );
+}
+.ticker-track > span {
+  display: inline-flex;
+  flex: none;
+}
+.ticker-track > span > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.75rem;
+}
+.ticker-track small {
+  color: var(--amber);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ticker-track > span {
+    animation: slide 36s linear infinite;
+  }
+  .ticker:hover .ticker-track > span,
+  .ticker:focus-visible .ticker-track > span {
+    animation-play-state: paused;
+  }
+}
+@keyframes slide {
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Compare: two columns of the same facts. */
+.versus {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+.versus > section {
+  background: linear-gradient(180deg, var(--ink-900), #0b1228);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+@media (min-width: 52rem) {
+  .versus {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

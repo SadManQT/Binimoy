@@ -3,6 +3,7 @@ import { listShops, shopCategoryCounts } from "@lp/db/shops";
 import { fill, getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { CategoryIcon } from "../components/category-icon";
+import { Mini3D } from "../components/mini-3d";
 import { ComplaintLine, Rating, TrustBadge } from "../components/shop-ui";
 
 export const dynamic = "force-dynamic";
@@ -38,9 +39,12 @@ export default async function ShopsPage({
 
   return (
     <main className="wide">
-      <div className="page-head">
-        <h1>{t.shops.title}</h1>
-        <p>{t.shops.sub}</p>
+      <div className="page-head with-3d">
+        <div>
+          <h1>{t.shops.title}</h1>
+          <p>{t.shops.sub}</p>
+        </div>
+        <Mini3D kind="stars" />
       </div>
 
       <form

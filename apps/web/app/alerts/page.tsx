@@ -4,6 +4,7 @@ import { Warning } from "@phosphor-icons/react/dist/ssr";
 import { getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { CategoryIcon } from "../components/category-icon";
+import { Mini3D } from "../components/mini-3d";
 
 export const dynamic = "force-dynamic";
 
@@ -23,9 +24,12 @@ export default async function AlertsPage({
 
   return (
     <main className="wide">
-      <div className="page-head">
-        <h1>{t.alerts.title}</h1>
-        <p>{t.alerts.sub}</p>
+      <div className="page-head with-3d">
+        <div>
+          <h1>{t.alerts.title}</h1>
+          <p>{t.alerts.sub}</p>
+        </div>
+        <Mini3D kind="alert" />
       </div>
       <p className="notice" data-testid="allegation-note">
         {t.alerts.note}
@@ -72,7 +76,7 @@ export default async function AlertsPage({
       ) : (
         <ul className="reports" data-testid="alerts">
           {reports.map((report) => (
-            <li key={report.id}>
+            <li key={report.id} data-tilt>
               <div className="who">
                 <Warning size={20} weight="fill" aria-hidden="true" />
                 <a className="title" href={`/shops/${report.shopId}`}>
