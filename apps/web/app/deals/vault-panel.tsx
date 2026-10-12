@@ -17,15 +17,20 @@ import {
   sendDelivery,
   VaultUnavailable,
 } from "../../lib/vault-client";
+import { submitDeliveryAction } from "./actions";
 
 type Props = {
   dealId: string;
   myRole: "buyer" | "seller";
+  myMxid: string;
   counterpartyMxid: string;
   roomId: string | null;
   termsHash: string;
   agreementVersion: number;
+  // Items delivered through the vault.
   items: { itemId: string; title: string }[];
+  // Items the seller confirms by statement rather than through the vault.
+  declarable: { itemId: string; title: string; mandatory: boolean }[];
 };
 
 type Phase =
@@ -41,10 +46,12 @@ export function VaultPanel(props: Props) {
   const [status, setStatus] = useState("");
   const [roomId, setRoomId] = useState(props.roomId);
   const [received, setReceived] = useState<ReceivedDelivery[]>([]);
-  const [sent, setSent] = useState<string[]>([]);
+  // The seller's own vault messages for this agreement version: item -> event.
+  const [mine, setMine] = useState<Record<string, string>>({});
   const [revealed, setRevealed] = useState<string[]>([]);
   const clientRef = useRef<MatrixClient | null>(null);
-  const { dealId, termsHash, agreementVersion, counterpartyMxid } = props;
+  const { dealId, termsHash, agreementVersion, counterpartyMxid, myMxid } =
+    props;
 
   const refresh = useCallback(async () => {
     const client = clientRef.current;
@@ -56,15 +63,25 @@ export function VaultPanel(props: Props) {
     const room = client.getRoom(roomId);
     if (room?.getMyMembership() === "invite") await client.joinRoom(roomId);
     setPhase(bothJoined(client, roomId) ? "ready" : "waiting_for_other");
+    const binding = { dealId, termsHash, agreementVersion };
     setReceived(
-      await readDeliveries(
-        client,
-        roomId,
-        { dealId, termsHash, agreementVersion },
-        counterpartyMxid,
-      ),
+      await readDeliveries(client, roomId, binding, counterpartyMxid),
     );
-  }, [roomId, dealId, termsHash, agreementVersion, counterpartyMxid]);
+    // Read back from the room, so a reload does not lose what was sent. The
+    // latest message per item is the one that gets submitted.
+    const own: Record<string, string> = {};
+    for (const delivery of await readDeliveries(
+      client,
+      roomId,
+      binding,
+      myMxid,
+    )) {
+      if (delivery.bindingMatches && delivery.itemId) {
+        own[delivery.itemId] = delivery.eventId;
+      }
+    }
+    setMine(own);
+  }, [roomId, dealId, termsHash, agreementVersion, counterpartyMxid, myMxid]);
 
   // The vault is opened once per page view. The ref lets that one effect call
   // the latest refresh without re-opening the vault when its inputs change.
@@ -127,7 +144,7 @@ export function VaultPanel(props: Props) {
         value,
       });
       element.reset();
-      setSent((previous) => [...previous, itemId]);
+      await refresh();
       setStatus("পাঠানো হয়েছে। পাঠানো মানে সরবরাহ গৃহীত হওয়া নয়।");
     } catch (error) {
       setStatus(`হয়নি, কিছু পাঠানো হয়নি: ${(error as Error).message}`);
@@ -174,7 +191,12 @@ export function VaultPanel(props: Props) {
             <form key={item.itemId} onSubmit={(e) => submit(e, item.itemId)}>
               <label>
                 {item.title}
-                {sent.includes(item.itemId) && " (এই পাতা থেকে পাঠানো হয়েছে)"}
+                {mine[item.itemId] && (
+                  <span data-testid={`vault-sent-${item.itemId}`}>
+                    {" "}
+                    (ভল্টে পাঠানো হয়েছে; আবার পাঠালে নতুনটি গণ্য হবে)
+                  </span>
+                )}
                 <input
                   name="value"
                   type="password"
@@ -186,6 +208,41 @@ export function VaultPanel(props: Props) {
               <button type="submit">ভল্টে পাঠান</button>
             </form>
           ))}
+
+          <form action={submitDeliveryAction} data-testid="submit-delivery">
+            <input type="hidden" name="dealId" value={dealId} />
+            <input
+              type="hidden"
+              name="vaultEvents"
+              value={JSON.stringify(mine)}
+            />
+            <fieldset>
+              <legend>বিক্রেতার ঘোষণা</legend>
+              {props.declarable.map((item) => (
+                <label key={item.itemId}>
+                  <input
+                    type="checkbox"
+                    name="declared"
+                    value={item.itemId}
+                    required={item.mandatory}
+                    style={{ display: "inline", width: "auto", minHeight: 0 }}
+                  />{" "}
+                  আমি ঘোষণা করছি: {item.title}
+                  {item.mandatory ? "" : " (ঐচ্ছিক)"}
+                </label>
+              ))}
+            </fieldset>
+            <p>
+              জমা দিলে ক্রেতার পরীক্ষা শুরু হয়। জমা দেওয়া মানে টাকা পাওয়া নয়; ক্রেতা গ্রহণ করলে
+              তবেই পরিশোধ হয়।
+            </p>
+            <button
+              type="submit"
+              disabled={props.items.some((item) => !mine[item.itemId])}
+            >
+              সরবরাহ জমা দিন
+            </button>
+          </form>
         </div>
       )}
 

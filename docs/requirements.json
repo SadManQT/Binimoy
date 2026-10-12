@@ -318,9 +318,15 @@
     "phase": "P0",
     "ownerTask": "LP-008",
     "acceptance": "Required items retain PASS/FAIL/UNKNOWN/STALE separately; no cosmetic percent releases money",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/delivery.ts",
+      "apps/web/app/deals/delivery-section.tsx"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/settlement.int.test.ts",
+      "tests/e2e/vault.spec.ts"
+    ],
     "evidence": []
   },
   {
@@ -355,9 +361,9 @@
     "phase": "P0",
     "ownerTask": "LP-009",
     "acceptance": "Each B9 path has its own proof/consent; all feed the same D.5 engine",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": ["packages/db/src/settlement.ts"],
+    "acceptanceTests": ["packages/db/src/settlement.int.test.ts"],
     "evidence": []
   },
   {
@@ -377,9 +383,9 @@
     "phase": "P0",
     "ownerTask": "LP-010",
     "acceptance": "Exact claim, chronology, permitted attachments and current financial hold are preserved",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": ["packages/db/src/settlement.ts"],
+    "acceptanceTests": ["packages/db/src/settlement.int.test.ts"],
     "evidence": []
   },
   {

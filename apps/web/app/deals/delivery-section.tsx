@@ -1,0 +1,211 @@
+import { formatBdt } from "@lp/contracts";
+import type { Terms } from "@lp/db/agreements";
+import type { DeliveryView } from "@lp/db/delivery";
+import {
+  AUTHORIZATION_TEXT,
+  CLAIM_TEXT,
+  INSPECTION_TEXT,
+  OPERATION_TEXT,
+  PATH_TEXT,
+} from "../../lib/copy";
+import {
+  acceptDeliveryAction,
+  openDisputeAction,
+  recordInspectionAction,
+} from "./actions";
+
+const when = (date: Date | null) =>
+  date
+    ? `${date.toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" })} (Asia/Dhaka)`
+    : "নির্ধারিত হয়নি";
+
+// B5 steps 5 to 7. Each line here is a recorded fact; none is inferred from
+// another. "Delivered" is not "accepted", and "accepted" is not "paid".
+export function DeliverySection({
+  dealId,
+  myRole,
+  terms,
+  delivery,
+}: {
+  dealId: string;
+  myRole: "buyer" | "seller";
+  terms: Terms;
+  delivery: DeliveryView;
+}) {
+  const { package: pkg, settlement, dispute } = delivery;
+  const item = (itemId: string) => terms.items.find((i) => i.itemId === itemId);
+  const disputeOpen =
+    dispute !== null &&
+    !["RESOLVED", "UNRESOLVED_CLOSED"].includes(dispute.state);
+
+  return (
+    <div data-testid="delivery-section">
+      <h3>সরবরাহ ও পরীক্ষা</h3>
+      <dl>
+        <dt>সরবরাহের শেষ সময়</dt>
+        <dd>{when(delivery.deliveryDueAt)}</dd>
+        {pkg && (
+          <>
+            <dt>সরবরাহ</dt>
+            <dd>
+              সংস্করণ {pkg.versionNo} জমা পড়েছে
+              {pkg.accepted ? " এবং ক্রেতা গ্রহণ করেছেন" : ", এখনো গৃহীত হয়নি"}
+            </dd>
+            <dt>পরীক্ষার শেষ সময়</dt>
+            <dd>{when(delivery.inspectionDueAt)}</dd>
+          </>
+        )}
+      </dl>
+
+      {!pkg && !settlement && (
+        <p>
+          বিক্রেতা এখনো কিছু জমা দেননি। শেষ সময়ের মধ্যে কিছু জমা না পড়লে ক্রেতা পুরো টাকা
+          ফেরত পাবেন।
+        </p>
+      )}
+
+      {pkg && (
+        <ol>
+          {pkg.inspections.map((inspection) => {
+            const definition = item(inspection.itemId);
+            const buyerCheck =
+              myRole === "buyer" &&
+              definition?.predicate === "buyer_confirms" &&
+              pkg.state === "SUBMITTED" &&
+              !pkg.accepted;
+            return (
+              <li key={inspection.inspectionId}>
+                {definition?.title.bn ?? inspection.itemId} ·{" "}
+                {inspection.mandatory ? "আবশ্যক" : "ঐচ্ছিক"} ·{" "}
+                <strong data-testid={`inspection-${inspection.itemId}`}>
+                  {INSPECTION_TEXT[inspection.state] ?? inspection.state}
+                </strong>
+                {buyerCheck && (
+                  <form action={recordInspectionAction}>
+                    <input type="hidden" name="dealId" value={dealId} />
+                    <input
+                      type="hidden"
+                      name="inspectionId"
+                      value={inspection.inspectionId}
+                    />
+                    <button
+                      type="submit"
+                      name="outcome"
+                      value="PASSED"
+                      aria-label={`${definition?.title.bn}: পাস`}
+                    >
+                      পাস
+                    </button>
+                    <button
+                      type="submit"
+                      name="outcome"
+                      value="FAILED"
+                      aria-label={`${definition?.title.bn}: ব্যর্থ`}
+                    >
+                      ব্যর্থ
+                    </button>
+                    <button
+                      type="submit"
+                      name="outcome"
+                      value="UNKNOWN"
+                      aria-label={`${definition?.title.bn}: পরীক্ষা করা যাচ্ছে না`}
+                    >
+                      পরীক্ষা করা যাচ্ছে না
+                    </button>
+                  </form>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+
+      {pkg &&
+        myRole === "buyer" &&
+        pkg.state === "SUBMITTED" &&
+        !pkg.accepted && (
+          <form action={acceptDeliveryAction}>
+            <input type="hidden" name="dealId" value={dealId} />
+            <input type="hidden" name="packageId" value={pkg.packageId} />
+            <p>
+              গ্রহণ করলে {formatBdt(terms.amountMinor)} ({terms.currency})
+              বিক্রেতাকে পরিশোধের অনুমোদন হবে, সরবরাহের সংস্করণ {pkg.versionNo} এর
+              জন্য। সব আবশ্যক অংশ পাস না হলে গ্রহণ করা যাবে না।
+            </p>
+            <button type="submit">এই সরবরাহ গ্রহণ করুন</button>
+          </form>
+        )}
+
+      {settlement && (
+        <div data-testid="settlement">
+          <h3>টাকার নিষ্পত্তি</h3>
+          <p>
+            {PATH_TEXT[settlement.path] ?? settlement.path} ·{" "}
+            {AUTHORIZATION_TEXT[settlement.state] ?? settlement.state}
+          </p>
+          <ul>
+            {settlement.operations.map((operation) => (
+              <li key={operation.kind}>
+                {operation.kind === "payout"
+                  ? "বিক্রেতাকে পরিশোধ"
+                  : "ক্রেতাকে ফেরত"}
+                : {formatBdt(operation.amountMinor)} ·{" "}
+                <strong data-testid={`operation-${operation.kind}`}>
+                  {settlement.state === "INVALIDATED"
+                    ? "বাতিল, পাঠানো হয়নি"
+                    : (OPERATION_TEXT[operation.state] ?? operation.state)}
+                </strong>
+              </li>
+            ))}
+          </ul>
+          <p>সব লেনদেন পরীক্ষামূলক (নকল); কোনো আসল টাকা নড়ে না।</p>
+        </div>
+      )}
+
+      {dispute ? (
+        <div data-testid="dispute">
+          <h3>বিরোধ</h3>
+          <p>
+            অভিযোগ: {CLAIM_TEXT[dispute.claim] ?? dispute.claim} ·{" "}
+            {disputeOpen ? "খোলা" : "বন্ধ"}
+          </p>
+          <p>
+            {dispute.afterDispatch
+              ? "এই বিরোধ খোলার আগেই টাকা পাঠানোর প্রক্রিয়া শুরু হয়ে গিয়েছিল। তাই পাঠানো থামানো যায়নি; এটি পরিশোধ-পরবর্তী দাবি হিসেবে রেকর্ড হয়েছে। স্বয়ংক্রিয় ফেরতের প্রতিশ্রুতি দেওয়া হচ্ছে না।"
+              : "বিরোধ খোলা থাকা পর্যন্ত টাকা আটকে থাকবে। বিরোধ পর্যালোচনা ও মীমাংসার ব্যবস্থা এই সংস্করণে এখনো তৈরি হয়নি।"}
+          </p>
+        </div>
+      ) : (
+        <details>
+          <summary>সমস্যা জানান (বিরোধ খুলুন)</summary>
+          <p>
+            বিরোধ খুললে এখনো পাঠানো হয়নি এমন টাকা আটকে যায়। অভিযোগ মানেই কেউ দোষী নয়;
+            এটি শুধু বিষয়টি রেকর্ড করে।
+          </p>
+          <form action={openDisputeAction}>
+            <input type="hidden" name="dealId" value={dealId} />
+            <label>
+              কী সমস্যা?
+              <select
+                name="claim"
+                required
+                style={{ display: "block", minHeight: 44 }}
+              >
+                {Object.entries(CLAIM_TEXT).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              বিস্তারিত (পাসওয়ার্ড, OTP বা পিন লিখবেন না)
+              <input name="detail" maxLength={2000} />
+            </label>
+            <button type="submit">বিরোধ খুলুন</button>
+          </form>
+        </details>
+      )}
+    </div>
+  );
+}

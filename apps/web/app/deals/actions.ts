@@ -1,6 +1,7 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
+import { getVaultRoom, matrixUserId } from "@lp/adapters";
 import { loadConfig, takaToMinor } from "@lp/contracts";
 import {
   type AgreementCommand,
@@ -11,16 +12,24 @@ import {
   getDealView,
 } from "@lp/db/agreements";
 import {
+  acceptDelivery,
+  recordInspection,
+  submitDelivery,
+  type VerifyVaultEvent,
+} from "@lp/db/delivery";
+import {
   createInvoice,
   getFunding,
   ingestPaymentEvent,
   signMockEvent,
   startFunding,
 } from "@lp/db/ledger";
+import { openDispute } from "@lp/db/settlement";
 import { redirect } from "next/navigation";
 import { mockWebhookSecret } from "../../lib/mock-payment";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
+import { vaultAdmin, vaultConfig } from "../../lib/vault";
 
 const text = (form: FormData, name: string) =>
   String(form.get(name) ?? "").trim();
@@ -191,6 +200,93 @@ export async function mockProviderAction(form: FormData) {
       secret,
     },
   );
+  redirect(
+    result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
+  );
+}
+
+// Asks the vault homeserver whether an event is really the seller's
+// encrypted message in this deal's vault room.
+const verifyVaultEvent: VerifyVaultEvent = async (
+  dealId,
+  eventId,
+  sellerId,
+) => {
+  const config = vaultConfig();
+  const admin = vaultAdmin();
+  const roomId = await getVaultRoom(pool(), dealId);
+  if (!config || !admin || !roomId) return false;
+  return (await admin).verifyEvent(
+    roomId,
+    eventId,
+    matrixUserId(sellerId, config.serverName),
+  );
+};
+
+export async function submitDeliveryAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  let vaultEvents: Record<string, string> = {};
+  try {
+    vaultEvents = JSON.parse(text(form, "vaultEvents") || "{}");
+  } catch {
+    redirect(`/deals/${dealId}?error=VALIDATION_FAILED`);
+  }
+  const items = [
+    ...Object.entries(vaultEvents).map(([itemId, vaultEventId]) => ({
+      itemId,
+      vaultEventId,
+    })),
+    ...form.getAll("declared").map((itemId) => ({
+      itemId: String(itemId),
+      declared: true,
+    })),
+  ];
+  const result = await submitDelivery(pool(), verifyVaultEvent, {
+    userId: user.id,
+    dealId,
+    items,
+  });
+  redirect(
+    result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
+  );
+}
+
+export async function recordInspectionAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  const result = await recordInspection(pool(), {
+    userId: user.id,
+    inspectionId: text(form, "inspectionId"),
+    outcome: text(form, "outcome"),
+    note: text(form, "note"),
+  });
+  redirect(
+    result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
+  );
+}
+
+export async function acceptDeliveryAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  const result = await acceptDelivery(pool(), {
+    userId: user.id,
+    packageId: text(form, "packageId"),
+  });
+  redirect(
+    result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
+  );
+}
+
+export async function openDisputeAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  const result = await openDispute(pool(), {
+    userId: user.id,
+    dealId,
+    claim: text(form, "claim"),
+    detail: text(form, "detail"),
+  });
   redirect(
     result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
   );

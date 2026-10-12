@@ -3,10 +3,18 @@ import { loadConfig } from "@lp/contracts";
 import { beat, createPool } from "@lp/db";
 import { expireInvoices, sweepPaymentEvents } from "@lp/db/ledger";
 import { claimOutbox, completeOutbox } from "@lp/db/outbox";
+import {
+  dispatchSettlements,
+  mockTransferAdapter,
+  reconcileOperations,
+  refundOverdueDeliveries,
+} from "@lp/db/settlement";
 
 const config = loadConfig(process.env);
 const pool = createPool(config.DATABASE_URL);
 const workerId = `${hostname()}:${process.pid}`;
+// PAYMENT_MODE can only be "mock", so this is the only adapter that exists.
+const transfers = mockTransferAdapter(pool);
 const log = (level: string, msg: string, extra = {}) =>
   console.log(JSON.stringify({ level, msg, workerId, ...extra }));
 
@@ -44,6 +52,14 @@ async function tick() {
     await step("invoices_expired", () => expireInvoices(pool, config.APP_ENV));
     await step("payment_events_swept", () =>
       sweepPaymentEvents(pool, config.APP_ENV),
+    );
+    await step("no_delivery_refunds", () => refundOverdueDeliveries(pool));
+    // Reconcile before dispatching: unfinished transfers come first.
+    await step("operations_reconciled", () =>
+      reconcileOperations(pool, transfers),
+    );
+    await step("settlements_dispatched", () =>
+      dispatchSettlements(pool, transfers),
     );
     await step("outbox_dispatched", drainOutbox);
   } finally {

@@ -17,8 +17,11 @@ export default defineConfig({
   retries: 0,
   reporter: [["list"]],
   use: { baseURL: BASE },
+  // One command starts both processes: the worker dispatches payouts and
+  // refunds, as in production. (A second webServer entry would be skipped,
+  // because its readiness URL is already answered by the web server.)
   webServer: {
-    command: `pnpm --filter @lp/web build && pnpm --filter @lp/web exec next start -p ${PORT}`,
+    command: `pnpm --filter @lp/web build && (pnpm --filter @lp/worker dev & pnpm --filter @lp/web exec next start -p ${PORT})`,
     url: `${BASE}/api/health`,
     env: { APP_URL: BASE },
     reuseExistingServer: false,
