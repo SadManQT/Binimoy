@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { getVaultRoom, matrixUserId } from "@lp/adapters";
 import { formatBdt, loadConfig } from "@lp/contracts";
 import { getDealView } from "@lp/db/agreements";
+import { getDeliveryView } from "@lp/db/delivery";
 import { dealBalances, getFunding } from "@lp/db/ledger";
 import { getTemplate } from "@lp/templates";
 import { notFound } from "next/navigation";
@@ -15,6 +16,7 @@ import {
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
 import { agreementAction, createInviteAction } from "../actions";
+import { DeliverySection } from "../delivery-section";
 import { FundingSection } from "../funding-section";
 import { TermsFields } from "../terms-fields";
 import { VaultPanel } from "../vault-panel";
@@ -52,6 +54,17 @@ export default async function DealPage({
     .filter((item) => item.dataClass === "vault_secret")
     .map((item) => ({ itemId: item.itemId, title: item.title.bn }));
   const vaultRoomId = await getVaultRoom(pool(), deal.dealId);
+  const delivery =
+    funding?.state === "CONFIRMED"
+      ? await getDeliveryView(pool(), deal.dealId)
+      : null;
+  const declarable = terms.items
+    .filter((item) => item.predicate === "seller_declares")
+    .map((item) => ({
+      itemId: item.itemId,
+      title: item.title.bn,
+      mandatory: item.mandatory,
+    }));
 
   // One fresh key per rendered form: a double click replays, a new page load
   // is a new action.
@@ -238,6 +251,8 @@ export default async function DealPage({
             <VaultPanel
               dealId={deal.dealId}
               myRole={deal.myRole}
+              myMxid={matrixUserId(user.id, vault.serverName)}
+              declarable={declarable}
               counterpartyMxid={matrixUserId(
                 counterparty.userId,
                 vault.serverName,
@@ -250,6 +265,15 @@ export default async function DealPage({
           ) : (
             <p>এই পরিবেশে গোপন ভল্ট চালু নেই, তাই সরবরাহ এখন সম্ভব নয়।</p>
           ))}
+
+        {delivery && (
+          <DeliverySection
+            dealId={deal.dealId}
+            myRole={deal.myRole}
+            terms={terms}
+            delivery={delivery}
+          />
+        )}
 
         {!open && agreement.state !== "ACCEPTED" && <p>এই চুক্তি আর সক্রিয় নয়।</p>}
 

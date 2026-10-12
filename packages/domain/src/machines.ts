@@ -144,7 +144,8 @@ export const MACHINES = {
         command: "ReplaceDelivery",
         from: ["SUBMITTED"],
         to: ["SUPERSEDED"],
-        actors: ["seller"],
+        // "system": superseding is a consequence of the seller submitting a new version.
+        actors: ["seller", "system"],
       },
     ],
   },

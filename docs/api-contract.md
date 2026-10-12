@@ -76,6 +76,18 @@ Code: `packages/db/src/ledger.ts`.
 - Only an authenticated provider event can move an invoice to `CONFIRMED`. The event must match the invoice's amount and currency exactly; anything else is recorded as unapplied and the invoice goes to `RECONCILIATION_REQUIRED`.
 - Provider callback: `POST /api/webhooks/mock-payment` with header `x-mock-signature` (HMAC-SHA256 of the raw body). 401 for a bad signature, 400 for a malformed body, otherwise `{ "outcome": ... }`.
 
+## Delivery and settlement
+
+Code: `packages/db/src/delivery.ts`, `packages/db/src/settlement.ts`.
+
+- Submitting, inspecting, accepting, authorizing, dispatching and settling are separate recorded events. None implies the next.
+- A delivery package is an immutable version. A new version supersedes the old one, makes its inspections `STALE` and invalidates any unsent authorization that depended on it.
+- An authorization reserves the money (held to reserved) when it is created. The reservation is settled only by an adapter success, and returned to held only by an adapter final failure or by invalidation before dispatch.
+- The dispatch commit is the linearization point shared with disputes. A dispute committed before it invalidates the authorization; one committed after it is recorded with `after_dispatch = true` and does not stop or undo the transfer.
+- The adapter key `binimoy:<authorizationId>:<kind>` never changes, so a retry cannot become a second transfer.
+
+Additional codes raised: `INCOMPLETE_DELIVERY`, `VAULT_INVALID`, `DISPUTE_OPEN`, `INSUFFICIENT_HELD_FUNDS`.
+
 ## Events
 
 Type `DomainEvent` in `packages/contracts/src/command.ts`; table `event`.

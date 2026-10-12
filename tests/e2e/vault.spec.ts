@@ -24,10 +24,18 @@ async function signUp(browser: Browser, name: string): Promise<Page> {
   return page;
 }
 
-const click = async (page: Page, name: string) => {
-  await page.getByRole("button", { name }).click();
-  await page.waitForLoadState("networkidle");
-};
+// Submits a form and waits until the server has answered, so the next step
+// (often in the other browser) sees the committed state. "networkidle" cannot
+// be used: the vault keeps a long poll open to the homeserver.
+async function act(page: Page, button: ReturnType<Page["getByRole"]>) {
+  await Promise.all([
+    page.waitForResponse((r) => r.request().method() === "POST"),
+    button.click(),
+  ]);
+  await page.waitForLoadState("domcontentloaded");
+}
+const click = (page: Page, name: string) =>
+  act(page, page.getByRole("button", { name }));
 
 test("a seller's secret reaches the buyer encrypted end to end", async ({
   browser,
@@ -72,7 +80,9 @@ test("a seller's secret reaches the buyer encrypted end to end", async ({
   await click(buyer, "টাকা জমার ইনভয়েস তৈরি করুন");
   await click(buyer, "নকল পেমেন্ট শুরু করুন");
   await click(buyer, "সঠিক পরিমাণ পাওয়া গেছে");
-  await expect(buyer.getByText("টাকা জমা নিশ্চিত")).toBeVisible();
+  await expect(
+    buyer.getByText("টাকা জমা নিশ্চিত, নিরাপদ হিসাবে আটকে রাখা"),
+  ).toBeVisible();
 
   // Vault: the buyer has no room yet and no way to type a secret.
   const buyerVault = buyer.getByTestId("vault-panel");
@@ -129,4 +139,44 @@ test("a seller's secret reaches the buyer encrypted end to end", async ({
   // And the application's own pages never carry it for the seller either.
   await seller.reload();
   expect(await seller.content()).not.toContain(SECRET);
+
+  // --- Delivery, inspection, acceptance and payout ---
+
+  // The seller declares the two mandatory statements and submits.
+  const submit = seller.getByTestId("submit-delivery");
+  await expect(seller.getByTestId("vault-sent-key_delivered")).toBeVisible();
+  const declarations = submit.locator('input[name="declared"]');
+  await declarations.nth(0).check();
+  await declarations.nth(1).check();
+  await act(seller, submit.getByRole("button", { name: "সরবরাহ জমা দিন" }));
+  await expect(seller.getByTestId("inspection-key_delivered")).toHaveText("পাস");
+  // Submitting moved no money.
+  await expect(seller.getByTestId("settlement")).toHaveCount(0);
+
+  // The buyer cannot accept until their own checks pass.
+  await buyer.goto(dealUrl);
+  await click(buyer, "এই সরবরাহ গ্রহণ করুন");
+  await expect(buyer.locator('main [role="alert"]')).toContainText(
+    "সব আবশ্যক অংশ",
+  );
+  await expect(buyer.getByTestId("settlement")).toHaveCount(0);
+
+  await buyer.goto(dealUrl);
+  await act(buyer, buyer.getByRole("button", { name: /অ্যাক্টিভেশন সফল: পাস/ }));
+  await act(buyer, buyer.getByRole("button", { name: /সীমা নিশ্চিত: পাস/ }));
+  await expect(buyer.getByTestId("inspection-activation_works")).toHaveText(
+    "পাস",
+  );
+
+  await click(buyer, "এই সরবরাহ গ্রহণ করুন");
+  await expect(buyer.getByTestId("settlement")).toBeVisible();
+
+  // The worker dispatches the payout; the page reports what the ledger says.
+  await expect(async () => {
+    await seller.goto(dealUrl);
+    await expect(seller.getByTestId("operation-payout")).toHaveText("সম্পন্ন", {
+      timeout: 2000,
+    });
+  }).toPass({ timeout: 120_000 });
+  await expect(seller.getByText("৳1,500.00").first()).toBeVisible();
 });

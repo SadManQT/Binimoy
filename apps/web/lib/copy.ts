@@ -14,6 +14,13 @@ export const ERROR_TEXT: Record<string, string> = {
     "এই ডিলে শুরু থেকেই মানব রিভিউয়ার দরকার, কিন্তু এখনো কাউকে নিযুক্ত করা যায় না। তাই টাকা জমা দেওয়া যাবে না।",
   INVOICE_EXPIRED: "ইনভয়েসের মেয়াদ শেষ। নতুন ইনভয়েস তৈরি করুন।",
   TEST_MODE_REQUIRED: "এই সংস্করণে শুধু পরীক্ষামূলক (নকল) পেমেন্ট চলে।",
+  INCOMPLETE_DELIVERY:
+    "সব আবশ্যক অংশ এখনো সম্পূর্ণ বা পাস হয়নি। আগের ধাপগুলো আগে শেষ করুন।",
+  VAULT_INVALID:
+    "ভল্টের বার্তাটি এই ডিলের বিক্রেতার এনক্রিপ্ট করা বার্তা হিসেবে যাচাই করা যায়নি।",
+  VAULT_UNAVAILABLE: "এই পরিবেশে ভল্ট চালু নেই।",
+  DISPUTE_OPEN: "একটি বিরোধ খোলা আছে। সেটি মীমাংসা না হওয়া পর্যন্ত টাকা ছাড়া যাবে না।",
+  INSUFFICIENT_HELD_FUNDS: "আটকে রাখা টাকার পরিমাণ চুক্তির সাথে মিলছে না।",
   INVITE_INVALID: "আমন্ত্রণটি আর কার্যকর নয়: মেয়াদ শেষ, ব্যবহৃত বা বাতিল।",
 };
 
@@ -25,6 +32,52 @@ export const FUNDING_TEXT: Record<string, string> = {
   CANCELLED: "ইনভয়েস বাতিল",
   RECONCILIATION_REQUIRED:
     "পরিমাণ মেলেনি: টাকা জমা হিসেবে গণ্য হয়নি, হিসাব মেলানো দরকার",
+};
+
+export const INSPECTION_TEXT: Record<string, string> = {
+  NOT_STARTED: "শুরু হয়নি",
+  PENDING: "পরীক্ষার অপেক্ষায়",
+  PASSED: "পাস",
+  FAILED: "ব্যর্থ",
+  UNKNOWN: "যাচাই করা যায়নি (দোষ বা সাফল্য কোনোটাই নয়)",
+  STALE: "পুরোনো সংস্করণের, আর গণ্য নয়",
+};
+
+export const AUTHORIZATION_TEXT: Record<string, string> = {
+  CREATED: "অনুমোদন তৈরি",
+  RESERVED: "অনুমোদিত, টাকা সংরক্ষিত, এখনো পাঠানো হয়নি",
+  INVALIDATED: "অনুমোদন বাতিল, টাকা আবার আটকে রাখা",
+  EXPIRED: "অনুমোদনের মেয়াদ শেষ",
+  DISPATCH_COMMITTED: "পাঠানোর প্রক্রিয়া শুরু",
+  CONSUMED: "পাঠানোর প্রক্রিয়ায় দেওয়া হয়েছে",
+};
+
+export const OPERATION_TEXT: Record<string, string> = {
+  NOT_SENT: "এখনো পাঠানো হয়নি",
+  DISPATCH_COMMITTED: "পাঠানো হচ্ছে, ফলাফল এখনো জানা নেই",
+  PENDING: "প্রোভাইডারে অপেক্ষমাণ",
+  SUCCEEDED: "সম্পন্ন",
+  FAILED_FINAL: "চূড়ান্তভাবে ব্যর্থ, টাকা আবার আটকে রাখা হয়েছে",
+  UNKNOWN: "ফলাফল অজানা, মেলানো হচ্ছে; টাকা সংরক্ষিত আছে",
+  CANCELLED_CONFIRMED: "বাতিল নিশ্চিত",
+};
+
+export const PATH_TEXT: Record<string, string> = {
+  ACCEPTED_RELEASE: "ক্রেতার গ্রহণের ভিত্তিতে বিক্রেতাকে পরিশোধ",
+  NO_DELIVERY_REFUND: "সময়মতো সরবরাহ না হওয়ায় ক্রেতাকে ফেরত",
+  OBJECTIVE_RELEASE: "স্বাধীন প্রমাণের ভিত্তিতে পরিশোধ",
+  MUTUAL_RESOLUTION: "দুই পক্ষের সম্মত বণ্টন",
+  REVIEWED_RESOLUTION: "পর্যালোচকের সিদ্ধান্ত",
+};
+
+export const CLAIM_TEXT: Record<string, string> = {
+  NOT_RECEIVED: "কিছুই পাইনি",
+  CANNOT_ACCESS: "লগইন বা প্রবেশ করা যাচ্ছে না",
+  WRONG_PRODUCT: "ভুল পণ্য বা ভুল অ্যাকাউন্ট",
+  INCOMPLETE: "কিছু অংশ বাদ পড়েছে",
+  LOST_ACCESS_LATER: "পরে প্রবেশাধিকার হারিয়েছি",
+  COMPROMISED: "অ্যাকাউন্ট বেহাত হয়েছে বলে সন্দেহ",
+  OTHER: "অন্য কিছু",
 };
 
 export const STATE_TEXT: Record<string, string> = {

@@ -17,8 +17,8 @@ tasks:
   - {id: LP-005, title: "Ledger, mock funding and outbox", status: MERGED, owner: claude-code, branch: chunk-money, base_sha: main, depends_on: [LP-002, LP-003], evidence: [docs/handoffs/LP-005.md], blockers: []}
   - {id: LP-006, title: "Monitored conversation and evidence versions", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-003, LP-004], evidence: [], blockers: []}
   - {id: LP-007, title: "Secret vault and device/key behavior", status: IN_PROGRESS, owner: claude-code, branch: chunk-vault-browser, base_sha: main, depends_on: [LP-003, LP-004], evidence: [docs/handoffs/LP-007-part-1.md, docs/handoffs/LP-007-part-2.md], blockers: []}
-  - {id: LP-008, title: "Mock provider and guided inspections", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-004, LP-007], evidence: [], blockers: []}
-  - {id: LP-009, title: "Settlement paths and reconciliation", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-005, LP-008], evidence: [], blockers: []}
+  - {id: LP-008, title: "Mock provider and guided inspections", status: IN_PROGRESS, owner: claude-code, branch: chunk-settlement, base_sha: main, depends_on: [LP-004, LP-007], evidence: [docs/handoffs/LP-008-009.md], blockers: []}
+  - {id: LP-009, title: "Settlement paths and reconciliation", status: IN_PROGRESS, owner: claude-code, branch: chunk-settlement, base_sha: main, depends_on: [LP-005, LP-008], evidence: [docs/handoffs/LP-008-009.md], blockers: []}
   - {id: LP-010, title: "Disputes, human review, appeals", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-006, LP-009], evidence: [], blockers: []}
   - {id: LP-011, title: "AI deal guidance and evidence assessment", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-006, LP-008, LP-010], evidence: [], blockers: []}
   - {id: LP-012, title: "Research, subject resolution, sources", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-002, LP-003], evidence: [], blockers: []}
