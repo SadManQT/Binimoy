@@ -585,7 +585,13 @@ export async function closeUnresolvedAiOnly(pool: Pool): Promise<number> {
   const due = await pool.query(
     `select d.deal_id, d.dispute_id from dispute d
      join aggregate a on a.id = d.dispute_id
-     where a.state = 'OPEN' and d.opened_at <= now() - make_interval(days => $1)`,
+     where a.state = 'OPEN'
+       -- Counted from the last change to the case, so reopening it on new
+       -- evidence starts a fresh budget instead of closing again at once.
+       and coalesce(
+             (select max(e.occurred_at) from event e where e.aggregate_id = d.dispute_id),
+             d.opened_at
+           ) <= now() - make_interval(days => $1)`,
     [AI_ONLY_BUDGET_DAYS],
   );
   let count = 0;

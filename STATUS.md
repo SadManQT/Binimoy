@@ -1,17 +1,17 @@
 # Status
 
 - Product name: Binimoy (ADR-008)
-- Completion level: D1 for one category (software license), verified by `tests/e2e/vault.spec.ts` and `packages/db/src/settlement.int.test.ts`. Authorization paths that exist: `ACCEPTED_RELEASE` and the no-delivery refund. Nothing at D2 or above.
-- Active branch: `chunk-settlement`.
-- Active tasks: LP-007, LP-008, LP-009 (all IN_PROGRESS, see handoffs for what is not built). LP-001 to LP-005 are MERGED.
+- Completion level: D1 for one category (software license). Authorization paths that exist: `ACCEPTED_RELEASE`, `MUTUAL_RESOLUTION`, `REVIEWED_RESOLUTION` and the no-delivery refund. `OBJECTIVE_RELEASE` does not exist. Nothing at D2 or above.
+- Active branch: `chunk-review`.
+- Active tasks: LP-010 (IN_REVIEW). LP-007, LP-008, LP-009 are IN_PROGRESS (see handoffs for what is not built). LP-001 to LP-005 are MERGED.
 - Verified milestones: D1 vertical slice (one category, accepted release and no-delivery refund)
 - Blockers: none for local work. The vault needs Docker running (`pnpm matrix:local`). Staging needs a reachable homeserver, an email and SMS sender and its own OAuth apps.
-- Next task: LP-010 (dispute review, reviewers, appeals, mutual and reviewed resolution), then LP-006 and LP-011
+- Next task: LP-006 (monitored conversation) and LP-011 (AI assistance), then LP-012 and LP-013 (research)
 
 ## Scripts
 
 Exist and were run: `pnpm run setup`, `pnpm dev`, `pnpm lint`, `pnpm typecheck`, `pnpm test:unit`, `pnpm test:integration`, `pnpm build`, `pnpm db:migrate`, `pnpm db:local`.
-Also exist: `pnpm test:e2e` (needs `pnpm matrix:local`), `pnpm matrix:local`.
+Also exist: `pnpm test:e2e` (the vault test needs `pnpm matrix:local`), `pnpm matrix:local`, `pnpm staff grant|revoke|list`.
 Not implemented: `eval:ai`, `demo:seed`, `demo:reset`.
 
 ## Prototype

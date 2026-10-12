@@ -260,7 +260,9 @@ test("review cannot be requested in AI-only mode; an unresolved AI-only case clo
     await requestReview(pool, { userId: deal.buyer, dealId: deal.dealId }),
   ).toEqual({ ok: false, error: "REVIEW_UNAVAILABLE" });
 
-  expect(await closeUnresolvedAiOnly(pool)).toBe(0);
+  // The sweep is global; assert on this deal only. Inside its budget it stays open.
+  await closeUnresolvedAiOnly(pool);
+  expect(await state(deal)).toBe("OPEN");
   await pool.query(
     "update dispute set opened_at = now() - interval '8 days' where dispute_id = $1",
     [deal.disputeId],
@@ -278,6 +280,9 @@ test("review cannot be requested in AI-only mode; an unresolved AI-only case clo
   expect(
     await reopenDispute(pool, { userId: deal.seller, dealId: deal.dealId }),
   ).toEqual({ ok: true });
+  expect(await state(deal)).toBe("OPEN");
+  // Reopening starts a new budget: the next sweep must not close it again.
+  await closeUnresolvedAiOnly(pool);
   expect(await state(deal)).toBe("OPEN");
 });
 

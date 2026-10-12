@@ -263,9 +263,12 @@
     "phase": "P0",
     "ownerTask": "LP-010",
     "acceptance": "Hybrid, human-from-start and AI-only are separate working journeys with truthful availability",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/review.ts",
+      "packages/db/src/ledger.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/review.int.test.ts"],
     "evidence": []
   },
   {
@@ -362,8 +365,14 @@
     "ownerTask": "LP-009",
     "acceptance": "Each B9 path has its own proof/consent; all feed the same D.5 engine",
     "status": "IN_PROGRESS",
-    "implementationPaths": ["packages/db/src/settlement.ts"],
-    "acceptanceTests": ["packages/db/src/settlement.int.test.ts"],
+    "implementationPaths": [
+      "packages/db/src/settlement.ts",
+      "packages/db/src/review.ts"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/settlement.int.test.ts",
+      "packages/db/src/review.int.test.ts"
+    ],
     "evidence": []
   },
   {
@@ -384,8 +393,16 @@
     "ownerTask": "LP-010",
     "acceptance": "Exact claim, chronology, permitted attachments and current financial hold are preserved",
     "status": "IN_PROGRESS",
-    "implementationPaths": ["packages/db/src/settlement.ts"],
-    "acceptanceTests": ["packages/db/src/settlement.int.test.ts"],
+    "implementationPaths": [
+      "packages/db/src/settlement.ts",
+      "packages/db/src/review.ts",
+      "apps/web/app/deals/resolution-section.tsx"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/settlement.int.test.ts",
+      "packages/db/src/review.int.test.ts",
+      "tests/e2e/review.spec.ts"
+    ],
     "evidence": []
   },
   {
@@ -394,9 +411,16 @@
     "phase": "P0",
     "ownerTask": "LP-010",
     "acceptance": "Scoped reviewers, assignment race, no self-appeal and exact exception approval pass",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/review.ts",
+      "apps/web/app/review",
+      "packages/db/src/staff-cli.ts"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/review.int.test.ts",
+      "tests/e2e/review.spec.ts"
+    ],
     "evidence": []
   },
   {
