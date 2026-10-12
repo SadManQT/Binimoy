@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { getVaultRoom, matrixUserId } from "@lp/adapters";
+import { getAssessment, getVaultRoom, matrixUserId } from "@lp/adapters";
 import { formatBdt, loadConfig } from "@lp/contracts";
 import { getDealView } from "@lp/db/agreements";
 import { getConversation } from "@lp/db/conversation";
@@ -18,6 +18,7 @@ import {
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
 import { agreementAction, createInviteAction } from "../actions";
+import { AssessmentSection } from "../assessment-section";
 import { ConversationSection } from "../conversation-section";
 import { DeliverySection } from "../delivery-section";
 import { FundingSection } from "../funding-section";
@@ -70,6 +71,9 @@ export default async function DealPage({
     deal.parties.length === 2
       ? await getConversation(pool(), { userId: user.id, dealId: deal.dealId })
       : null;
+  const assessment = conversation
+    ? await getAssessment(pool(), { userId: user.id, dealId: deal.dealId })
+    : null;
   const declarable = terms.items
     .filter((item) => item.predicate === "seller_declares")
     .map((item) => ({
@@ -346,6 +350,9 @@ export default async function DealPage({
             dealId={deal.dealId}
             conversation={conversation}
           />
+          {assessment && (
+            <AssessmentSection dealId={deal.dealId} view={assessment} />
+          )}
         </section>
       )}
     </main>

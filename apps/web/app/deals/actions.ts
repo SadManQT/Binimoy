@@ -1,7 +1,12 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
-import { getVaultRoom, matrixUserId } from "@lp/adapters";
+import {
+  cancelQueuedAssessments,
+  getVaultRoom,
+  matrixUserId,
+  requestAssessment,
+} from "@lp/adapters";
 import { loadConfig, takaToMinor } from "@lp/contracts";
 import { withdrawMonitoringConsent } from "@lp/db/access";
 import {
@@ -364,6 +369,8 @@ export async function withdrawMonitoringAction(form: FormData) {
   const user = await requireUser();
   const dealId = text(form, "dealId");
   await withdrawMonitoringConsent(pool(), { dealId, userId: user.id });
+  // D.8: analysis that has not started is cancelled with the consent.
+  await cancelQueuedAssessments(pool(), dealId);
   redirect(`/deals/${dealId}`);
 }
 
@@ -402,4 +409,10 @@ export async function reportSecretAction(form: FormData) {
       messageId: text(form, "messageId"),
     }),
   );
+}
+
+export async function requestAssessmentAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  back(dealId, await requestAssessment(pool(), { userId: user.id, dealId }));
 }

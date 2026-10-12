@@ -2,11 +2,11 @@
 
 - Product name: Binimoy (ADR-008)
 - Completion level: D1 for one category (software license). Authorization paths that exist: `ACCEPTED_RELEASE`, `MUTUAL_RESOLUTION`, `REVIEWED_RESOLUTION` and the no-delivery refund. `OBJECTIVE_RELEASE` does not exist. Nothing at D2 or above.
-- Active branch: `chunk-conversation`.
-- Active tasks: LP-006 (IN_REVIEW). LP-007, LP-008, LP-009 are IN_PROGRESS (see handoffs for what is not built). LP-001 to LP-005 and LP-010 are MERGED.
+- Active branch: `chunk-ai`.
+- Active tasks: LP-007, LP-008, LP-009, LP-011 are IN_PROGRESS (see handoffs for what is not built). LP-001 to LP-006 and LP-010 are MERGED.
 - Verified milestones: D1 vertical slice (one category, accepted release and no-delivery refund)
-- Blockers: none for local work. The vault needs Docker running (`pnpm matrix:local`). Staging needs a reachable homeserver, an email and SMS sender and its own OAuth apps.
-- Next task: LP-011 (AI assistance, fixture mode first), then LP-012 and LP-013 (research)
+- Blockers: none for local work. A real model has never been called (no API key). The vault needs Docker running (`pnpm matrix:local`). Staging needs a reachable homeserver, an email and SMS sender and its own OAuth apps.
+- Next task: LP-012 and LP-013 (research and community reports)
 
 ## Scripts
 
