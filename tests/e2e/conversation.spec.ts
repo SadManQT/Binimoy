@@ -59,4 +59,28 @@ test("the deal room needs consent, keeps edit history and refuses a pasted passw
   await seller.goto(dealUrl);
   await seller.getByText("আগের সংস্করণ (1)").click();
   await expect(seller.getByTestId("message")).toContainText("কি টি কখন পাব?");
+
+  // --- AI summary (fixture model): a suggestion, clearly marked ---
+  await buyer.goto(dealUrl);
+  await click(buyer, "এআই-এর সারসংক্ষেপ চান");
+  await expect(async () => {
+    await buyer.goto(dealUrl);
+    await expect(buyer.getByTestId("assessment-next-step")).toBeVisible({
+      timeout: 2000,
+    });
+  }).toPass({ timeout: 120_000 });
+  const summary = buyer.getByTestId("assessment");
+  await expect(summary).toContainText("প্রস্তাব, সিদ্ধান্ত নয়");
+  await expect(summary).toContainText("পরীক্ষামূলক নকল মডেল");
+  await expect(buyer.getByTestId("assessment-stale")).toHaveCount(0);
+
+  // A new message makes that summary out of date, and the page says so.
+  await seller.goto(dealUrl);
+  await seller
+    .getByTestId("conversation")
+    .locator('form:has(button:text-is("পাঠান")) input[name="body"]')
+    .fill("আজ বিকেলে পাঠাব");
+  await click(seller, "পাঠান");
+  await buyer.goto(dealUrl);
+  await expect(buyer.getByTestId("assessment-stale")).toBeVisible();
 });

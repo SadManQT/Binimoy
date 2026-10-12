@@ -1,3 +1,4 @@
+import { getAssessment } from "@lp/adapters";
 import { formatBdt } from "@lp/contracts";
 import { getConversation } from "@lp/db/conversation";
 import { getCase } from "@lp/db/review";
@@ -11,6 +12,7 @@ import {
 } from "../../../lib/copy";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
+import { AssessmentSection } from "../../deals/assessment-section";
 import { ConversationSection } from "../../deals/conversation-section";
 import { DecisionText } from "../../deals/resolution-section";
 import { decideAction } from "../actions";
@@ -32,6 +34,10 @@ export default async function CasePage({
   const view = await getCase(pool(), user.id, id);
   if (!view) notFound();
   const conversation = await getConversation(pool(), {
+    userId: user.id,
+    dealId: view.dealId,
+  });
+  const assessment = await getAssessment(pool(), {
     userId: user.id,
     dealId: view.dealId,
   });
@@ -114,6 +120,16 @@ export default async function CasePage({
           conversation={conversation}
           readOnly
         />
+      )}
+
+      {assessment?.assessment && (
+        <>
+          <p>
+            নিচেরটি এআই-এর খসড়া। আপনার সিদ্ধান্ত আপনার নিজের পর্যবেক্ষণের ভিত্তিতে হবে;
+            এর সাথে একমত হওয়া বাধ্যতামূলক নয়।
+          </p>
+          <AssessmentSection dealId={view.dealId} view={assessment} readOnly />
+        </>
       )}
 
       {view.decisions.length > 0 && <h2>আগের সিদ্ধান্ত</h2>}

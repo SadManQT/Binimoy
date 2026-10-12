@@ -296,9 +296,18 @@
     "phase": "P0",
     "ownerTask": "LP-011",
     "acceptance": "Distinguish proposed from committed events; model outage leaves core deterministic actions available",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/domain/src/assessment.ts",
+      "packages/adapters/src/assessment-model.ts",
+      "packages/adapters/src/assessments.ts",
+      "apps/web/app/deals/assessment-section.tsx"
+    ],
+    "acceptanceTests": [
+      "packages/domain/src/assessment.test.ts",
+      "packages/adapters/src/assessments.int.test.ts",
+      "tests/e2e/conversation.spec.ts"
+    ],
     "evidence": []
   },
   {

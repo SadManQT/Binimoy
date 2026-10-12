@@ -227,6 +227,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@lp/adapters':
+        specifier: workspace:*
+        version: link:../../packages/adapters
       '@lp/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts

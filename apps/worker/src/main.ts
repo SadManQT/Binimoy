@@ -1,4 +1,9 @@
 import { hostname } from "node:os";
+import {
+  claudeAssessmentModel,
+  fixtureAssessmentModel,
+  runAssessmentJobs,
+} from "@lp/adapters";
 import { loadConfig } from "@lp/contracts";
 import { beat, createPool } from "@lp/db";
 import { expireInvoices, sweepPaymentEvents } from "@lp/db/ledger";
@@ -16,6 +21,12 @@ const pool = createPool(config.DATABASE_URL);
 const workerId = `${hostname()}:${process.pid}`;
 // PAYMENT_MODE can only be "mock", so this is the only adapter that exists.
 const transfers = mockTransferAdapter(pool);
+// A12: live mode without a key already failed at startup in loadConfig, so
+// there is no silent fallback to the fixture here.
+const assessmentModel =
+  config.AI_MODE === "live" && config.MODEL_API_KEY
+    ? claudeAssessmentModel(config.MODEL_API_KEY)
+    : fixtureAssessmentModel();
 const log = (level: string, msg: string, extra = {}) =>
   console.log(JSON.stringify({ level, msg, workerId, ...extra }));
 
@@ -63,6 +74,9 @@ async function tick() {
     );
     await step("settlements_dispatched", () =>
       dispatchSettlements(pool, transfers),
+    );
+    await step("assessments_run", () =>
+      runAssessmentJobs(pool, assessmentModel),
     );
     await step("outbox_dispatched", drainOutbox);
   } finally {

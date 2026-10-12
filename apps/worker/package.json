@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@lp/contracts": "workspace:*",
-    "@lp/db": "workspace:*"
+    "@lp/db": "workspace:*",
+    "@lp/adapters": "workspace:*"
   }
 }
