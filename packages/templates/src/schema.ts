@@ -63,6 +63,9 @@ export const templateSchema = z.strictObject({
   }),
   refundRule: z.enum(["no_delivery_full_refund_else_review"]),
   objectiveRelease: z.boolean(),
+  // C14.12: the price is split into milestones, each delivered, accepted and
+  // paid separately.
+  milestones: z.boolean(),
   // Stated to both parties before funding (B6, B7, C14).
   residualRisks: z.array(text).min(1),
 });

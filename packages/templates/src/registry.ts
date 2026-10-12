@@ -13,7 +13,15 @@ export type CapabilityStatus =
   | "UNSUPPORTED"
   | "UNCONFIGURED";
 
-type Predicate = { proof: ProofType; capability?: string };
+// `bindsField`: the fact only counts when the provider reports it for exactly
+// the destination or identifier the agreement names in that field.
+type Predicate = { proof: ProofType; capability?: string; bindsField?: string };
+
+const mock = (capability: string, bindsField?: string): Predicate => ({
+  proof: "independent_fact",
+  capability,
+  ...(bindsField ? { bindsField } : {}),
+});
 
 export const PREDICATES: Record<string, Predicate> = {
   seller_declares: { proof: "seller_statement" },
@@ -46,15 +54,42 @@ export const PREDICATES: Record<string, Predicate> = {
     proof: "independent_fact",
     capability: "mock_account_provider",
   },
+  "mock_game.attributes_match": mock("mock_game_publisher"),
+  "mock_topup.supplier_authorized": mock("mock_topup_supplier"),
+  "mock_topup.fulfilled_to_destination": mock(
+    "mock_topup_supplier",
+    "player_id",
+  ),
+  "mock_topup.quantity_matches": mock("mock_topup_supplier"),
+  "mock_saas.plan_matches": mock("mock_saas_provider"),
+  "mock_saas.role_and_seats": mock("mock_saas_provider", "buyer_account"),
+  "mock_giftcard.balance_matches": mock("mock_giftcard_issuer"),
+  "mock_build.tests_pass": mock("mock_build_runner"),
+  "mock_registrar.transfer_confirmed": mock("mock_registrar", "domain"),
+  "mock_enrollment.transfer_permitted": mock("mock_enrollment_provider"),
+  "mock_enrollment.enrolled_at_destination": mock(
+    "mock_enrollment_provider",
+    "account_destination",
+  ),
+  "mock_enrollment.duration_matches": mock("mock_enrollment_provider"),
 };
 
 export type Capabilities = Record<string, CapabilityStatus>;
 
-// Every capability starts UNCONFIGURED. The task that builds and tests an
-// adapter (the vault in LP-007, the mock providers in LP-008) changes its
-// entry here, with the test evidence in its handoff.
+// D.1: what each adapter is, and how far it has been tested. Every "mock_"
+// entry is one synthetic provider (packages/db/src/verification.ts) that
+// answers from facts a tester sets; it proves the workflow, not that any real
+// provider offers the same check. The vault is a real Matrix homeserver that
+// has only ever been run locally.
 export const CAPABILITIES: Capabilities = {
-  secret_vault: "UNCONFIGURED",
-  mock_license_issuer: "UNCONFIGURED",
-  mock_account_provider: "UNCONFIGURED",
+  secret_vault: "LIVE_TESTED",
+  mock_license_issuer: "MOCK_TESTED",
+  mock_account_provider: "MOCK_TESTED",
+  mock_game_publisher: "MOCK_TESTED",
+  mock_topup_supplier: "MOCK_TESTED",
+  mock_saas_provider: "MOCK_TESTED",
+  mock_giftcard_issuer: "MOCK_TESTED",
+  mock_build_runner: "MOCK_TESTED",
+  mock_registrar: "MOCK_TESTED",
+  mock_enrollment_provider: "MOCK_TESTED",
 };

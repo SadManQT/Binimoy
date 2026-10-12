@@ -43,19 +43,27 @@ export async function act(page: Page, button: ReturnType<Page["getByRole"]>) {
 export const click = (page: Page, name: string) =>
   act(page, page.getByRole("button", { name }));
 
-// Drives the real pages to a funded software-license deal of 1,500.00 BDT.
-export async function fundedDeal(seller: Page, buyer: Page): Promise<string> {
-  await seller.goto("/deals/new?template=software_license");
+const LICENSE = {
+  product: "EditorPro",
+  edition: "Pro",
+  region: "BD",
+  duration: "12 months",
+  device_limit: "2",
+  activation_destination: "buyer@example.test",
+};
+
+// Drives the real pages to a funded deal of 1,500.00 BDT: a software license
+// unless another category and its fields are given.
+export async function fundedDeal(
+  seller: Page,
+  buyer: Page,
+  template = "software_license",
+  product: Record<string, string> = LICENSE,
+): Promise<string> {
+  await seller.goto(`/deals/new?template=${template}`);
   await seller.locator('input[name="title"]').fill("E2E deal");
   await seller.locator('input[name="amountTaka"]').fill("1500");
-  for (const [key, value] of Object.entries({
-    product: "EditorPro",
-    edition: "Pro",
-    region: "BD",
-    duration: "12 months",
-    device_limit: "2",
-    activation_destination: "buyer@example.test",
-  })) {
+  for (const [key, value] of Object.entries(product)) {
     await seller.locator(`input[name="product.${key}"]`).fill(value);
   }
   await click(seller, "খসড়া চুক্তি তৈরি করুন");

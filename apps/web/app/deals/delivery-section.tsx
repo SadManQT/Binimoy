@@ -1,6 +1,7 @@
 import { formatBdt } from "@lp/contracts";
 import type { Terms } from "@lp/db/agreements";
 import type { DeliveryView } from "@lp/db/delivery";
+import { PREDICATES } from "@lp/templates";
 import {
   AUTHORIZATION_TEXT,
   CLAIM_TEXT,
@@ -12,7 +13,111 @@ import {
   acceptDeliveryAction,
   openDisputeAction,
   recordInspectionAction,
+  setMockFactAction,
+  submitDeliveryAction,
 } from "./actions";
+
+const SOURCE_TEXT: Record<string, string> = {
+  seller_statement: "বিক্রেতার ঘোষণা",
+  buyer_observation: "ক্রেতার নিজের পরীক্ষা",
+  independent_fact: "স্বাধীন উৎস",
+};
+const isMock = (predicate: string | undefined) =>
+  PREDICATES[predicate ?? ""]?.capability?.startsWith("mock_") ?? false;
+
+// For categories with nothing secret to hand over: the seller's statements
+// start the delivery, and the provider's record does the proving.
+export function PlainDeliveryForm({
+  dealId,
+  declarable,
+}: {
+  dealId: string;
+  declarable: { itemId: string; title: string; mandatory: boolean }[];
+}) {
+  return (
+    <form action={submitDeliveryAction} data-testid="submit-delivery">
+      <h3>সরবরাহ জমা দিন</h3>
+      <input type="hidden" name="dealId" value={dealId} />
+      <input type="hidden" name="vaultEvents" value="{}" />
+      {declarable.map((item) => (
+        <label key={item.itemId}>
+          <input
+            type="checkbox"
+            name="declared"
+            value={item.itemId}
+            required={item.mandatory}
+            style={{ display: "inline", width: "auto", minHeight: 0 }}
+          />{" "}
+          আমি ঘোষণা করছি: {item.title}
+          {item.mandatory ? "" : " (ঐচ্ছিক)"}
+        </label>
+      ))}
+      <p>
+        এই ধরনের পণ্যে গোপন কিছু হস্তান্তর হয় না। জমা দিলে প্রোভাইডারের রেকর্ড মিলিয়ে দেখা
+        শুরু হয়। জমা দেওয়া মানে টাকা পাওয়া নয়।
+      </p>
+      <button type="submit">সরবরাহ জমা দিন</button>
+    </form>
+  );
+}
+
+// Scenario Lab control. There is no real provider behind any category, so a
+// party sets what the fictional one answers. Labelled as such on every line.
+export function ProviderLab({
+  dealId,
+  terms,
+  facts,
+}: {
+  dealId: string;
+  terms: Terms;
+  facts: { predicate: string; outcome: string; boundTo: string | null }[];
+}) {
+  const used = terms.items.filter((item) => isMock(item.predicate));
+  if (used.length === 0) return null;
+  return (
+    <div data-testid="provider-lab">
+      <h3>পরীক্ষাগার: নকল প্রোভাইডার কী উত্তর দেবে</h3>
+      <p>
+        এই ডিলের কোনো যাচাই আসল প্রোভাইডার থেকে আসে না। পরীক্ষার জন্য এখানে ঠিক করা যায় নকল
+        প্রোভাইডার কী বলবে। কিছু ঠিক না করলে উত্তর “রেকর্ড নেই”, অর্থাৎ যাচাই করা যায়নি।
+      </p>
+      {used.map((item) => {
+        const fact = facts.find((f) => f.predicate === item.predicate);
+        const field = PREDICATES[item.predicate]?.bindsField;
+        return (
+          <form key={item.itemId} action={setMockFactAction}>
+            <input type="hidden" name="dealId" value={dealId} />
+            <input type="hidden" name="predicate" value={item.predicate} />
+            <label>
+              {item.title.bn}
+              <select
+                name="outcome"
+                defaultValue={fact?.outcome ?? "PASSED"}
+                aria-label={`নকল প্রোভাইডার: ${item.title.bn}`}
+                style={{ display: "block", minHeight: 44 }}
+              >
+                <option value="PASSED">নিশ্চিত করছে</option>
+                <option value="FAILED">মিলছে না বলছে</option>
+                <option value="UNKNOWN">উত্তর দিতে পারছে না</option>
+              </select>
+            </label>
+            {field && (
+              <label>
+                প্রোভাইডারের রেকর্ডে গন্তব্য (চুক্তিতে: {terms.product[field]})
+                <input
+                  name="boundTo"
+                  maxLength={200}
+                  defaultValue={fact?.boundTo ?? terms.product[field]}
+                />
+              </label>
+            )}
+            <button type="submit">নকল উত্তর ঠিক করুন: {item.itemId}</button>
+          </form>
+        );
+      })}
+    </div>
+  );
+}
 
 const when = (date: Date | null) =>
   date
@@ -48,6 +153,9 @@ export function DeliverySection({
           <>
             <dt>সরবরাহ</dt>
             <dd>
+              {pkg.milestoneNo
+                ? `মাইলস্টোন ${pkg.milestoneNo} (${terms.milestones?.[pkg.milestoneNo - 1]?.title ?? ""}): `
+                : ""}
               সংস্করণ {pkg.versionNo} জমা পড়েছে
               {pkg.accepted ? " এবং ক্রেতা গ্রহণ করেছেন" : ", এখনো গৃহীত হয়নি"}
             </dd>
@@ -80,6 +188,22 @@ export function DeliverySection({
                 <strong data-testid={`inspection-${inspection.itemId}`}>
                   {INSPECTION_TEXT[inspection.state] ?? inspection.state}
                 </strong>
+                {inspection.proofType && (
+                  <small>
+                    {" "}
+                    · উৎস:{" "}
+                    {isMock(definition?.predicate)
+                      ? "নকল প্রোভাইডার (পরীক্ষামূলক)"
+                      : SOURCE_TEXT[inspection.proofType]}
+                    {isMock(definition?.predicate) &&
+                    inspection.note === "NO_RECORD"
+                      ? " · প্রোভাইডারের কাছে কোনো রেকর্ড নেই"
+                      : ""}
+                    {inspection.note.startsWith("OTHER_DESTINATION ")
+                      ? ` · প্রোভাইডারের রেকর্ড অন্য গন্তব্যের জন্য: ${inspection.note.slice(18)}`
+                      : ""}
+                  </small>
+                )}
                 {buyerCheck && (
                   <form action={recordInspectionAction}>
                     <input type="hidden" name="dealId" value={dealId} />
@@ -120,6 +244,15 @@ export function DeliverySection({
         </ol>
       )}
 
+      {pkg?.objectiveDueAt && !settlement && (
+        <p data-testid="objective-window" role="status">
+          প্রতিটি আবশ্যক শর্ত স্বাধীন উৎস থেকে প্রমাণিত হয়েছে। ক্রেতা{" "}
+          {when(pkg.objectiveDueAt)} এর মধ্যে আপত্তি (বিরোধ) না করলে বিক্রেতাকে
+          পরিশোধ হবে। আপত্তি করলে টাকা আটকে থাকবে। চুপ থাকা মানে পণ্য পেয়েছেন বলে স্বীকার
+          করা নয়; এটি শুধু এই চুক্তির নিয়ম।
+        </p>
+      )}
+
       {pkg &&
         myRole === "buyer" &&
         pkg.state === "SUBMITTED" &&
@@ -128,9 +261,15 @@ export function DeliverySection({
             <input type="hidden" name="dealId" value={dealId} />
             <input type="hidden" name="packageId" value={pkg.packageId} />
             <p>
-              গ্রহণ করলে {formatBdt(terms.amountMinor)} ({terms.currency})
-              বিক্রেতাকে পরিশোধের অনুমোদন হবে, সরবরাহের সংস্করণ {pkg.versionNo} এর
-              জন্য। সব আবশ্যক অংশ পাস না হলে গ্রহণ করা যাবে না।
+              গ্রহণ করলে{" "}
+              {formatBdt(
+                pkg.milestoneNo
+                  ? (terms.milestones?.[pkg.milestoneNo - 1]?.amountMinor ??
+                      terms.amountMinor)
+                  : terms.amountMinor,
+              )}{" "}
+              ({terms.currency}) বিক্রেতাকে পরিশোধের অনুমোদন হবে, সরবরাহের সংস্করণ{" "}
+              {pkg.versionNo} এর জন্য। সব আবশ্যক অংশ পাস না হলে গ্রহণ করা যাবে না।
             </p>
             <button type="submit">এই সরবরাহ গ্রহণ করুন</button>
           </form>

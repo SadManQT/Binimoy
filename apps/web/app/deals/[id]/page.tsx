@@ -6,6 +6,7 @@ import { getConversation } from "@lp/db/conversation";
 import { getDeliveryView } from "@lp/db/delivery";
 import { dealBalances, getFunding } from "@lp/db/ledger";
 import { getDisputeView } from "@lp/db/review";
+import { getMockFacts } from "@lp/db/verification";
 import { getTemplate } from "@lp/templates";
 import { notFound } from "next/navigation";
 import {
@@ -20,7 +21,11 @@ import { requireUser } from "../../../lib/session";
 import { agreementAction, createInviteAction } from "../actions";
 import { AssessmentSection } from "../assessment-section";
 import { ConversationSection } from "../conversation-section";
-import { DeliverySection } from "../delivery-section";
+import {
+  DeliverySection,
+  PlainDeliveryForm,
+  ProviderLab,
+} from "../delivery-section";
 import { FundingSection } from "../funding-section";
 import { ResolutionSection } from "../resolution-section";
 import { TermsFields } from "../terms-fields";
@@ -63,6 +68,7 @@ export default async function DealPage({
     funding?.state === "CONFIRMED"
       ? await getDeliveryView(pool(), deal.dealId)
       : null;
+  const mockFacts = delivery ? await getMockFacts(pool(), deal.dealId) : [];
   const resolution = delivery
     ? await getDisputeView(pool(), user.id, deal.dealId)
     : null;
@@ -74,6 +80,10 @@ export default async function DealPage({
   const assessment = conversation
     ? await getAssessment(pool(), { userId: user.id, dealId: deal.dealId })
     : null;
+  const milestones = (terms.milestones ?? []).map((m, n) => ({
+    ...m,
+    no: n + 1,
+  }));
   const declarable = terms.items
     .filter((item) => item.predicate === "seller_declares")
     .map((item) => ({
@@ -163,6 +173,14 @@ export default async function DealPage({
               <dd>{terms.product[field.key] || "দেওয়া হয়নি"}</dd>
             </div>
           ))}
+          {milestones.map((milestone) => (
+            <div key={milestone.no}>
+              <dt>মাইলস্টোন {milestone.no}</dt>
+              <dd>
+                {milestone.title} · {formatBdt(milestone.amountMinor)}
+              </dd>
+            </div>
+          ))}
           <dt>সময়সীমা</dt>
           <dd>
             সরবরাহ: টাকা জমার পর {terms.timing.deliveryHours} ঘণ্টা · পরীক্ষা: সরবরাহের
@@ -173,7 +191,7 @@ export default async function DealPage({
           <dt>ক্রেতার চূড়ান্ত সম্মতি ছাড়া স্বয়ংক্রিয় ছাড়</dt>
           <dd>
             {terms.objectiveRelease
-              ? "চালু"
+              ? `চালু: প্রতিটি আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হলে ক্রেতাকে জানানো হয়, এবং ${terms.timing.objectiveChallengeHours} ঘণ্টার মধ্যে ক্রেতা আপত্তি না করলে বিক্রেতাকে পরিশোধ হয়। আপত্তি করলে টাকা আটকে থাকে।`
               : "চালু নয়: এই ধরনের পণ্যে প্রতিটি শর্ত স্বাধীনভাবে যাচাই করার ব্যবস্থা এখনো পরীক্ষিত নয়।"}
           </dd>
           <dt>সরবরাহ না হলে</dt>
@@ -263,7 +281,11 @@ export default async function DealPage({
         {agreement.state === "ACCEPTED" &&
           funding?.state === "CONFIRMED" &&
           counterparty &&
-          (vault ? (
+          (vaultItems.length === 0 ? (
+            deal.myRole === "seller" && (
+              <PlainDeliveryForm dealId={deal.dealId} declarable={declarable} />
+            )
+          ) : vault ? (
             <VaultPanel
               dealId={deal.dealId}
               myRole={deal.myRole}
@@ -289,6 +311,10 @@ export default async function DealPage({
             terms={terms}
             delivery={delivery}
           />
+        )}
+
+        {delivery && (
+          <ProviderLab dealId={deal.dealId} terms={terms} facts={mockFacts} />
         )}
 
         {resolution && (
@@ -320,6 +346,10 @@ export default async function DealPage({
                   mode: terms.mode,
                   amountTaka,
                   product: terms.product,
+                  milestones: (terms.milestones ?? []).map((m) => ({
+                    title: m.title,
+                    amountTaka: String(Number(m.amountMinor) / 100),
+                  })),
                 }}
               />
               <button type="submit">নতুন সংস্করণ সংরক্ষণ করুন</button>
