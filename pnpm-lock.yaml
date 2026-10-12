@@ -208,6 +208,9 @@ importers:
       react-dom:
         specifier: 19.3.0
         version: 19.3.0(react@19.3.0)
+      zod:
+        specifier: 4.6.5
+        version: 4.6.5
     devDependencies:
       '@types/react':
         specifier: 19.3.0
@@ -227,6 +230,9 @@ importers:
 
   packages/adapters:
     dependencies:
+      '@lp/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       '@lp/db':
         specifier: workspace:*
         version: link:../db

@@ -11,3 +11,6 @@ next-env.d.ts
 *.key
 .DS_Store
 .superpowers/
+
+# Local Matrix homeserver data (keys, database, generated config)
+infra/synapse/data/

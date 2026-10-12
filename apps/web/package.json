@@ -15,7 +15,8 @@
     "react-dom": "19.3.0",
     "@lp/adapters": "workspace:*",
     "better-auth": "1.7.7",
-    "@lp/templates": "workspace:*"
+    "@lp/templates": "workspace:*",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@types/react": "19.3.0",

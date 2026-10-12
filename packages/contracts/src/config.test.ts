@@ -100,3 +100,27 @@ test("half-configured social credentials stop startup and name the provider", ()
     /FACEBOOK_CLIENT_SECRET/,
   );
 });
+
+const matrix = {
+  MATRIX_HOMESERVER_URL: "http://localhost:8448",
+  MATRIX_SERVER_NAME: "binimoy.local",
+  MATRIX_JWT_SECRET: "a".repeat(64),
+  MATRIX_REGISTRATION_SECRET: "b".repeat(64),
+};
+
+test("the vault is unconfigured unless every Matrix value is set", () => {
+  expect(loadConfig(base).vault).toBeNull();
+  expect(loadConfig({ ...base, ...matrix }).vault).toEqual({
+    homeserverUrl: "http://localhost:8448",
+    serverName: "binimoy.local",
+    jwtSecret: "a".repeat(64),
+    registrationSecret: "b".repeat(64),
+  });
+});
+
+test("a partly configured vault stops startup and names what is missing", () => {
+  const { MATRIX_JWT_SECRET: _omitted, ...partial } = matrix;
+  expect(() => loadConfig({ ...base, ...partial })).toThrow(
+    /MATRIX_JWT_SECRET/,
+  );
+});
