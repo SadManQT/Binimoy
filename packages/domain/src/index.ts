@@ -13,4 +13,16 @@ export {
   type Role,
   type TransitionResult,
 } from "./machines";
+export {
+  CANDIDATE_BUDGET,
+  type ContentType,
+  canonicalUrl,
+  classifyPassage,
+  duplicateKey,
+  matchSubject,
+  type PlannedQuery,
+  planQueries,
+  QUERY_BUDGET,
+  type ReportType,
+} from "./research";
 export { looksLikeSecret } from "./secrets";

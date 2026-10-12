@@ -126,10 +126,16 @@
     "phase": "P0",
     "ownerTask": "LP-012",
     "acceptance": "Similar names, aliases, owner changes and user correction do not merge unsupported identities",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/adapters/src/research.ts",
+      "packages/domain/src/research.ts"
+    ],
+    "acceptanceTests": [
+      "packages/adapters/src/research.int.test.ts",
+      "packages/domain/src/research.test.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-012.md"]
   },
   {
     "id": "FE-02",
@@ -137,10 +143,16 @@
     "phase": "P0",
     "ownerTask": "LP-012",
     "acceptance": "Returns actual configured-provider links or labeled fixtures; wall/snippet/link-only cases remain distinct",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/adapters/src/research.ts",
+      "packages/fixtures/src/research.ts"
+    ],
+    "acceptanceTests": [
+      "packages/adapters/src/research.int.test.ts",
+      "tests/e2e/research.spec.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-012.md"]
   },
   {
     "id": "FE-03",
@@ -148,10 +160,13 @@
     "phase": "P0",
     "ownerTask": "LP-012",
     "acceptance": "Bangla/English/Banglish positive, negative, neutral and resolution sources retain attribution without forced balance",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": ["packages/domain/src/research.ts"],
+    "acceptanceTests": [
+      "packages/domain/src/research.test.ts",
+      "packages/adapters/src/research.int.test.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-012.md"]
   },
   {
     "id": "FE-04",
@@ -159,10 +174,10 @@
     "phase": "P0",
     "ownerTask": "LP-012",
     "acceptance": "Every material claim opens the correct permitted passage/snapshot with access limitations",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": ["apps/web/app/research/[id]/page.tsx"],
+    "acceptanceTests": ["tests/e2e/research.spec.ts"],
+    "evidence": ["docs/handoffs/LP-012.md"]
   },
   {
     "id": "FE-05",
@@ -170,10 +185,13 @@
     "phase": "P0",
     "ownerTask": "LP-012",
     "acceptance": "One underlying report is not double-counted; historical claim and later resolution stay linked",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/adapters/src/research.ts",
+      "packages/domain/src/research.ts"
+    ],
+    "acceptanceTests": ["packages/adapters/src/research.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-012.md"]
   },
   {
     "id": "FE-06",
@@ -192,10 +210,16 @@
     "phase": "P0",
     "ownerTask": "LP-013",
     "acceptance": "Author approves final narrative/redaction; incomplete allegations are not labeled verified",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/community.ts",
+      "apps/web/app/community/[id]/page.tsx"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/community.int.test.ts",
+      "tests/e2e/community.spec.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-013.md"]
   },
   {
     "id": "FE-08",
@@ -203,10 +227,16 @@
     "phase": "P0",
     "ownerTask": "LP-013",
     "acceptance": "Scoped control proof, decision history and privacy removal work; nonresponse is not guilt",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/community.ts",
+      "apps/web/app/moderation/page.tsx"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/community.int.test.ts",
+      "tests/e2e/community.spec.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-013.md"]
   },
   {
     "id": "FE-09",

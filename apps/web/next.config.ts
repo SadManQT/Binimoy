@@ -12,6 +12,7 @@ const config: NextConfig = {
     "@lp/contracts",
     "@lp/db",
     "@lp/domain",
+    "@lp/fixtures",
     "@lp/templates",
   ],
 };

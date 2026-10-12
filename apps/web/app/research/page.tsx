@@ -1,0 +1,66 @@
+import { listCollections } from "@lp/adapters";
+import { pool } from "../../lib/pool";
+import { requireUser } from "../../lib/session";
+import { runResearchAction } from "./actions";
+
+export const dynamic = "force-dynamic";
+export const metadata = { title: "বিক্রেতা খোঁজ · বিনিময়" };
+
+const ERRORS: Record<string, string> = {
+  VALIDATION_FAILED: "নামটি ২ থেকে ১২০ অক্ষরের মধ্যে লিখুন।",
+  BUDGET_EXHAUSTED: "আজকের খোঁজের সীমা শেষ। ২৪ ঘণ্টা পরে আবার চেষ্টা করুন।",
+  LIVE_SEARCH_NOT_BUILT: "আসল ওয়েব সার্চ এখনো যুক্ত হয়নি।",
+};
+const STATUS_TEXT: Record<string, string> = {
+  RUNNING: "চলছে",
+  DONE: "সম্পন্ন",
+  PARTIAL: "আংশিক",
+  FAILED: "ব্যর্থ",
+};
+
+export default async function ResearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const user = await requireUser();
+  const { error } = await searchParams;
+  const collections = await listCollections(pool(), user.id);
+  return (
+    <main>
+      <h1>বিক্রেতা খোঁজ</h1>
+      <p>
+        একটি পেজ বা দোকানের নাম লিখুন। আমরা ওয়েবে তার সম্পর্কে লেখা পোস্ট খুঁজে, কে কী বলেছে
+        তা উৎসসহ দেখাই। আমরা কাউকে ভালো বা খারাপ বলি না, কোনো স্কোর দিই না।
+      </p>
+      <p data-testid="fixture-label">
+        <strong>পরীক্ষামূলক তথ্য:</strong> এখন শুধু বানানো নমুনা পোস্ট থেকে ফল আসে, আসল
+        ওয়েব সার্চ থেকে নয়।
+      </p>
+      {error ? <p role="alert">{ERRORS[error] ?? "খোঁজ শুরু করা যায়নি।"}</p> : null}
+      <form action={runResearchAction}>
+        <label>
+          পেজ বা দোকানের নাম
+          <input name="subject" required minLength={2} maxLength={120} />
+        </label>
+        <button type="submit">খুঁজুন</button>
+      </form>
+      <section aria-labelledby="past">
+        <h2 id="past">আমার আগের খোঁজ</h2>
+        {collections.length === 0 ? (
+          <p>এখনো কোনো খোঁজ নেই।</p>
+        ) : (
+          <ul>
+            {collections.map((c) => (
+              <li key={c.id}>
+                <a href={`/research/${c.id}`}>{c.subject}</a> ·{" "}
+                {STATUS_TEXT[c.status]} ·{" "}
+                {new Date(c.createdAt).toLocaleString("bn-BD")}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </main>
+  );
+}

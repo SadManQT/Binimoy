@@ -23,6 +23,20 @@ export {
 } from "./auth";
 export { fixtureSender, latestAuthMessage } from "./auth-messages";
 export {
+  type CollectionView,
+  type Coverage,
+  fixtureRetriever,
+  fixtureSearchProvider,
+  getCollection,
+  listCollections,
+  RESEARCH_DAILY_BUDGET,
+  type ReportCard,
+  type Retriever,
+  runResearch,
+  type SearchProvider,
+  setCardMatch,
+} from "./research";
+export {
   createVaultAdmin,
   matrixUserId,
   mintMatrixLoginToken,
