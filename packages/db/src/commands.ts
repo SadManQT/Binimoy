@@ -156,9 +156,50 @@ async function recordTransition(
   return { version, eventId };
 }
 
-// A consequence of another command, inside that command's transaction: for
-// example cancelling an unpaid invoice when its agreement is withdrawn. The
-// caller already holds the deal lock.
+// A transition made inside a transaction that the caller already owns and in
+// which it already holds the deal lock. Used when one user action changes
+// several aggregates of a deal at once. The caller is responsible for having
+// established who the actor is; `roles` says what they may do here.
+export async function transitionWithin(
+  client: PoolClient,
+  input: {
+    aggregateId: string;
+    command: string;
+    roles: readonly Role[];
+    principal: string;
+    causationId: string;
+    to?: string;
+    data?: Record<string, unknown>;
+  },
+): Promise<{ ok: true; state: string } | { ok: false; error: ErrorCode }> {
+  const { rows } = await client.query(
+    "select id, type, deal_id, state, version from aggregate where id = $1 for update",
+    [input.aggregateId],
+  );
+  const aggregate: Stored | undefined = rows[0];
+  if (!aggregate) return { ok: false, error: "NOT_AUTHORIZED" };
+  const transition = checkTransition(
+    aggregate.type,
+    aggregate.state,
+    input.command,
+    input.roles,
+    input.to,
+  );
+  if (!transition.ok) return transition;
+  const recorded = await recordTransition(client, aggregate, {
+    command: input.command,
+    to: transition.to,
+    principal: input.principal,
+    causationId: input.causationId,
+    data: input.data ?? {},
+  });
+  return recorded
+    ? { ok: true, state: transition.to }
+    : { ok: false, error: "VERSION_CONFLICT" };
+}
+
+// A consequence of another command: for example cancelling an unpaid invoice
+// when its agreement is withdrawn.
 export async function systemTransition(
   client: PoolClient,
   input: {
@@ -169,28 +210,12 @@ export async function systemTransition(
     data?: Record<string, unknown>;
   },
 ): Promise<boolean> {
-  const { rows } = await client.query(
-    "select id, type, deal_id, state, version from aggregate where id = $1 for update",
-    [input.aggregateId],
-  );
-  const aggregate: Stored | undefined = rows[0];
-  if (!aggregate) return false;
-  const transition = checkTransition(
-    aggregate.type,
-    aggregate.state,
-    input.command,
-    ["system"],
-    input.to,
-  );
-  if (!transition.ok) return false;
-  const recorded = await recordTransition(client, aggregate, {
-    command: input.command,
-    to: transition.to,
+  const result = await transitionWithin(client, {
+    ...input,
+    roles: ["system"],
     principal: "system:kernel",
-    causationId: input.causationId,
-    data: input.data ?? {},
   });
-  return recorded !== null;
+  return result.ok;
 }
 
 export async function executeCommand(

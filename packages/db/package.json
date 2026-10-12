@@ -10,7 +10,9 @@
     "./access": "./src/access.ts",
     "./agreements": "./src/agreements.ts",
     "./ledger": "./src/ledger.ts",
-    "./outbox": "./src/outbox.ts"
+    "./outbox": "./src/outbox.ts",
+    "./delivery": "./src/delivery.ts",
+    "./settlement": "./src/settlement.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

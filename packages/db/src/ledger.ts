@@ -367,6 +367,20 @@ export async function processPaymentEvent(
               amountMinor,
             });
           }
+          if (outcome === "CONFIRMED") {
+            // The delivery clock starts when funding is confirmed (B5).
+            await client.query(
+              `insert into deal_deadline (deal_id, delivery_due_at)
+               select f.deal_id,
+                 now() + make_interval(hours => (v.terms->'timing'->>'deliveryHours')::int)
+               from funding_invoice f
+               join agreement_version v on v.agreement_id = f.agreement_id
+                 and v.version_no = f.agreement_version_no
+               where f.invoice_id = $1
+               on conflict (deal_id) do nothing`,
+              [aggregate.id],
+            );
+          }
           await markProcessed(client, eventId, outcome);
           return {};
         },
