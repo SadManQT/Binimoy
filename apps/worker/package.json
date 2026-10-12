@@ -1,0 +1,13 @@
+{
+  "name": "@lp/worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --env-file=../../.env src/main.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lp/contracts": "workspace:*",
+    "@lp/db": "workspace:*"
+  }
+}

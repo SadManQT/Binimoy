@@ -1,0 +1,261 @@
+import { randomUUID } from "node:crypto";
+import { formatBdt, loadConfig } from "@lp/contracts";
+import { getDealView } from "@lp/db/agreements";
+import { getTemplate } from "@lp/templates";
+import { notFound } from "next/navigation";
+import {
+  ERROR_TEXT,
+  MODE_TEXT,
+  PROOF_TEXT,
+  ROLE_TEXT,
+  STATE_TEXT,
+} from "../../../lib/copy";
+import { pool } from "../../../lib/pool";
+import { requireUser } from "../../../lib/session";
+import { agreementAction, createInviteAction } from "../actions";
+import { TermsFields } from "../terms-fields";
+
+export const dynamic = "force-dynamic";
+export const metadata = { title: "ডিল · বিনিময়" };
+
+export default async function DealPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string; invite?: string }>;
+}) {
+  const user = await requireUser();
+  const { id } = await params;
+  const { error, invite } = await searchParams;
+  // Not a party and not found look the same on purpose.
+  const deal = await getDealView(pool(), user.id, id);
+  if (!deal) notFound();
+
+  const { agreement } = deal;
+  const { terms } = agreement;
+  const template = getTemplate(terms.templateId, terms.templateVersion);
+  const open = ["DRAFT", "AWAITING_ACCEPTANCE"].includes(agreement.state);
+  const editable = open;
+  const amount = BigInt(terms.amountMinor);
+  const amountTaka = `${amount / 100n}.${(amount % 100n).toString().padStart(2, "0")}`;
+  const seller = deal.parties.find((p) => p.role === "seller");
+
+  // One fresh key per rendered form: a double click replays, a new page load
+  // is a new action.
+  const hidden = (command: string) => (
+    <>
+      <input type="hidden" name="dealId" value={deal.dealId} />
+      <input type="hidden" name="agreementId" value={agreement.id} />
+      <input
+        type="hidden"
+        name="expectedVersion"
+        value={agreement.aggregateVersion}
+      />
+      <input type="hidden" name="idempotencyKey" value={`ui-${randomUUID()}`} />
+      <input type="hidden" name="command" value={command} />
+    </>
+  );
+
+  return (
+    <main>
+      <p>
+        <a href="/deals">← আমার ডিল</a>
+      </p>
+      <h1>{deal.title}</h1>
+      {error && <p role="alert">{ERROR_TEXT[error] ?? error}</p>}
+      <dl>
+        <dt>অবস্থা</dt>
+        <dd>{STATE_TEXT[agreement.state] ?? agreement.state}</dd>
+        <dt>আপনার ভূমিকা</dt>
+        <dd>{ROLE_TEXT[deal.myRole]}</dd>
+        <dt>পক্ষ</dt>
+        <dd>
+          {deal.parties
+            .map((p) => `${ROLE_TEXT[p.role]}: ${p.name}`)
+            .join(" · ")}
+          {deal.parties.length === 1 && " · অন্য পক্ষ এখনো যোগ দেননি"}
+        </dd>
+      </dl>
+
+      {deal.parties.length === 1 && open && (
+        <section aria-labelledby="invite">
+          <h2 id="invite">অন্য পক্ষকে আমন্ত্রণ</h2>
+          {invite ? (
+            <p>
+              এই লিংকটি শুধু অন্য পক্ষকে পাঠান। এটি ৭২ ঘণ্টা চলবে, একবারই ব্যবহার করা যাবে,
+              এবং আর দেখানো হবে না:
+              <br />
+              <code style={{ wordBreak: "break-all" }}>
+                {loadConfig(process.env).APP_URL}/invite/{invite}
+              </code>
+            </p>
+          ) : (
+            <form action={createInviteAction}>
+              <input type="hidden" name="dealId" value={deal.dealId} />
+              <button type="submit">আমন্ত্রণ লিংক তৈরি করুন</button>
+              <p>নতুন লিংক তৈরি করলে আগের লিংক বাতিল হয়ে যায়।</p>
+            </form>
+          )}
+        </section>
+      )}
+
+      <section aria-labelledby="terms">
+        <h2 id="terms">চুক্তির শর্ত (সংস্করণ {agreement.versionNo})</h2>
+        <dl>
+          <dt>পণ্যের ধরন</dt>
+          <dd>{template.name.bn}</dd>
+          <dt>মূল্য</dt>
+          <dd>
+            {formatBdt(terms.amountMinor)} ({terms.currency}) · ফি{" "}
+            {formatBdt(terms.feeMinor)} · পরীক্ষামূলক, কোনো আসল টাকা নয়
+          </dd>
+          <dt>সেবার ধরন</dt>
+          <dd>
+            {MODE_TEXT[terms.mode]?.name ?? terms.mode}
+            <br />
+            <small>{MODE_TEXT[terms.mode]?.note}</small>
+          </dd>
+          {template.fields.map((field) => (
+            <div key={field.key}>
+              <dt>{field.label.bn}</dt>
+              <dd>{terms.product[field.key] || "দেওয়া হয়নি"}</dd>
+            </div>
+          ))}
+          <dt>সময়সীমা</dt>
+          <dd>
+            সরবরাহ: টাকা জমার পর {terms.timing.deliveryHours} ঘণ্টা · পরীক্ষা: সরবরাহের
+            পর {terms.timing.inspectionHours} ঘণ্টা · সংশোধনের সুযোগ:{" "}
+            {terms.timing.correctionAttempts} বার · আপিল:{" "}
+            {terms.timing.appealHours} ঘণ্টা
+          </dd>
+          <dt>ক্রেতার চূড়ান্ত সম্মতি ছাড়া স্বয়ংক্রিয় ছাড়</dt>
+          <dd>
+            {terms.objectiveRelease
+              ? "চালু"
+              : "চালু নয়: এই ধরনের পণ্যে প্রতিটি শর্ত স্বাধীনভাবে যাচাই করার ব্যবস্থা এখনো পরীক্ষিত নয়।"}
+          </dd>
+          <dt>সরবরাহ না হলে</dt>
+          <dd>
+            সময়সীমার মধ্যে কিছু না দিলে পুরো টাকা ফেরত; অন্য ক্ষেত্রে পর্যালোচনা বা দুই পক্ষের
+            সম্মতি।
+          </dd>
+        </dl>
+
+        <h3>যা যা দিতে ও পরীক্ষা করতে হবে</h3>
+        <ol>
+          {terms.items.map((item) => (
+            <li key={item.itemId}>
+              {item.title.bn} · {item.mandatory ? "আবশ্যক" : "ঐচ্ছিক"} · প্রমাণ:{" "}
+              {item.proofTypes.map((p) => PROOF_TEXT[p] ?? p).join(", ")}
+              {item.subjective && " · ব্যক্তিগত মত, যাচাইযোগ্য নয়"}
+              {item.dataClass === "vault_secret" && " · গোপন ভল্টে, চ্যাটে নয়"}
+            </li>
+          ))}
+        </ol>
+
+        <h3>যে ঝুঁকি থেকে যায়</h3>
+        <ul>
+          {terms.residualRisks.map((risk) => (
+            <li key={risk.en}>{risk.bn}</li>
+          ))}
+        </ul>
+        <p>
+          <small>
+            শর্তের ছাপ: <code>{agreement.termsHash.slice(0, 16)}</code>. সম্মতি ঠিক
+            এই ছাপের সাথে বাঁধা থাকে।
+          </small>
+        </p>
+      </section>
+
+      <section aria-labelledby="next">
+        <h2 id="next">পরের ধাপ</h2>
+
+        {agreement.state === "DRAFT" && (
+          <form action={agreementAction}>
+            {hidden("ProposeAgreement")}
+            <p>খসড়া ঠিক থাকলে দুই পক্ষের সম্মতির জন্য পাঠান।</p>
+            <button type="submit">সম্মতির জন্য পাঠান</button>
+          </form>
+        )}
+
+        {agreement.state === "AWAITING_ACCEPTANCE" && (
+          <>
+            <p>
+              সম্মতি দিয়েছেন:{" "}
+              {agreement.acceptedBy.length === 0
+                ? "এখনো কেউ না"
+                : agreement.acceptedBy.map((r) => ROLE_TEXT[r]).join(", ")}
+            </p>
+            {agreement.acceptedBy.includes(deal.myRole) ? (
+              <p>আপনি সম্মতি দিয়েছেন। অন্য পক্ষের অপেক্ষা।</p>
+            ) : (
+              <form action={agreementAction}>
+                {hidden("AcceptAgreement")}
+                <input
+                  type="hidden"
+                  name="termsHash"
+                  value={agreement.termsHash}
+                />
+                <p>
+                  আপনি সম্মত হচ্ছেন: {formatBdt(terms.amountMinor)} (
+                  {terms.currency}), প্রাপক{" "}
+                  {seller ? `বিক্রেতা ${seller.name}` : "বিক্রেতা"}, চুক্তির সংস্করণ{" "}
+                  {agreement.versionNo}. দুই পক্ষ সম্মত হলে শর্ত আর বদলানো যাবে না।
+                </p>
+                <button type="submit">আমি ঠিক এই শর্তে সম্মত</button>
+              </form>
+            )}
+          </>
+        )}
+
+        {agreement.state === "ACCEPTED" && (
+          <p>
+            দুই পক্ষ সম্মত। পরের ধাপ ক্রেতার পরীক্ষামূলক টাকা জমা, যা এই সংস্করণে এখনো তৈরি
+            হয়নি।
+          </p>
+        )}
+
+        {!open && agreement.state !== "ACCEPTED" && <p>এই চুক্তি আর সক্রিয় নয়।</p>}
+
+        {editable && (
+          <details>
+            <summary>শর্ত বদলান</summary>
+            <p>
+              বদলালে নতুন সংস্করণ তৈরি হয় এবং চুক্তি খসড়ায় ফিরে যায়। আগের সংস্করণে দেওয়া
+              কোনো সম্মতি নতুন সংস্করণে গণ্য হয় না।
+            </p>
+            <form action={agreementAction}>
+              {hidden("ReviseAgreement")}
+              <input type="hidden" name="role" value={deal.myRole} />
+              <TermsFields
+                template={template}
+                values={{
+                  title: terms.title,
+                  mode: terms.mode,
+                  amountTaka,
+                  product: terms.product,
+                }}
+              />
+              <button type="submit">নতুন সংস্করণ সংরক্ষণ করুন</button>
+            </form>
+          </details>
+        )}
+
+        {(open || agreement.state === "ACCEPTED") && (
+          <details>
+            <summary>ডিল বাতিল করুন</summary>
+            <p>
+              বাতিল করলে এই চুক্তি স্থায়ীভাবে বন্ধ হয় এবং খোলা আমন্ত্রণ লিংক অকার্যকর হয়।
+              এটি ফেরানো যায় না; নতুন ডিল শুরু করতে হবে।
+            </p>
+            <form action={agreementAction}>
+              {hidden("WithdrawAgreement")}
+              <button type="submit">হ্যাঁ, বাতিল করুন</button>
+            </form>
+          </details>
+        )}
+      </section>
+    </main>
+  );
+}

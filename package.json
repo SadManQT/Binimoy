@@ -1,0 +1,24 @@
+{
+  "name": "binimoy",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "biome check .",
+    "typecheck": "tsc --noEmit && pnpm -r typecheck",
+    "test:unit": "vitest run --exclude '**/*.int.test.ts'",
+    "test:integration": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run --no-file-parallelism --testTimeout=60000 --hookTimeout=60000 .int.test.ts",
+    "db:migrate": "tsx --env-file=.env packages/db/src/cli.ts",
+    "db:local": "docker compose -f infra/docker-compose.yml up -d --wait",
+    "setup": "pnpm db:migrate",
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "build": "pnpm --filter @lp/web build"
+  },
+  "packageManager": "pnpm@12.11.2+sha512.25a51652a196785af5f28bda6dfe8dc582ebefa4ac1d180221ce1390231c5fb76637822ea4b6e4633ce74acdcb0a77f725af11bad38177fdeddaee818a955cb9",
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@types/node": "24.19.2",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  }
+}

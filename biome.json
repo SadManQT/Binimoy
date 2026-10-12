@@ -1,0 +1,6 @@
+{
+  "files": {
+    "includes": ["**", "!**/.next", "!docs/MASTER_SPEC.md", "!.superpowers"]
+  },
+  "formatter": { "enabled": true, "indentStyle": "space" }
+}

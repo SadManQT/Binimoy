@@ -1,0 +1,34 @@
+schema_version: 1
+tasks:
+  - id: LP-001
+    title: Bootstrap reproducible workspace
+    status: IN_REVIEW
+    owner: claude-code
+    branch: lp-001-bootstrap
+    base_sha: b8244aeecdc10efc263b89e5c4e7dcd82c6b7c47
+    depends_on: []
+    allowed_paths: [apps, packages, infra, docs, scripts, .github, package.json, pnpm-workspace.yaml, pnpm-lock.yaml, AGENTS.md, CLAUDE.md, README.md, STATUS.md, TASKS.yaml, .env.example, .gitignore]
+    acceptance: [clean_install, fixture_startup, runtime_pinned]
+    evidence: [docs/handoffs/LP-001.md]
+    blockers: []
+  - {id: LP-002, title: "Contracts, role matrix, state machine, DB baseline", status: IN_REVIEW, owner: claude-code, branch: lp-002-contracts, base_sha: f4b6ca9, depends_on: [LP-001], evidence: [docs/handoffs/LP-002.md], blockers: []}
+  - {id: LP-003, title: "Auth/session integration and consent records", status: IN_REVIEW, owner: claude-code, branch: lp-003-auth, base_sha: lp-002-contracts, depends_on: [LP-002], evidence: [docs/handoffs/LP-003.md], blockers: []}
+  - {id: LP-004, title: "Category engine, agreements, invitations, first three templates", status: IN_REVIEW, owner: claude-code, branch: lp-004-agreements, base_sha: lp-003-auth, depends_on: [LP-003], evidence: [docs/handoffs/LP-004.md], blockers: []}
+  - {id: LP-005, title: "Ledger, mock funding and outbox", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-002, LP-003], evidence: [], blockers: []}
+  - {id: LP-006, title: "Monitored conversation and evidence versions", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-003, LP-004], evidence: [], blockers: []}
+  - {id: LP-007, title: "Secret vault and device/key behavior", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-003, LP-004], evidence: [], blockers: []}
+  - {id: LP-008, title: "Mock provider and guided inspections", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-004, LP-007], evidence: [], blockers: []}
+  - {id: LP-009, title: "Settlement paths and reconciliation", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-005, LP-008], evidence: [], blockers: []}
+  - {id: LP-010, title: "Disputes, human review, appeals", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-006, LP-009], evidence: [], blockers: []}
+  - {id: LP-011, title: "AI deal guidance and evidence assessment", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-006, LP-008, LP-010], evidence: [], blockers: []}
+  - {id: LP-012, title: "Research, subject resolution, sources", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-002, LP-003], evidence: [], blockers: []}
+  - {id: LP-013, title: "Community reporting/corrections", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-012], evidence: [], blockers: []}
+  - {id: LP-014, title: "Integrated Bangla UX and Scenario Lab", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-009, LP-010, LP-011, LP-012, LP-013, LP-017, LP-018, LP-019, LP-020, LP-021, LP-022], evidence: [], blockers: []}
+  - {id: LP-015, title: "CI/release hardening and private staging", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-014], evidence: [], blockers: []}
+  - {id: LP-016, title: "P1/P2 extensions (FE-29 to FE-37)", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-014], evidence: [], blockers: []}
+  - {id: LP-017, title: "Executable capability/template contracts and vault threat boundary", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-004, LP-007, LP-008], evidence: [], blockers: []}
+  - {id: LP-018, title: "Financial conservation, dispatch races and notice contract", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-005, LP-009], evidence: [], blockers: []}
+  - {id: LP-019, title: "Review/appeal sequencing, consent withdrawal and scoped grants", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-006, LP-010, LP-017, LP-018], evidence: [], blockers: []}
+  - {id: LP-020, title: "Retrieval/upload isolation and community publication lifecycle", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-003, LP-006, LP-012, LP-013], evidence: [], blockers: []}
+  - {id: LP-021, title: "Complete eleven-category synthetic catalog", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-004, LP-008, LP-010, LP-017, LP-018], evidence: [], blockers: []}
+  - {id: LP-022, title: "Cross-module privacy, continuity, AI evaluation and operations checks", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-011, LP-013, LP-019, LP-020, LP-021], evidence: [], blockers: []}

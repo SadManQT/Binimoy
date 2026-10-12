@@ -1,0 +1,26 @@
+{
+  "name": "@lp/db",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./migrate": "./src/migrate.ts",
+    "./testing": "./src/testing.ts",
+    "./commands": "./src/commands.ts",
+    "./access": "./src/access.ts",
+    "./agreements": "./src/agreements.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lp/contracts": "workspace:*",
+    "@lp/domain": "workspace:*",
+    "pg": "8.23.1",
+    "zod": "4.6.5",
+    "@lp/templates": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/pg": "8.23.1"
+  }
+}

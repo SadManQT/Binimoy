@@ -1,0 +1,37 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: lp
+          POSTGRES_PASSWORD: lp_ci_only
+          POSTGRES_DB: lp
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U lp -d lp"
+          --health-interval 2s --health-timeout 2s --health-retries 30
+    env:
+      APP_ENV: test
+      DATABASE_URL: postgres://lp:lp_ci_only@localhost:5432/lp
+      APP_URL: http://localhost:3000
+      AUTH_SECRET: ci-only-secret-0123456789abcdef0123456789
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm test:integration
+      - run: pnpm build
