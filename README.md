@@ -32,6 +32,15 @@ Without it the app runs, and vault features report that they are unavailable.
 
 `pnpm setup` is a pnpm built-in; the project script is `pnpm run setup`.
 
+### Reviewers
+
+Staff roles are granted from the command line, never inside the app. The person must have signed up first.
+
+    pnpm staff grant someone@example.com reviewer "reason"
+    pnpm staff list someone@example.com
+
+Reviewers work at `/review`.
+
 ## Checks
 
     pnpm lint

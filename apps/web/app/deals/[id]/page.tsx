@@ -4,6 +4,7 @@ import { formatBdt, loadConfig } from "@lp/contracts";
 import { getDealView } from "@lp/db/agreements";
 import { getDeliveryView } from "@lp/db/delivery";
 import { dealBalances, getFunding } from "@lp/db/ledger";
+import { getDisputeView } from "@lp/db/review";
 import { getTemplate } from "@lp/templates";
 import { notFound } from "next/navigation";
 import {
@@ -18,6 +19,7 @@ import { requireUser } from "../../../lib/session";
 import { agreementAction, createInviteAction } from "../actions";
 import { DeliverySection } from "../delivery-section";
 import { FundingSection } from "../funding-section";
+import { ResolutionSection } from "../resolution-section";
 import { TermsFields } from "../terms-fields";
 import { VaultPanel } from "../vault-panel";
 
@@ -58,6 +60,9 @@ export default async function DealPage({
     funding?.state === "CONFIRMED"
       ? await getDeliveryView(pool(), deal.dealId)
       : null;
+  const resolution = delivery
+    ? await getDisputeView(pool(), user.id, deal.dealId)
+    : null;
   const declarable = terms.items
     .filter((item) => item.predicate === "seller_declares")
     .map((item) => ({
@@ -272,6 +277,16 @@ export default async function DealPage({
             myRole={deal.myRole}
             terms={terms}
             delivery={delivery}
+          />
+        )}
+
+        {resolution && (
+          <ResolutionSection
+            dealId={deal.dealId}
+            mode={terms.mode}
+            balances={balances}
+            dispute={resolution.dispute}
+            proposal={resolution.proposal}
           />
         )}
 

@@ -24,6 +24,14 @@ import {
   signMockEvent,
   startFunding,
 } from "@lp/db/ledger";
+import {
+  acceptResolutionProposal,
+  appealDecision,
+  proposeResolution,
+  reopenDispute,
+  requestReview,
+  waiveAppeal,
+} from "@lp/db/review";
 import { openDispute } from "@lp/db/settlement";
 import { redirect } from "next/navigation";
 import { mockWebhookSecret } from "../../lib/mock-payment";
@@ -291,3 +299,50 @@ export async function openDisputeAction(form: FormData) {
     result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
   );
 }
+
+const back = (dealId: string, result: { ok: boolean; error?: string }) =>
+  redirect(
+    result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
+  );
+
+export async function proposeResolutionAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  back(
+    dealId,
+    await proposeResolution(pool(), {
+      userId: user.id,
+      dealId,
+      toSellerMinor: takaToMinor(text(form, "toSellerTaka")) ?? "",
+    }),
+  );
+}
+
+export async function acceptProposalAction(form: FormData) {
+  const user = await requireUser();
+  back(
+    text(form, "dealId"),
+    await acceptResolutionProposal(pool(), {
+      userId: user.id,
+      proposalId: text(form, "proposalId"),
+    }),
+  );
+}
+
+const disputeStep =
+  (
+    step:
+      | typeof requestReview
+      | typeof appealDecision
+      | typeof waiveAppeal
+      | typeof reopenDispute,
+  ) =>
+  async (form: FormData) => {
+    const user = await requireUser();
+    const dealId = text(form, "dealId");
+    back(dealId, await step(pool(), { userId: user.id, dealId }));
+  };
+export const requestReviewAction = disputeStep(requestReview);
+export const appealAction = disputeStep(appealDecision);
+export const waiveAppealAction = disputeStep(waiveAppeal);
+export const reopenDisputeAction = disputeStep(reopenDispute);

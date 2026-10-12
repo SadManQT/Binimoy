@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
 import type { ErrorCode } from "@lp/contracts";
 import type { PoolClient } from "pg";
-import { createAggregate, lockDeal, systemTransition } from "./commands";
+import {
+  createAggregate,
+  lockDeal,
+  systemTransition,
+  transitionWithin,
+} from "./commands";
 import type { Pool } from "./index";
 import { postEntry } from "./ledger";
 
@@ -580,6 +585,33 @@ export async function openDispute(
     );
     for (const row of pending.rows) {
       await invalidateAuthorization(client, row.authorization_id, disputeId);
+    }
+    // B2 human-from-start: the deal already has its reviewer, so the case goes
+    // straight to them instead of waiting in a queue.
+    const assigned = await client.query(
+      "select reviewer_id from deal_reviewer where deal_id = $1",
+      [input.dealId],
+    );
+    if (assigned.rows[0]) {
+      const reviewerId: string = assigned.rows[0].reviewer_id;
+      await systemTransition(client, {
+        aggregateId: disputeId,
+        command: "RequestReview",
+        causationId: disputeId,
+      });
+      await client.query(
+        "insert into review_assignment (dispute_id, reviewer_id, kind) values ($1, $2, 'review')",
+        [disputeId, reviewerId],
+      );
+      for (const command of ["ClaimReview", "StartReview"]) {
+        await transitionWithin(client, {
+          aggregateId: disputeId,
+          command,
+          roles: ["reviewer"],
+          principal: `user:${reviewerId}`,
+          causationId: disputeId,
+        });
+      }
     }
     return done({ ok: true as const, disputeId, afterDispatch }, true);
   } catch (error) {

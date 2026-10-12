@@ -12,7 +12,8 @@
     "./ledger": "./src/ledger.ts",
     "./outbox": "./src/outbox.ts",
     "./delivery": "./src/delivery.ts",
-    "./settlement": "./src/settlement.ts"
+    "./settlement": "./src/settlement.ts",
+    "./review": "./src/review.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

@@ -3,6 +3,7 @@ import { loadConfig } from "@lp/contracts";
 import { beat, createPool } from "@lp/db";
 import { expireInvoices, sweepPaymentEvents } from "@lp/db/ledger";
 import { claimOutbox, completeOutbox } from "@lp/db/outbox";
+import { closeUnresolvedAiOnly, finalizeDecisions } from "@lp/db/review";
 import {
   dispatchSettlements,
   mockTransferAdapter,
@@ -54,6 +55,8 @@ async function tick() {
       sweepPaymentEvents(pool, config.APP_ENV),
     );
     await step("no_delivery_refunds", () => refundOverdueDeliveries(pool));
+    await step("decisions_finalized", () => finalizeDecisions(pool));
+    await step("ai_only_closed_unresolved", () => closeUnresolvedAiOnly(pool));
     // Reconcile before dispatching: unfinished transfers come first.
     await step("operations_reconciled", () =>
       reconcileOperations(pool, transfers),
