@@ -52,7 +52,7 @@ export function LoginForm({
   const devHint = showDevHint ? " (লোকাল মোড: /dev/messages পাতায় দেখুন)" : "";
 
   return (
-    <div>
+    <div className="auth-grid">
       <p role="status" aria-live="polite">
         {status}
       </p>

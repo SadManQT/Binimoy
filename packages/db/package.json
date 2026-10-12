@@ -20,7 +20,8 @@
     "./notices": "./src/notices.ts",
     "./ops": "./src/ops.ts",
     "./receipt": "./src/receipt.ts",
-    "./lab": "./src/lab.ts"
+    "./lab": "./src/lab.ts",
+    "./shops": "./src/shops.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

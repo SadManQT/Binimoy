@@ -8,6 +8,14 @@ import {
   createInvite,
   getDealView,
 } from "@lp/db/agreements";
+import {
+  addFollowup,
+  claimReport,
+  decideFollowup,
+  decideReport,
+  saveDraft,
+  submitReport,
+} from "@lp/db/community";
 import { submitDelivery } from "@lp/db/delivery";
 import { LAB_SCHEMA, labRefusal } from "@lp/db/lab";
 import {
@@ -18,6 +26,7 @@ import {
   startFunding,
 } from "@lp/db/ledger";
 import { migrate } from "@lp/db/migrate";
+import { createSafetyAlert } from "@lp/db/shops";
 import { setMockFact } from "@lp/db/verification";
 import { createAuth } from "./auth";
 
@@ -205,6 +214,122 @@ try {
     },
     true,
   );
+
+  // Shops, reviews, complaints and one general warning. Every shop and every
+  // experience here is invented.
+  const RULES = "Follows the publication rules (lab fixture).";
+  async function review(
+    author: "buyer" | "seller" | "reviewer",
+    subject: string,
+    shopCategory: string,
+    fields: {
+      experienceType: string;
+      rating: number;
+      issue?: string;
+      product: string;
+      text: string;
+    },
+  ) {
+    const saved = await saveDraft(pool, {
+      userId: ids[author],
+      subject,
+      shopCategory,
+      category: fields.product,
+      eventDate: "2026-09-14",
+      experienceType: fields.experienceType,
+      amountMinor: null,
+      narrative: `Lab fixture original. ${fields.text}`,
+      publicText: fields.text,
+      rating: fields.rating,
+      issue: fields.issue ?? null,
+    });
+    if (!saved.ok) throw new Error(`review draft: ${saved.error}`);
+    const submitted = await submitReport(pool, {
+      userId: ids[author],
+      reportId: saved.reportId,
+      expectedVersion: saved.version,
+    });
+    if (!submitted.ok) throw new Error(`review submit: ${submitted.error}`);
+    await claimReport(pool, {
+      moderatorId: ids.moderator,
+      reportId: saved.reportId,
+    });
+    await decideReport(pool, {
+      moderatorId: ids.moderator,
+      reportId: saved.reportId,
+      decision: "PUBLISHED",
+      reason: RULES,
+    });
+    return saved.reportId;
+  }
+  await review("buyer", "গেমার্স হাব বিডি", "game_topup", {
+    experienceType: "positive",
+    rating: 5,
+    product: "ডায়মন্ড টপ-আপ",
+    text: "অর্ডারের দশ মিনিটের মধ্যে টপ-আপ পেয়েছি। আইডি মিলিয়ে নিয়ে তারপর পাঠিয়েছে।",
+  });
+  await review("seller", "গেমার্স হাব বিডি", "game_topup", {
+    experienceType: "positive",
+    rating: 4,
+    product: "উইকলি পাস",
+    text: "পেয়েছি, তবে উত্তর দিতে ঘণ্টাখানেক দেরি করেছে।",
+  });
+  const refunded = await review("reviewer", "গেমার্স হাব বিডি", "game_topup", {
+    experienceType: "negative",
+    rating: 2,
+    issue: "no_refund",
+    product: "ডায়মন্ড টপ-আপ",
+    text: "ভুল সার্ভারে টপ-আপ গেছে। টাকা ফেরত চেয়ে তিন দিন অপেক্ষা করতে হয়েছে।",
+  });
+  for (const [who, kind, body] of [
+    ["seller", "RESPONSE", "অর্ডারটি আমরা মিলিয়ে দেখেছি এবং পুরো টাকা ফেরত দিয়েছি।"],
+    ["reviewer", "RESOLUTION", "চতুর্থ দিনে পুরো টাকা ফেরত পেয়েছি।"],
+  ] as const) {
+    const added = await addFollowup(pool, {
+      userId: ids[who],
+      reportId: refunded,
+      kind,
+      body,
+    });
+    if (!added.ok) throw new Error(`followup: ${added.error}`);
+    await decideFollowup(pool, {
+      moderatorId: ids.moderator,
+      followupId: added.followupId,
+      publish: true,
+      reason: RULES,
+    });
+  }
+  await review("buyer", "কি-স্টোর ঢাকা", "software", {
+    experienceType: "negative",
+    rating: 1,
+    issue: "not_delivered",
+    product: "উইন্ডোজ কি",
+    text: "টাকা পাঠানোর পর এক সপ্তাহেও কি পাইনি। মেসেজের উত্তরও আসেনি।",
+  });
+  await review("seller", "সাবস্ক্রিপশন কর্নার", "subscriptions", {
+    experienceType: "mixed",
+    rating: 3,
+    issue: "access_revoked",
+    product: "স্ট্রিমিং সাবস্ক্রিপশন",
+    text: "প্রথম মাস ঠিক চলেছে, দ্বিতীয় মাসে লগইন বন্ধ হয়ে যায়। জানানোর পর নতুন অ্যাক্সেস দিয়েছে।",
+  });
+  await review("reviewer", "সাবস্ক্রিপশন কর্নার", "subscriptions", {
+    experienceType: "positive",
+    rating: 5,
+    product: "মিউজিক সাবস্ক্রিপশন",
+    text: "নিজের অ্যাকাউন্টেই চালু করে দিয়েছে, ছয় মাস ধরে চলছে।",
+  });
+  await review("buyer", "পিক্সেল স্টুডিও", "digital_services", {
+    experienceType: "positive",
+    rating: 5,
+    product: "লোগো ডিজাইন",
+    text: "তিনটি খসড়া দিয়েছিল, পছন্দেরটির সোর্স ফাইলসহ বুঝিয়ে দিয়েছে।",
+  });
+  await createSafetyAlert(pool, {
+    userId: ids.moderator,
+    title: "আগাম পুরো টাকা চাইলে একবার থামুন",
+    body: "সাম্প্রতিক কয়েকটি অভিযোগে একই ধরন দেখা গেছে: পণ্য দেখানোর আগেই ব্যক্তিগত নম্বরে পুরো টাকা চাওয়া হয়, টাকা পাওয়ার পর আর উত্তর আসে না। টাকা পাঠানোর আগে দোকানের নাম এখানে খুঁজে দেখুন।",
+  });
 
   console.log(
     JSON.stringify(

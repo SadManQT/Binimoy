@@ -1,8 +1,14 @@
 import { moderationQueue } from "@lp/db/community";
+import { listAlerts } from "@lp/db/shops";
 import { notFound } from "next/navigation";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
-import { claimReportAction, decideFollowupAction } from "../community/actions";
+import {
+  claimReportAction,
+  createSafetyAlertAction,
+  decideFollowupAction,
+  retractSafetyAlertAction,
+} from "../community/actions";
 import {
   COMMUNITY_ERROR_TEXT,
   FOLLOWUP_TEXT,
@@ -22,6 +28,7 @@ export default async function ModerationPage({
   // Not a moderator and "no such page" look the same on purpose.
   const queue = await moderationQueue(pool(), user.id);
   if (!queue) notFound();
+  const { notes } = await listAlerts(pool(), { limit: 1 });
 
   return (
     <main>
@@ -93,6 +100,41 @@ export default async function ModerationPage({
           ))}
         </ul>
       )}
+
+      <section aria-labelledby="alerts">
+        <h2 id="alerts">সাধারণ সতর্কবার্তা</h2>
+        <p>
+          একটি ধরনের প্রতারণার কৌশল নিয়ে সাধারণ সতর্কতা, যা “সতর্কতা” পাতায় সবার উপরে দেখায়।
+          এটি আপনার নামে রেকর্ড হয়। নির্দিষ্ট কাউকে দোষী বলবেন না; ফোন নম্বর বা অ্যাকাউন্ট
+          নম্বর লিখবেন না। বদলানো যায় না, শুধু তুলে নেওয়া যায়।
+        </p>
+        <form action={createSafetyAlertAction}>
+          <label>
+            শিরোনাম
+            <input name="title" required minLength={8} maxLength={120} />
+          </label>
+          <label>
+            সতর্কবার্তা
+            <textarea name="body" required minLength={40} maxLength={2000} />
+          </label>
+          <button type="submit">সতর্কবার্তা প্রকাশ করুন</button>
+        </form>
+        {notes.length > 0 && (
+          <ul className="rows" data-testid="live-notes">
+            {notes.map((note) => (
+              <li key={note.id}>
+                <strong>{note.title}</strong>
+                <form action={retractSafetyAlertAction}>
+                  <input type="hidden" name="alertId" value={note.id} />
+                  <button type="submit" className="quiet">
+                    তুলে নিন: {note.title}
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }

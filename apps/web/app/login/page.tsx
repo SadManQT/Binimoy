@@ -7,7 +7,7 @@ export const metadata = { title: "লগইন · বিনিময়" };
 export default function LoginPage() {
   const config = loadConfig(process.env);
   return (
-    <main>
+    <main className="wide">
       <h1>লগইন</h1>
       <p>যেকোনো একটি উপায় বেছে নিন।</p>
       <LoginForm

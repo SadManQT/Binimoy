@@ -5,8 +5,10 @@ import type { NextConfig } from "next";
 // and have no file; variables that are already set are never overridden.
 if (existsSync("../../.env")) process.loadEnvFile("../../.env");
 
+// No standalone output: both the container image and the tests start the app
+// with `next start`, which does not use it, and it cost several hundred
+// megabytes of copied dependencies on every build.
 const config: NextConfig = {
-  output: "standalone",
   transpilePackages: [
     "@lp/adapters",
     "@lp/contracts",

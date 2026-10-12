@@ -23,10 +23,10 @@ const STATUS_TEXT: Record<string, string> = {
 export default async function ResearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; subject?: string }>;
 }) {
   const user = await requireUser();
-  const { error } = await searchParams;
+  const { error, subject } = await searchParams;
   const collections = await listCollections(pool(), user.id);
   const live = loadConfig(process.env).RESEARCH_MODE === "live";
   return (
@@ -52,7 +52,13 @@ export default async function ResearchPage({
       <form action={runResearchAction}>
         <label>
           পেজ বা দোকানের নাম
-          <input name="subject" required minLength={2} maxLength={120} />
+          <input
+            name="subject"
+            required
+            minLength={2}
+            maxLength={120}
+            defaultValue={subject}
+          />
         </label>
         <button type="submit">খুঁজুন</button>
       </form>

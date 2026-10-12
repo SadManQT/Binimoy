@@ -44,4 +44,6 @@ export const COMMUNITY_ERROR_TEXT: Record<string, string> = {
   VERSION_CONFLICT: "লেখাটি পরে বদলেছে। নিচের বর্তমান লেখা পড়ে আবার অনুমোদন দিন।",
   BUDGET_EXHAUSTED: "আজকের সীমা শেষ। পরে আবার চেষ্টা করুন।",
   APPEAL_WINDOW_CLOSED: "আপিলের সাত দিন পার হয়ে গেছে।",
+  DUPLICATE_REPORT:
+    "এই দোকান নিয়ে আপনার একটি লেখা ইতিমধ্যে জমা বা প্রকাশিত আছে। নতুন কিছু জানাতে চাইলে সেই লেখায় সংশোধন বা সমাধান যোগ করুন।",
 };

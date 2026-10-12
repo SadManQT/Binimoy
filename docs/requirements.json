@@ -260,13 +260,21 @@
     "status": "IN_PROGRESS",
     "implementationPaths": [
       "packages/db/src/community.ts",
-      "apps/web/app/community/[id]/page.tsx"
+      "apps/web/app/community/[id]/page.tsx",
+      "packages/db/src/shops.ts",
+      "apps/web/app/shops/[id]/page.tsx"
     ],
     "acceptanceTests": [
       "packages/db/src/community.int.test.ts",
-      "tests/e2e/community.spec.ts"
+      "tests/e2e/community.spec.ts",
+      "packages/db/src/shops.int.test.ts",
+      "tests/e2e/shops.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-013.md"]
+    "evidence": [
+      "docs/handoffs/LP-013.md",
+      "docs/handoffs/LP-014.md",
+      "docs/adr/ADR-009-shop-directory-ratings-and-alerts.md"
+    ]
   },
   {
     "id": "FE-08",
@@ -277,13 +285,21 @@
     "status": "IN_PROGRESS",
     "implementationPaths": [
       "packages/db/src/community.ts",
-      "apps/web/app/moderation/page.tsx"
+      "apps/web/app/moderation/page.tsx",
+      "packages/db/src/shops.ts",
+      "apps/web/app/shops/[id]/page.tsx"
     ],
     "acceptanceTests": [
       "packages/db/src/community.int.test.ts",
-      "tests/e2e/community.spec.ts"
+      "tests/e2e/community.spec.ts",
+      "packages/db/src/shops.int.test.ts",
+      "tests/e2e/shops.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-013.md"]
+    "evidence": [
+      "docs/handoffs/LP-013.md",
+      "docs/handoffs/LP-014.md",
+      "docs/adr/ADR-009-shop-directory-ratings-and-alerts.md"
+    ]
   },
   {
     "id": "FE-09",
@@ -598,10 +614,17 @@
     "phase": "P0",
     "ownerTask": "LP-014",
     "acceptance": "Keyboard, screen reader, reconnect, upload interruption and stale-action denial work",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "apps/web/app/globals.css",
+      "apps/web/lib/next-step.ts",
+      "apps/web/app/components/vault-scene.tsx"
+    ],
+    "acceptanceTests": [
+      "tests/e2e/home.spec.ts",
+      "apps/web/lib/next-step.test.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-014.md"]
   },
   {
     "id": "FE-28",

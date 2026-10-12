@@ -24,10 +24,15 @@ export default async function NewDealPage({
           এগারো ধরনের পণ্য চালু আছে। “পরীক্ষামূলক” লেখা ধরনগুলোতে প্রোভাইডারের যাচাই একটি নকল
           প্রোভাইডার দিয়ে দেখানো হয়, আসল প্রোভাইডার দিয়ে নয়।
         </p>
-        <ul>
+        <ul className="index">
           {TEMPLATES.map((t) => (
             <li key={t.templateId}>
-              <a href={`/deals/new?template=${t.templateId}`}>{t.name.bn}</a>
+              <a
+                href={`/deals/new?template=${t.templateId}`}
+                data-no={t.categoryId.slice(4)}
+              >
+                {t.name.bn}
+              </a>
             </li>
           ))}
         </ul>

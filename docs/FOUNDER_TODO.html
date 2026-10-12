@@ -56,7 +56,7 @@
 <main>
 
 <h1>Binimoy: what you need to do</h1>
-<p class="lede">Written 12 October 2026, after pull request #14 was merged to <code>main</code>. This page lists the things only you can do, the ways to do each one, and exact steps. It also says plainly what is still not built.</p>
+<p class="lede">Written 12 October 2026 and updated the same day after the shop directory, alerts and the new design were added. This page lists the things only you can do, the ways to do each one, and exact steps. It also says plainly what is still not built.</p>
 
 <div class="stop">
 <strong>Read this first: the project is not fully complete.</strong>
@@ -72,7 +72,7 @@ You asked for every feature to be finished. A lot more is built and tested than 
   <li><a href="#ai">Task B: real AI</a></li>
   <li><a href="#mail">Task C: email and SMS</a></li>
   <li><a href="#host">Task D: put it online privately</a></li>
-  <li><a href="#people">Tasks E to H: logins, staff, a reviewer, clean-up</a></li>
+  <li><a href="#people">Tasks E to I: logins, staff, a reviewer, disk space, trust labels</a></li>
   <li><a href="#missing">What is still not built</a></li>
   <li><a href="#money">Real money: not a coding task</a></li>
   <li><a href="#commands">Command list</a></li>
@@ -91,12 +91,14 @@ You asked for every feature to be finished. A lot more is built and tested than 
 <tr><td>Disputes, human review, appeals</td><td>Works</td><td>Real logic. Reviewers are whoever you give the role to.</td></tr>
 <tr><td>Deal chat with AI summary</td><td>Works</td><td>The AI is a <strong>stand-in</strong> that only repeats the record. Claude has never been called.</td></tr>
 <tr><td>Seller lookup</td><td>Works</td><td><strong>Sample data only:</strong> 12 invented posts about one invented shop. Real search code exists but has never run.</td></tr>
-<tr><td>Community reports and moderation</td><td>Works</td><td>Real logic, text only (no screenshots).</td></tr>
+<tr><td>Shop directory, shop pages, reviews with star ratings</td><td>Works</td><td>Real. Pages at <code>/shops</code> are readable without signing in. A shop appears once someone's experience of it is published. Text only (no screenshots).</td></tr>
+<tr><td>Scam reports and the alerts page</td><td>Works</td><td>Real. Complaints are shown as the writer's allegation, after a moderator checks the publication rules. Moderators can post general warnings. See the decision in section 8.</td></tr>
+<tr><td>Design and 3D front page</td><td>First pass done</td><td>One dark theme, Bangla fonts, a 3D strongbox on the front page. I reviewed it from screenshots only; no person has looked at it and it was not opened on a real phone.</td></tr>
 <tr><td>Notices</td><td>Works</td><td>Inside the app only. No email, no SMS.</td></tr>
 <tr><td>Online / staging</td><td>Does not exist</td><td>Everything runs only on your computer. A container image builds, but was never deployed.</td></tr>
 </table>
 </div>
-<p>Checks at the last merge: 167 unit tests, 265 database tests, 6 browser tests, all passing. The database tests ran on a local test database, and GitHub runs them again on every pull request.</p>
+<p>Checks: see the pull request for the latest numbers. At the previous merge: 167 unit tests, 265 database tests, 6 browser tests, all passing. The database tests ran on a local test database, and GitHub runs them again on every pull request.</p>
 
 <h2 id="see">2. See it running (10 minutes, no accounts needed)</h2>
 <p>This uses a separate practice area of the database called the lab, so it cannot touch your other data.</p>
@@ -117,9 +119,10 @@ You asked for every feature to be finished. A lot more is built and tested than 
       <li><strong>Lab 3</strong>: a design job in two milestones.</li>
     </ul>
   </li>
+  <li>Open <code>/shops</code> and <code>/alerts</code>. The practice data has four invented shops with reviews, one complaint with the shop's reply and a resolution, and one general warning.</li>
   <li>Also try <code>/research</code> (type <code>Tech Bazar BD</code>), <code>/community</code>, and as the moderator account <code>/moderation</code>.</li>
 </ol>
-<div class="warn"><strong>Not tested:</strong> the lab accounts were created by a script. Nobody has signed in with them in a browser yet. If sign-in fails, tell me and I will fix it. You can always create fresh accounts with the "নতুন অ্যাকাউন্ট" form instead.</div>
+<div class="note"><strong>Tested:</strong> I signed in with the practice buyer and seller accounts in a browser against a local database, and it worked. Each reset prints new email addresses.</div>
 
 <h2 id="order">3. Your tasks, in order</h2>
 <div class="scroll">
@@ -132,7 +135,8 @@ You asked for every feature to be finished. A lot more is built and tested than 
 <tr><td>E</td><td>Fix Facebook login; make login apps for the real address</td><td>Facebook errors; Google is in "testing" mode</td><td>30 min</td><td>Free</td></tr>
 <tr><td>F</td><td>Give staff roles to real people</td><td>No reviewers or moderators exist</td><td>5 min</td><td>Free</td></tr>
 <tr><td>G</td><td>Get someone else to check the work</td><td>Rule of the spec: the builder cannot verify itself</td><td>Depends</td><td>Depends</td></tr>
-<tr><td>H</td><td>Small clean-up on your Mac</td><td>Old containers and a stale worker</td><td>5 min</td><td>Free</td></tr>
+<tr><td>H</td><td>Free disk space on your Mac</td><td><strong>The disk is full.</strong> Builds and tests stop when it runs out</td><td>15 min</td><td>Free</td></tr>
+<tr><td>I</td><td>Decide about trust labels</td><td>I did not build "trusted" or "scammer" badges; see why</td><td>10 min</td><td>Free</td></tr>
 </table>
 </div>
 <p>A, B and C are independent; do them in any order. D needs C if you want password reset to work online. For each one, when you have the key, <strong>do not paste it into chat.</strong> Put it in the <code>.env</code> file as shown, then tell me "done".</p>
@@ -258,7 +262,7 @@ AI_MODE=fixture</code></pre></li>
 <div class="warn"><strong>Use a separate database for online testing if you can.</strong> Today the online copy would share the same Supabase database as your computer. A second free Supabase project for staging is cleaner; tell me if you want that and I will set it up the way I did the first one.</div>
 </div>
 
-<h2 id="people">8. Tasks E to H</h2>
+<h2 id="people">8. Tasks E to I</h2>
 
 <div class="task">
 <span class="tag soon">E</span><span class="tag">30 minutes</span>
@@ -306,8 +310,15 @@ pnpm ops resume funding "reason"</code></pre>
 </div>
 
 <div class="task">
-<span class="tag">H</span><span class="tag">5 minutes</span>
-<h3>Small clean-up on your Mac</h3>
+<span class="tag must">H</span><span class="tag">15 minutes</span>
+<h3>Free disk space on your Mac</h3>
+<p>While I was working the disk reached about 200 MB free out of 228 GB, and a build failed because of it. I removed one thing I had made myself (a 1.66 GB container image) to continue. The rest is yours to decide. The biggest items I could see:</p>
+<ul>
+  <li>Docker's disk is about 31 GB. Inside it, an Oracle database image is 13 GB. If you no longer need it: open Docker Desktop → Images → delete it.</li>
+  <li>In Docker Desktop → Settings → Resources you can also lower the disk limit or press "Clean / Purge data" (this removes <strong>all</strong> containers and images, including your other project's).</li>
+  <li>On the Mac: Apple menu → System Settings → General → Storage shows what else is large.</li>
+</ul>
+<p>Aim for at least 10 GB free. Other things on the machine:</p>
 <ul>
   <li>If <code>pnpm dev</code> has been running since before today, stop it (<kbd>Ctrl</kbd>+<kbd>C</kbd>) and start it again so it runs the new code.</li>
   <li>I started one extra test database container to make tests fast. It is safe to remove, or keep it for faster tests:
@@ -315,6 +326,29 @@ pnpm ops resume funding "reason"</code></pre>
   <li>An older container, <code>binimoy-postgres-1</code>, is broken ("exited") and unused since you moved to Supabase. To remove it: <code>docker rm binimoy-postgres-1</code>.</li>
   <li>I did not touch your other project's containers (<code>cholo-…</code>) or its Supabase project.</li>
 </ul>
+</div>
+
+<div class="task">
+<span class="tag soon">I</span><span class="tag">10 minutes</span>
+<h3>Decide about trust labels</h3>
+<p>You asked for trust indicators so people can quickly see whether a shop appears trustworthy. I built these:</p>
+<ul>
+  <li>Star ratings given by reviewers, and their average with the number of ratings.</li>
+  <li>Counts: how many experiences, how many complaints, how many complaints the shop answered, how many the writer says were resolved.</li>
+  <li>Complaints marked "the writer's allegation, not verified", with the shop's right to reply.</li>
+</ul>
+<p>I did <strong>not</strong> build a badge where Binimoy itself says "trusted", "safe" or "scammer", and shops are not sorted by rating. Two reasons:</p>
+<ol>
+  <li>The specification you made the rule for this project forbids it (it says the platform must not issue verdicts, trust scores, or rank one seller as safer).</li>
+  <li>If Binimoy calls a named business a scammer on unverified reports and is wrong, that harms them and can bring legal claims against you.</li>
+</ol>
+<p>The ways forward:</p>
+<ul>
+  <li><strong>Keep it as it is</strong> (my recommendation). People read the counts and decide.</li>
+  <li><strong>Add a rule-based label</strong>, for example "3 or more unanswered complaints in 90 days". Possible, but talk to a lawyer first, and tell me the exact rule you want.</li>
+</ul>
+<p>The reasoning is written down in <code>docs/adr/ADR-009-shop-directory-ratings-and-alerts.md</code>.</p>
+<p><small>Also: I used your Tripo account once to make the 3D strongbox on the front page. It cost 30 credits (445 → 415).</small></p>
 </div>
 
 <h2 id="missing">9. What is still not built</h2>
@@ -330,7 +364,8 @@ pnpm ops resume funding "reason"</code></pre>
 <tr><td>AI help during a deal</td><td>No guided "why can't I log in" help, no draft checking</td><td>Task B</td></tr>
 <tr><td>Live updates</td><td>You must reload the page to see changes</td><td>No</td></tr>
 <tr><td>Phone-size and screen-reader check</td><td>Pages are plain and usable but nobody has tested them on a small phone or with a screen reader</td><td>Helpful if you test on your phone</td></tr>
-<tr><td>Proper visual design</td><td>The app is unstyled on purpose so far</td><td>Your taste: colours, logo</td></tr>
+<tr><td>Design review by a person</td><td>The new design exists, but only I have looked at it, from screenshots. Less-used screens (review desk, receipt, chat) use the shared styles and were not designed one by one</td><td>Look at it and tell me what you dislike</td></tr>
+<tr><td>Screenshots as evidence on reviews; proof that a reviewer really bought</td><td>Reviews are text, and anyone signed in can write one (one per person per shop)</td><td>No</td></tr>
 <tr><td>Fees</td><td>The platform fee is always zero</td><td>Decide the fee rule</td></tr>
 <tr><td>Deleting old data, backups, restore practice</td><td>Nothing is cleaned up or rehearsed</td><td>No</td></tr>
 <tr><td>Load test</td><td>Unknown how many users it can take</td><td>No (after Task D)</td></tr>

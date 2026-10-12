@@ -2,8 +2,8 @@
 
 - Product name: Binimoy (ADR-008)
 - Completion level: D1. All eleven categories run on a synthetic provider and all five authorization paths exist, exercised by 99 database-level category cases (LP-021 handoff). D2 is not claimed: ten categories have no browser test, nothing has been independently reviewed, and the remaining gates are open.
-- Active branch: `chunk-operations`.
-- Active tasks: LP-007, LP-008, LP-009, LP-011, LP-012, LP-013, LP-017, LP-018, LP-020, LP-021, LP-022 are IN_PROGRESS (see handoffs for what is not built). LP-001 to LP-006 and LP-010 are MERGED.
+- Active branch: `chunk-design`.
+- Active tasks: LP-007, LP-008, LP-009, LP-011, LP-012, LP-013, LP-014, LP-017, LP-018, LP-020, LP-021, LP-022 are IN_PROGRESS (see handoffs for what is not built). LP-001 to LP-006 and LP-010 are MERGED.
 - Verified milestones: D1 vertical slice (one category, accepted release and no-delivery refund)
 - Blockers: none for local work. A real model has never been called (no API key). Seller research runs on synthetic pages only: no live search provider is chosen or keyed, and nothing fetches real pages. The vault needs Docker running (`pnpm matrix:local`). Staging needs a reachable homeserver, an email and SMS sender and its own OAuth apps.
 - Next task: the founder items in `docs/FOUNDER_TODO.html`, then the 'Not built' lists in the handoffs (uploads, device verification, accessibility pass, restore rehearsal)
