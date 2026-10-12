@@ -16,7 +16,10 @@
     "./review": "./src/review.ts",
     "./conversation": "./src/conversation.ts",
     "./community": "./src/community.ts",
-    "./verification": "./src/verification.ts"
+    "./verification": "./src/verification.ts",
+    "./notices": "./src/notices.ts",
+    "./ops": "./src/ops.ts",
+    "./receipt": "./src/receipt.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

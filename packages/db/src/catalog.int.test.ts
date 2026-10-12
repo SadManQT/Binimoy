@@ -25,6 +25,7 @@ import {
   startFunding,
 } from "./ledger";
 import { migrate } from "./migrate";
+import { renderNotices } from "./notices";
 import {
   acceptResolutionProposal,
   claimDeal,
@@ -508,6 +509,7 @@ describe.concurrent.each(TEMPLATES.map((t) => [t.categoryId, t] as const))(
           );
           if (template.objectiveRelease) {
             // The buyer does nothing. The window opens, and only its end pays.
+            await renderNotices(pool, deal.buyer);
             const view = await getDeliveryView(pool, deal.dealId);
             expect(view.package?.objectiveDueAt).not.toBeNull();
             expect(await authorizationPaths(deal)).toEqual([]);
@@ -635,6 +637,7 @@ const expireWindow = (packageId: string) =>
 test("INV-09: an objection inside the challenge window stops objective release", async () => {
   const deal = await fundedDeal(template("game_topup"), "ai_first");
   const packageId = await deliverAndInspect(deal, {});
+  await renderNotices(pool, deal.buyer);
   expect(
     (await getDeliveryView(pool, deal.dealId)).package?.objectiveDueAt,
   ).not.toBeNull();
@@ -665,6 +668,7 @@ test("INV-09: an objection inside the challenge window stops objective release",
 test("INV-07: a proof that is withdrawn before dispatch withdraws the authorization that rested on it", async () => {
   const deal = await fundedDeal(template("course_access"), "ai_first");
   const packageId = await deliverAndInspect(deal, {});
+  await renderNotices(pool, deal.buyer);
   await expireWindow(packageId);
   await verifyDeal(pool, deal.dealId);
   expect(await authorizationPaths(deal)).toEqual(["OBJECTIVE_RELEASE"]);
@@ -698,6 +702,7 @@ test("INV-07: a proof that is withdrawn before dispatch withdraws the authorizat
 test("INV-14: a provider answer that changes after the payout does not undo it", async () => {
   const deal = await fundedDeal(template("course_access"), "ai_first");
   const packageId = await deliverAndInspect(deal, {});
+  await renderNotices(pool, deal.buyer);
   await expireWindow(packageId);
   await verifyDeal(pool, deal.dealId);
   await settle(deal, (b) => b.sellerPaid === AMOUNT);

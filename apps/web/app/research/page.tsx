@@ -10,6 +10,7 @@ const ERRORS: Record<string, string> = {
   VALIDATION_FAILED: "নামটি ২ থেকে ১২০ অক্ষরের মধ্যে লিখুন।",
   BUDGET_EXHAUSTED: "আজকের খোঁজের সীমা শেষ। ২৪ ঘণ্টা পরে আবার চেষ্টা করুন।",
   LIVE_SEARCH_NOT_BUILT: "আসল ওয়েব সার্চ এখনো যুক্ত হয়নি।",
+  PAUSED: "পরিচালনাকারী খোঁজ সাময়িকভাবে বন্ধ রেখেছেন।",
 };
 const STATUS_TEXT: Record<string, string> = {
   RUNNING: "চলছে",

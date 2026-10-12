@@ -7,7 +7,7 @@ import {
 import { loadConfig } from "@lp/contracts";
 import { beat, createPool } from "@lp/db";
 import { expireInvoices, sweepPaymentEvents } from "@lp/db/ledger";
-import { claimOutbox, completeOutbox } from "@lp/db/outbox";
+import { deliverOutbox } from "@lp/db/notices";
 import { closeUnresolvedAiOnly, finalizeDecisions } from "@lp/db/review";
 import {
   dispatchSettlements,
@@ -41,17 +41,6 @@ async function step(name: string, job: () => Promise<number>) {
   }
 }
 
-// ponytail: no event has a handler yet (notifications arrive with LP-018), so
-// entries are acknowledged under their lease and nothing else happens.
-async function drainOutbox(): Promise<number> {
-  const claims = await claimOutbox(pool, workerId, 50, 60);
-  let done = 0;
-  for (const claim of claims) {
-    if (await completeOutbox(pool, claim)) done++;
-  }
-  return done;
-}
-
 let running = false;
 async function tick() {
   // A slow tick must not overlap the next one.
@@ -81,7 +70,8 @@ async function tick() {
     await step("assessments_run", () =>
       runAssessmentJobs(pool, assessmentModel),
     );
-    await step("outbox_dispatched", drainOutbox);
+    // Recorded events become in-app notices.
+    await step("outbox_dispatched", () => deliverOutbox(pool, workerId));
   } finally {
     running = false;
   }

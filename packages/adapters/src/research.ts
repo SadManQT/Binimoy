@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { ErrorCode } from "@lp/contracts";
+import { isPaused } from "@lp/db/ops";
 import {
   CANDIDATE_BUDGET,
   type ContentType,
@@ -139,8 +140,9 @@ export async function runResearch(
   },
 ): Promise<
   | { ok: true; collectionId: string }
-  | Failure<"VALIDATION_FAILED" | "BUDGET_EXHAUSTED">
+  | Failure<"VALIDATION_FAILED" | "BUDGET_EXHAUSTED" | "PAUSED">
 > {
+  if (await isPaused(pool, "research")) return fail("PAUSED");
   // ponytail: names only. A pasted link or domain as the subject (C7.2) is
   // searched as plain text; resolve it properly when live retrieval exists.
   const subject = input.subjectInput.replace(/\s+/g, " ").trim();
