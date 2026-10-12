@@ -32,8 +32,22 @@ export type AuthOptions = {
   social: Partial<Record<"google" | "facebook" | "github", SocialCredentials>>;
 };
 
+// Facebook grants the email permission yet omits the address for a profile
+// with no confirmed email. Such an account still needs the mandatory email
+// column, so it gets a temporary one, as a phone-only account does.
+// (`sub` is the user ID in the limited-login token form of the profile.)
+export const facebookTempEmail = (profile: {
+  id?: string;
+  sub?: string;
+  email?: string;
+}) =>
+  profile.email
+    ? {}
+    : { email: `${profile.id ?? profile.sub}@facebook.binimoy.invalid` };
+
 export function createAuth(options: AuthOptions) {
   const { send } = options;
+  const { facebook, ...social } = options.social;
   return betterAuth({
     appName: "Binimoy",
     baseURL: options.baseURL,
@@ -72,7 +86,12 @@ export function createAuth(options: AuthOptions) {
           secret: url,
         }),
     },
-    socialProviders: options.social,
+    socialProviders: {
+      ...social,
+      ...(facebook && {
+        facebook: { ...facebook, mapProfileToUser: facebookTempEmail },
+      }),
+    },
     plugins: [
       magicLink({
         sendMagicLink: ({ email, url }) =>

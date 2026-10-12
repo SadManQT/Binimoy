@@ -30,7 +30,7 @@ Spec A2 requires a maintained authentication solution and forbids writing custom
 | Email one-time code | Works in local and test only |
 | Phone one-time code | Works in local and test only (no SMS sender yet) |
 | Google, GitHub | Work locally: the founder signed in with both on 2026-10-12 (manual test, localhost only) |
-| Facebook | Configured; the authorization redirect is correct, but sign-in fails with an error on Facebook's side that is not yet diagnosed |
+| Facebook | Works locally: one manual sign-in on 2026-10-12 (localhost only, app in development mode). Facebook granted the `email` permission but returned no email for that profile, so the account was created with a temporary `<facebook id>@facebook.binimoy.invalid` address, unverified, as phone-only accounts are. No screen yet asks such a user for a real email |
 | Two-factor (TOTP) | Library plugin and table are enabled. No enrollment screen and no enforcement yet |
 | Passkeys | Not included. Needs a separate package |
 | Apple | Not included |
