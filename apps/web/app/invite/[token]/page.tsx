@@ -31,8 +31,8 @@ export default async function InvitePage({
             আপনি যোগ দেবেন: <strong>{ROLE_TEXT[invite.role]}</strong> হিসেবে
           </p>
           <p>
-            যোগ দিলে আপনি ডিলের ড্রাফট দেখতে পাবেন। যোগ দেওয়া মানে শর্তে কনসেন্ট নয়;
-            কনসেন্ট আলাদা ধাপ।
+            যোগ দিলে আপনি ডিলের ড্রাফট দেখতে পাবেন। যোগ দেওয়া মানে শর্তে সম্মতি নয়;
+            সম্মতি আলাদা ধাপ।
           </p>
           <form action={acceptInviteAction}>
             <input type="hidden" name="token" value={token} />

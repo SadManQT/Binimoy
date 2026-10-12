@@ -30,7 +30,7 @@ test("each side is told its own next action, never the other side's", () => {
     funded: false,
   };
   expect(nextStep({ ...waiting, acceptedByMe: false }).text).toMatch(
-    /কনসেন্ট দিন/,
+    /সম্মতি দিন/,
   );
   expect(nextStep({ ...waiting, acceptedByMe: true }).text).toMatch(
     /অন্য পক্ষের/,
