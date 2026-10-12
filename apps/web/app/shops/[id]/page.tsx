@@ -1,12 +1,7 @@
-import { getShop, SHOP_CATEGORIES } from "@lp/db/shops";
+import { getShop } from "@lp/db/shops";
 import { notFound } from "next/navigation";
-import {
-  bn,
-  bnDate,
-  ISSUE_TEXT,
-  REVIEW_TONE,
-  REVIEW_TYPE_TEXT,
-} from "../../../lib/copy";
+import { REVIEW_TONE } from "../../../lib/copy";
+import { fill, getI18n } from "../../../lib/i18n";
 import { pool } from "../../../lib/pool";
 import { ComplaintLine, Rating, TypeBar } from "../../components/shop-ui";
 
@@ -17,15 +12,12 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const shop = await getShop(pool(), (await params).id);
-  return { title: shop ? `${shop.name} · বিনিময়` : "দোকান · বিনিময়" };
+  const [{ t }, shop] = await Promise.all([
+    getI18n(),
+    getShop(pool(), (await params).id),
+  ]);
+  return { title: `${shop ? shop.name : t.shops.title} · ${t.brand}` };
 }
-
-const FILTERS = [
-  ["", "সব"],
-  ["negative", "অভিযোগ"],
-  ["positive", "ভালো অভিজ্ঞতা"],
-] as const;
 
 export default async function ShopPage({
   params,
@@ -36,81 +28,84 @@ export default async function ShopPage({
 }) {
   const { id } = await params;
   const { type = "" } = await searchParams;
-  // No published experience and no such shop look the same: there is no
-  // public page for a name that someone merely looked up.
+  const i18n = await getI18n();
+  const { t, num, date } = i18n;
+  // No published review and no such shop look the same: there is no public
+  // page for a name that someone merely looked up.
   const shop = await getShop(pool(), id);
   if (!shop) notFound();
   const reviews = type
     ? shop.reviews.filter((r) => r.experienceType === type)
     : shop.reviews;
-  const write = `/community?subject=${encodeURIComponent(shop.name)}`;
+  const name = encodeURIComponent(shop.name);
+  const filters = [
+    ["", t.shop.filterAll],
+    ["negative", t.shop.filterBad],
+    ["positive", t.shop.filterGood],
+  ] as const;
 
   return (
     <main className="wide">
       <p>
-        <a href="/shops">← সব দোকান</a>
+        <a href="/shops">← {t.shop.back}</a>
       </p>
       <div className="page-head">
         <h1>{shop.name}</h1>
         <p className="meta">
           <span className="chip plain">
-            {shop.category ? SHOP_CATEGORIES[shop.category].bn : "ধরন জানা নেই"}
+            {shop.category
+              ? t.categories[shop.category]
+              : t.shops.unknownCategory}
           </span>
           <span>
-            {bnDate(shop.firstPublishedAt)} থেকে {bnDate(shop.lastPublishedAt)}
+            {date(shop.firstPublishedAt)} - {date(shop.lastPublishedAt)}
           </span>
         </p>
       </div>
 
       <section aria-labelledby="evidence" data-testid="shop-evidence">
-        <h2 id="evidence">এক নজরে যা প্রকাশিত হয়েছে</h2>
+        <h2 id="evidence">{t.shop.glance}</h2>
         <div className="evidence">
           <div>
-            <span className="figure">{bn(shop.published)}</span>
-            <span>প্রকাশিত অভিজ্ঞতা</span>
+            <span className="figure">{num(shop.published)}</span>
+            <span>{t.shop.reviews}</span>
           </div>
           <div>
             <span className="figure">
-              {shop.ratingAverage === null ? "নেই" : bn(shop.ratingAverage)}
+              {shop.ratingAverage === null
+                ? t.shop.noRating
+                : num(shop.ratingAverage)}
             </span>
             <span>
               {shop.ratingAverage === null
-                ? "কেউ রেটিং দেননি"
-                : `৫-এর মধ্যে, ${bn(shop.ratingCount)}টি রেটিংয়ের গড়`}
+                ? t.shop.noRatingNote
+                : fill(t.shop.ratingNote, { n: num(shop.ratingCount) })}
             </span>
           </div>
           <div>
-            <span className="figure">{bn(shop.complaints)}</span>
-            <span>প্রকাশিত অভিযোগ</span>
+            <span className="figure">{num(shop.complaints)}</span>
+            <span>{t.shop.reports}</span>
           </div>
         </div>
-        <TypeBar shop={shop} />
+        <TypeBar shop={shop} i18n={i18n} />
         <p>
-          <ComplaintLine shop={shop} />
+          <ComplaintLine shop={shop} i18n={i18n} />
         </p>
         <p data-testid="not-a-verdict">
-          <small>
-            বিনিময় এই দোকানকে যাচাই করেনি এবং ভালো বা খারাপ বলছে না। উপরের সংখ্যাগুলো শুধু
-            এখানে প্রকাশিত লেখার হিসাব। রেটিং লেখকদের নিজের দেওয়া। অল্প লেখা থাকা মানে
-            দোকানটি নিরাপদ, তা নয়; অভিযোগ থাকা মানে অভিযোগটি প্রমাণিত, তাও নয়। উত্তর না
-            দেওয়া মানে স্বীকার করা নয়।
-          </small>
+          <small>{t.shop.notVerdict}</small>
         </p>
         <div className="actions">
-          <a className="button" href={write}>
-            এই দোকান নিয়ে আপনার অভিজ্ঞতা লিখুন
+          <a className="button" href={`/community?subject=${name}`}>
+            {t.shop.write}
           </a>
-          <a
-            className="button quiet"
-            href={`/research?subject=${encodeURIComponent(shop.name)}`}
-          >
-            ওয়েবে আরও খুঁজুন
+          <a className="button quiet" href={`/research?subject=${name}`}>
+            {t.shop.searchWeb}
           </a>
         </div>
       </section>
 
-      <nav className="filters" aria-label="লেখার ধরন">
-        {FILTERS.map(([value, label]) => (
+      <nav className="filters" aria-label={t.shop.reviews}>
+        {filters.map(([value, label]) => (
           <a
             key={value}
             href={
@@ -124,7 +119,7 @@ export default async function ShopPage({
       </nav>
 
       {reviews.length === 0 ? (
-        <p className="empty">এই ধরনের কোনো প্রকাশিত লেখা নেই।</p>
+        <p className="empty">{t.shop.none}</p>
       ) : (
         <ul className="cards" data-testid="reviews">
           {reviews.map((review) => (
@@ -134,17 +129,27 @@ export default async function ShopPage({
                   className="chip"
                   data-tone={REVIEW_TONE[review.experienceType]}
                 >
-                  {REVIEW_TYPE_TEXT[review.experienceType]}
+                  {t.types[review.experienceType]}
                 </span>
-                {review.rating !== null && <Rating value={review.rating} />}
-                <span>প্রকাশ {bnDate(review.publishedAt)}</span>
-                {review.eventDate && <span>ঘটনা {review.eventDate}</span>}
+                {review.rating !== null && (
+                  <Rating value={review.rating} i18n={i18n} />
+                )}
+                <span>
+                  {fill(t.shop.published, { date: date(review.publishedAt) })}
+                </span>
+                {review.eventDate && (
+                  <span>
+                    {fill(t.shop.happened, { date: review.eventDate })}
+                  </span>
+                )}
                 {review.product && <span>{review.product}</span>}
               </div>
               {review.issue && (
                 <p>
-                  <strong>লেখকের অভিযোগ:</strong> {ISSUE_TEXT[review.issue]}{" "}
-                  <small>(লেখকের দাবি, যাচাই করা হয়নি)</small>
+                  <strong>
+                    {t.shop.claim} {t.issues[review.issue]}
+                  </strong>{" "}
+                  <small>({t.shop.unverified})</small>
                 </p>
               )}
               <blockquote>{review.text}</blockquote>
@@ -152,24 +157,20 @@ export default async function ShopPage({
                 <div className="reply" key={`${f.kind}-${f.at}`}>
                   <strong>
                     {f.kind === "RESPONSE"
-                      ? "উত্তর"
+                      ? t.shop.reply
                       : f.kind === "RESOLUTION"
-                        ? "লেখক পরে জানিয়েছেন: সমাধান হয়েছে"
-                        : "লেখকের সংশোধন"}
+                        ? t.shop.resolution
+                        : t.shop.correction}
                   </strong>{" "}
                   <small>
-                    {bnDate(f.at)}
-                    {f.kind === "RESPONSE"
-                      ? " · যিনি লিখেছেন তিনি দোকানের পক্ষের কি না, যাচাই করা হয়নি"
-                      : ""}
+                    {date(f.at)}
+                    {f.kind === "RESPONSE" ? `, ${t.shop.replyNote}` : ""}
                   </small>
                   <p>{f.body}</p>
                 </div>
               ))}
               <p>
-                <a href={`/community/${review.id}`}>
-                  উত্তর দিন বা পুরো লেখাটি দেখুন
-                </a>
+                <a href={`/community/${review.id}`}>{t.shop.open}</a>
               </p>
             </li>
           ))}

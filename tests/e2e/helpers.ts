@@ -66,11 +66,11 @@ export async function fundedDeal(
   for (const [key, value] of Object.entries(product)) {
     await seller.locator(`input[name="product.${key}"]`).fill(value);
   }
-  await click(seller, "খসড়া চুক্তি তৈরি করুন");
+  await click(seller, "ড্রাফট ডিল তৈরি করুন");
   await seller.waitForURL(/\/deals\/[0-9a-f-]{36}$/);
   const dealUrl = seller.url();
 
-  await click(seller, "আমন্ত্রণ লিংক তৈরি করুন");
+  await click(seller, "ইনভাইট লিংক তৈরি করুন");
   await seller.waitForURL(/invite=/);
   const token = new URL(seller.url()).searchParams.get("invite");
   await buyer.goto(`/invite/${token}`);
@@ -78,7 +78,7 @@ export async function fundedDeal(
   await buyer.waitForURL(dealUrl);
 
   await seller.goto(dealUrl);
-  await click(seller, "সম্মতির জন্য পাঠান");
+  await click(seller, "কনসেন্টর জন্য পাঠান");
   await buyer.goto(dealUrl);
   await click(buyer, "আমি ঠিক এই শর্তে সম্মত");
   await seller.goto(dealUrl);
@@ -86,7 +86,7 @@ export async function fundedDeal(
 
   await buyer.goto(dealUrl);
   await click(buyer, "টাকা জমার ইনভয়েস তৈরি করুন");
-  await click(buyer, "নকল পেমেন্ট শুরু করুন");
+  await click(buyer, "টেস্ট পেমেন্ট শুরু করুন");
   await click(buyer, "সঠিক পরিমাণ পাওয়া গেছে");
   await expect(
     buyer.getByText("টাকা জমা নিশ্চিত, নিরাপদ হিসাবে আটকে রাখা"),

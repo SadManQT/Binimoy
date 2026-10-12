@@ -183,7 +183,7 @@ export default async function DealPage({
         <div className="deal-main">
           {deal.parties.length === 1 && open && (
             <section aria-labelledby="invite">
-              <h2 id="invite">অন্য পক্ষকে আমন্ত্রণ</h2>
+              <h2 id="invite">অন্য পক্ষকে ইনভাইট</h2>
               {invite ? (
                 <p>
                   এই লিংকটি শুধু অন্য পক্ষকে পাঠান। এটি ৭২ ঘণ্টা চলবে, একবারই ব্যবহার করা
@@ -196,7 +196,7 @@ export default async function DealPage({
               ) : (
                 <form action={createInviteAction}>
                   <input type="hidden" name="dealId" value={deal.dealId} />
-                  <button type="submit">আমন্ত্রণ লিংক তৈরি করুন</button>
+                  <button type="submit">ইনভাইট লিংক তৈরি করুন</button>
                   <p>নতুন লিংক তৈরি করলে আগের লিংক বাতিল হয়ে যায়।</p>
                 </form>
               )}
@@ -204,14 +204,14 @@ export default async function DealPage({
           )}
 
           <section aria-labelledby="terms">
-            <h2 id="terms">চুক্তির শর্ত (সংস্করণ {agreement.versionNo})</h2>
+            <h2 id="terms">ডিলের শর্ত (সংস্করণ {agreement.versionNo})</h2>
             <dl>
-              <dt>পণ্যের ধরন</dt>
+              <dt>প্রোডাক্টের ধরন</dt>
               <dd>{template.name.bn}</dd>
               <dt>মূল্য</dt>
               <dd>
                 {formatBdt(terms.amountMinor)} ({terms.currency}) · ফি{" "}
-                {formatBdt(terms.feeMinor)} · পরীক্ষামূলক, কোনো আসল টাকা নয়
+                {formatBdt(terms.feeMinor)} · টেস্ট, কোনো আসল টাকা নয়
               </dd>
               <dt>সেবার ধরন</dt>
               <dd>
@@ -235,31 +235,31 @@ export default async function DealPage({
               ))}
               <dt>সময়সীমা</dt>
               <dd>
-                সরবরাহ: টাকা জমার পর {terms.timing.deliveryHours} ঘণ্টা · পরীক্ষা:
-                সরবরাহের পর {terms.timing.inspectionHours} ঘণ্টা · সংশোধনের সুযোগ:{" "}
+                ডেলিভারি: টাকা জমার পর {terms.timing.deliveryHours} ঘণ্টা · চেক:
+                ডেলিভারির পর {terms.timing.inspectionHours} ঘণ্টা · সংশোধনের সুযোগ:{" "}
                 {terms.timing.correctionAttempts} বার · আপিল:{" "}
                 {terms.timing.appealHours} ঘণ্টা
               </dd>
-              <dt>ক্রেতার চূড়ান্ত সম্মতি ছাড়া স্বয়ংক্রিয় ছাড়</dt>
+              <dt>বায়ারের চূড়ান্ত কনসেন্ট ছাড়া স্বয়ংক্রিয় ছাড়</dt>
               <dd>
                 {terms.objectiveRelease
-                  ? `চালু: প্রতিটি আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হলে ক্রেতাকে জানানো হয়, এবং ${terms.timing.objectiveChallengeHours} ঘণ্টার মধ্যে ক্রেতা আপত্তি না করলে বিক্রেতাকে পরিশোধ হয়। আপত্তি করলে টাকা আটকে থাকে।`
-                  : "চালু নয়: এই ধরনের পণ্যে প্রতিটি শর্ত স্বাধীনভাবে যাচাই করার ব্যবস্থা এখনো পরীক্ষিত নয়।"}
+                  ? `চালু: প্রতিটি আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হলে বায়ারকে জানানো হয়, এবং ${terms.timing.objectiveChallengeHours} ঘণ্টার মধ্যে বায়ার আপত্তি না করলে সেলারকে পেমেন্ট হয়। আপত্তি করলে টাকা আটকে থাকে।`
+                  : "চালু নয়: এই ধরনের প্রোডাক্টে প্রতিটি শর্ত স্বাধীনভাবে ভেরিফাই করার ব্যবস্থা এখনো পরীক্ষিত নয়।"}
               </dd>
-              <dt>সরবরাহ না হলে</dt>
+              <dt>ডেলিভারি না হলে</dt>
               <dd>
-                সময়সীমার মধ্যে কিছু না দিলে পুরো টাকা ফেরত; অন্য ক্ষেত্রে পর্যালোচনা বা দুই
-                পক্ষের সম্মতি।
+                সময়সীমার মধ্যে কিছু না দিলে পুরো টাকা ফেরত; অন্য ক্ষেত্রে রিভিউ বা দুই পক্ষের
+                কনসেন্ট।
               </dd>
             </dl>
 
-            <h3>যা যা দিতে ও পরীক্ষা করতে হবে</h3>
+            <h3>যা যা দিতে ও চেক করতে হবে</h3>
             <ol>
               {terms.items.map((item) => (
                 <li key={item.itemId}>
                   {item.title.bn} · {item.mandatory ? "আবশ্যক" : "ঐচ্ছিক"} · প্রমাণ:{" "}
                   {item.proofTypes.map((p) => PROOF_TEXT[p] ?? p).join(", ")}
-                  {item.subjective && " · ব্যক্তিগত মত, যাচাইযোগ্য নয়"}
+                  {item.subjective && " · ব্যক্তিগত মত, ভেরিফাইযোগ্য নয়"}
                   {item.dataClass === "vault_secret" && " · গোপন ভল্টে, চ্যাটে নয়"}
                 </li>
               ))}
@@ -273,8 +273,8 @@ export default async function DealPage({
             </ul>
             <p>
               <small>
-                শর্তের ছাপ: <code>{agreement.termsHash.slice(0, 16)}</code>. সম্মতি
-                ঠিক এই ছাপের সাথে বাঁধা থাকে।
+                শর্তের ছাপ: <code>{agreement.termsHash.slice(0, 16)}</code>.
+                কনসেন্ট ঠিক এই ছাপের সাথে বাঁধা থাকে।
               </small>
             </p>
           </section>
@@ -285,21 +285,21 @@ export default async function DealPage({
             {agreement.state === "DRAFT" && (
               <form action={agreementAction}>
                 {hidden("ProposeAgreement")}
-                <p>খসড়া ঠিক থাকলে দুই পক্ষের সম্মতির জন্য পাঠান।</p>
-                <button type="submit">সম্মতির জন্য পাঠান</button>
+                <p>ড্রাফট ঠিক থাকলে দুই পক্ষের কনসেন্টর জন্য পাঠান।</p>
+                <button type="submit">কনসেন্টর জন্য পাঠান</button>
               </form>
             )}
 
             {agreement.state === "AWAITING_ACCEPTANCE" && (
               <>
                 <p>
-                  সম্মতি দিয়েছেন:{" "}
+                  কনসেন্ট দিয়েছেন:{" "}
                   {agreement.acceptedBy.length === 0
                     ? "এখনো কেউ না"
                     : agreement.acceptedBy.map((r) => ROLE_TEXT[r]).join(", ")}
                 </p>
                 {agreement.acceptedBy.includes(deal.myRole) ? (
-                  <p>আপনি সম্মতি দিয়েছেন। অন্য পক্ষের অপেক্ষা।</p>
+                  <p>আপনি কনসেন্ট দিয়েছেন। অন্য পক্ষের অপেক্ষা।</p>
                 ) : (
                   <form action={agreementAction}>
                     {hidden("AcceptAgreement")}
@@ -311,9 +311,8 @@ export default async function DealPage({
                     <p>
                       আপনি সম্মত হচ্ছেন: {formatBdt(terms.amountMinor)} (
                       {terms.currency}), প্রাপক{" "}
-                      {seller ? `বিক্রেতা ${seller.name}` : "বিক্রেতা"}, চুক্তির
-                      সংস্করণ {agreement.versionNo}. দুই পক্ষ সম্মত হলে শর্ত আর বদলানো
-                      যাবে না।
+                      {seller ? `সেলার ${seller.name}` : "সেলার"}, ডিলের সংস্করণ{" "}
+                      {agreement.versionNo}. দুই পক্ষ সম্মত হলে শর্ত আর বদলানো যাবে না।
                     </p>
                     <button type="submit">আমি ঠিক এই শর্তে সম্মত</button>
                   </form>
@@ -357,7 +356,7 @@ export default async function DealPage({
                   items={vaultItems}
                 />
               ) : (
-                <p>এই পরিবেশে গোপন ভল্ট চালু নেই, তাই সরবরাহ এখন সম্ভব নয়।</p>
+                <p>এই পরিবেশে গোপন ভল্ট চালু নেই, তাই ডেলিভারি এখন সম্ভব নয়।</p>
               ))}
 
             {delivery && (
@@ -388,15 +387,15 @@ export default async function DealPage({
             )}
 
             {!open && agreement.state !== "ACCEPTED" && (
-              <p>এই চুক্তি আর সক্রিয় নয়।</p>
+              <p>এই ডিল আর সক্রিয় নয়।</p>
             )}
 
             {editable && (
               <details>
                 <summary>শর্ত বদলান</summary>
                 <p>
-                  বদলালে নতুন সংস্করণ তৈরি হয় এবং চুক্তি খসড়ায় ফিরে যায়। আগের সংস্করণে
-                  দেওয়া কোনো সম্মতি নতুন সংস্করণে গণ্য হয় না।
+                  বদলালে নতুন সংস্করণ তৈরি হয় এবং ডিল ড্রাফটয় ফিরে যায়। আগের সংস্করণে
+                  দেওয়া কোনো কনসেন্ট নতুন সংস্করণে গণ্য হয় না।
                 </p>
                 <form action={agreementAction}>
                   {hidden("ReviseAgreement")}
@@ -425,8 +424,8 @@ export default async function DealPage({
               <details>
                 <summary>ডিল বাতিল করুন</summary>
                 <p>
-                  বাতিল করলে এই চুক্তি স্থায়ীভাবে বন্ধ হয় এবং খোলা আমন্ত্রণ লিংক অকার্যকর
-                  হয়। এটি ফেরানো যায় না; নতুন ডিল শুরু করতে হবে।
+                  বাতিল করলে এই ডিল স্থায়ীভাবে বন্ধ হয় এবং খোলা ইনভাইট লিংক অকার্যকর হয়।
+                  এটি ফেরানো যায় না; নতুন ডিল শুরু করতে হবে।
                 </p>
                 <form action={agreementAction}>
                   {hidden("WithdrawAgreement")}

@@ -6,7 +6,7 @@ test("a seller lookup shows attributed, labelled posts and no verdict", async ({
 }) => {
   const { page } = await signUp(browser, "Researcher");
   await page.goto("/research");
-  await expect(page.getByTestId("fixture-label")).toContainText("পরীক্ষামূলক");
+  await expect(page.getByTestId("fixture-label")).toContainText("টেস্ট");
   await page.locator('input[name="subject"]').fill("Tech Bazar BD");
   await act(page, page.getByRole("button", { name: "খুঁজুন" }));
   await page.waitForURL("**/research/*-*");
@@ -15,7 +15,7 @@ test("a seller lookup shows attributed, labelled posts and no verdict", async ({
   await expect(page.getByTestId("fixture-label")).toContainText("নমুনা");
   await expect(page.getByTestId("coverage")).toContainText("অসম্পূর্ণ");
   await expect(page.getByTestId("counts")).toContainText(
-    "ভালো অভিজ্ঞতা ১টি · অভিযোগ ২টি",
+    "ভালো এক্সপেরিয়েন্স ১টি · রিপোর্ট ২টি",
   );
 
   // A post that could not be read is shown as a link, not as a report.
@@ -30,7 +30,7 @@ test("a seller lookup shows attributed, labelled posts and no verdict", async ({
   await expect(possible.getByTestId("report-card")).toHaveCount(1);
   await act(page, possible.getByRole("button", { name: "এটি এই নামেরই" }));
   await expect(page.getByTestId("possible-cards")).toHaveCount(0);
-  await expect(page.getByTestId("counts")).toContainText("ভালো অভিজ্ঞতা ২টি");
+  await expect(page.getByTestId("counts")).toContainText("ভালো এক্সপেরিয়েন্স ২টি");
 
   // Nobody else can open the collection.
   const { page: stranger } = await signUp(browser, "Stranger");

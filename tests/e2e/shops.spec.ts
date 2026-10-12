@@ -18,12 +18,12 @@ test("a complaint about a shop reaches the directory, the shop's page and the al
   // Written from a shop search that found nothing: the name carries over.
   await visitor.goto(find);
   await expect(visitor.getByTestId("no-shops")).toContainText(
-    "ভালো বা খারাপ, কোনোটাই নয়",
+    "ভালো বা খারাপ, কোনোটাই না",
   );
   await author.goto(`/community?subject=${encodeURIComponent(shop)}`);
   await expect(author.locator('input[name="subject"]')).toHaveValue(shop);
   await author.locator('select[name="shopCategory"]').selectOption("software");
-  await click(author, "খসড়া শুরু করুন");
+  await click(author, "ড্রাফট শুরু করুন");
   await author.waitForURL("**/community/*-*");
   const reportUrl = author.url();
   await author
@@ -37,7 +37,7 @@ test("a complaint about a shop reaches the directory, the shop's page and the al
   await author
     .locator('textarea[name="publicText"]')
     .fill("I paid and the key never arrived.");
-  await click(author, "খসড়া সংরক্ষণ করুন");
+  await click(author, "ড্রাফট সংরক্ষণ করুন");
   await author.locator('input[name="approved"]').check();
   await click(author, "মডারেটরের কাছে জমা দিন");
 
@@ -57,18 +57,18 @@ test("a complaint about a shop reaches the directory, the shop's page and the al
   await visitor.goto(`/shops?q=${encodeURIComponent(shop.slice(4))}`);
   const row = visitor.getByTestId("shops").locator("li", { hasText: shop });
   await expect(row).toContainText("সফটওয়্যার ও লাইসেন্স");
-  await expect(row).toContainText("১টি অভিযোগ");
+  await expect(row).toContainText("১টি রিপোর্ট");
   await row.getByRole("link", { name: shop }).click();
 
   // The shop's page: counts and the reviewer's own rating, never a verdict.
   const evidence = visitor.getByTestId("shop-evidence");
-  await expect(evidence).toContainText("প্রকাশিত অভিযোগ");
+  await expect(evidence).toContainText("স্ক্যাম রিপোর্ট");
   await expect(visitor.getByTestId("not-a-verdict")).toContainText(
-    "ভালো বা খারাপ বলছে না",
+    "ভেরিফাই করেনি",
   );
   const review = visitor.getByTestId("reviews").locator("li").first();
-  await expect(review).toContainText("টাকা নিয়ে পণ্য দেয়নি");
-  await expect(review).toContainText("যাচাই করা হয়নি");
+  await expect(review).toContainText("টাকা নিয়ে প্রোডাক্ট দেয়নি");
+  await expect(review).toContainText("ভেরিফাই করা হয়নি");
   await expect(review).toContainText("১ / ৫");
   await expect(review).toContainText("I paid and the key never arrived.");
   // The private original stays private.
@@ -81,24 +81,24 @@ test("a complaint about a shop reaches the directory, the shop's page and the al
     "লেখকের নিজের দাবি",
   );
   const alert = visitor.getByTestId("alerts").locator("li", { hasText: shop });
-  await expect(alert).toContainText("এখনো কোনো উত্তর নেই");
+  await expect(alert).toContainText("এখনো রিপ্লাই নেই");
   // And on the front page.
   await visitor.goto("/");
   await expect(visitor.getByTestId("home-alerts")).toContainText(shop);
 
   // One person, one live report per shop.
   await author.goto(`/community?subject=${encodeURIComponent(shop)}`);
-  await click(author, "খসড়া শুরু করুন");
+  await click(author, "ড্রাফট শুরু করুন");
   await author.waitForURL("**/community/*-*");
   await author.locator('textarea[name="narrative"]').fill("Same story again.");
   await author
     .locator('textarea[name="publicText"]')
     .fill("Same story, a second time.");
-  await click(author, "খসড়া সংরক্ষণ করুন");
+  await click(author, "ড্রাফট সংরক্ষণ করুন");
   await author.locator('input[name="approved"]').check();
   await click(author, "মডারেটরের কাছে জমা দিন");
   await expect(author.locator('main [role="alert"]')).toContainText(
-    "ইতিমধ্যে জমা বা প্রকাশিত",
+    "ইতিমধ্যে জমা বা পাবলিশড",
   );
 
   // A moderator's general warning leads the alerts page until retracted.
@@ -111,7 +111,7 @@ test("a complaint about a shop reaches the directory, the shop's page and the al
     .fill(
       "Several reports describe pages asking for full payment before showing the product.",
     );
-  await click(moderator, "সতর্কবার্তা প্রকাশ করুন");
+  await click(moderator, "ওয়ার্নিং প্রকাশ করুন");
   await visitor.goto("/alerts");
   await expect(visitor.getByTestId("safety-notes")).toContainText(title);
   await moderator.goto("/moderation");

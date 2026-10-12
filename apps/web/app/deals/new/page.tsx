@@ -19,10 +19,10 @@ export default async function NewDealPage({
   if (!template) {
     return (
       <main>
-        <h1>নতুন ডিল: কী ধরনের পণ্য?</h1>
+        <h1>নতুন ডিল: কী ধরনের প্রোডাক্ট?</h1>
         <p>
-          এগারো ধরনের পণ্য চালু আছে। “পরীক্ষামূলক” লেখা ধরনগুলোতে প্রোভাইডারের যাচাই একটি নকল
-          প্রোভাইডার দিয়ে দেখানো হয়, আসল প্রোভাইডার দিয়ে নয়।
+          এগারো ধরনের প্রোডাক্ট চালু আছে। “টেস্ট” লেখা ধরনগুলোতে প্রোভাইডারের ভেরিফাই একটি
+          টেস্ট প্রোভাইডার দিয়ে দেখানো হয়, আসল প্রোভাইডার দিয়ে নয়।
         </p>
         <ul className="index">
           {TEMPLATES.map((t) => (
@@ -59,7 +59,7 @@ export default async function NewDealPage({
               defaultChecked
               style={{ display: "inline", width: "auto", minHeight: 0 }}
             />{" "}
-            বিক্রেতা (পণ্য দেবেন)
+            সেলার (প্রোডাক্ট দেবেন)
           </label>
           <label>
             <input
@@ -69,13 +69,13 @@ export default async function NewDealPage({
               required
               style={{ display: "inline", width: "auto", minHeight: 0 }}
             />{" "}
-            ক্রেতা (টাকা দেবেন)
+            বায়ার (টাকা দেবেন)
           </label>
         </fieldset>
         <TermsFields template={template} />
-        <button type="submit">খসড়া চুক্তি তৈরি করুন</button>
+        <button type="submit">ড্রাফট ডিল তৈরি করুন</button>
       </form>
-      <p>এতে কোনো টাকা জমা হয় না। সব লেনদেন পরীক্ষামূলক (নকল)।</p>
+      <p>এতে কোনো টাকা জমা হয় না। সব লেনদেন টেস্ট।</p>
     </main>
   );
 }

@@ -39,9 +39,9 @@ export default async function ReceiptPage({
       </p>
       <h1>রসিদ: {receipt.title}</h1>
       <p>
-        <strong>পরীক্ষামূলক রেকর্ড।</strong> এখানে কোনো আসল টাকা নড়েনি, এবং “স্বাধীন যাচাই”
-        লেখা ফলগুলো নকল প্রোভাইডার থেকে এসেছে। এটি শুধু দুই পক্ষের জন্য ব্যক্তিগত রেকর্ড; এটি
-        কারও সুনাম বা নির্ভরযোগ্যতার প্রমাণ নয়, এবং এটি প্রকাশ করা হয় না।
+        <strong>টেস্ট রেকর্ড।</strong> এখানে কোনো আসল টাকা নড়েনি, এবং “স্বাধীন ভেরিফাই”
+        লেখা ফলগুলো টেস্ট প্রোভাইডার থেকে এসেছে। এটি শুধু দুই পক্ষের জন্য ব্যক্তিগত রেকর্ড;
+        এটি কারও সুনাম বা নির্ভরযোগ্যতার প্রমাণ নয়, এবং এটি প্রকাশ করা হয় না।
       </p>
       <p>
         <small>তৈরির সময়: {when(receipt.generatedAt)}</small>
@@ -49,12 +49,12 @@ export default async function ReceiptPage({
       {receipt.pending && (
         <p role="status" data-testid="receipt-pending">
           <strong>এখনো চূড়ান্ত নয়:</strong> কোনো টাকা পাঠানো বাকি বা অজানা অবস্থায় আছে, অথবা
-          কোনো আবশ্যক পরীক্ষা পাস হয়নি।
+          কোনো আবশ্যক চেক পাস হয়নি।
         </p>
       )}
 
       <section aria-labelledby="r-agreement">
-        <h2 id="r-agreement">চুক্তি</h2>
+        <h2 id="r-agreement">ডিল</h2>
         <dl>
           <dt>পক্ষ</dt>
           <dd>
@@ -98,7 +98,7 @@ export default async function ReceiptPage({
       </section>
 
       <section aria-labelledby="r-delivery">
-        <h2 id="r-delivery">সরবরাহ ও পরীক্ষা</h2>
+        <h2 id="r-delivery">ডেলিভারি ও চেক</h2>
         {receipt.packages.length === 0 ? (
           <p>কিছু জমা পড়েনি।</p>
         ) : (
@@ -110,7 +110,7 @@ export default async function ReceiptPage({
                 {p.state === "SUPERSEDED"
                   ? "প্রতিস্থাপিত, আর গণ্য নয়"
                   : p.accepted
-                    ? "ক্রেতা গ্রহণ করেছেন"
+                    ? "বায়ার গ্রহণ করেছেন"
                     : "গৃহীত হয়নি"}
               </h3>
               <p>
@@ -139,26 +139,26 @@ export default async function ReceiptPage({
           <dd>{formatBdt(balances.heldMinor)}</dd>
           <dt>অনুমোদিত, পাঠানো বাকি</dt>
           <dd>{formatBdt(balances.reservedMinor)}</dd>
-          <dt>বিক্রেতাকে পরিশোধিত</dt>
+          <dt>সেলারকে পেইড</dt>
           <dd data-testid="receipt-seller-paid">
             {formatBdt(balances.sellerPaidMinor)}
           </dd>
-          <dt>ক্রেতাকে ফেরত</dt>
+          <dt>বায়ারকে ফেরত</dt>
           <dd>{formatBdt(balances.buyerRefundedMinor)}</dd>
         </dl>
         {receipt.allocations.length === 0 ? (
-          <p>এখনো কোনো নিষ্পত্তির অনুমোদন হয়নি।</p>
+          <p>এখনো কোনো সেটেলমেন্টের অ্যাপ্রুভাল হয়নি।</p>
         ) : (
           <ol>
             {receipt.allocations.map((a) => (
               <li key={a.createdAt}>
                 {when(a.createdAt)} · {PATH_TEXT[a.path] ?? a.path} ·{" "}
-                {AUTHORIZATION_TEXT[a.state] ?? a.state} · বিক্রেতা{" "}
-                {formatBdt(a.toSellerMinor)}, ক্রেতা {formatBdt(a.toBuyerMinor)}
+                {AUTHORIZATION_TEXT[a.state] ?? a.state} · সেলার{" "}
+                {formatBdt(a.toSellerMinor)}, বায়ার {formatBdt(a.toBuyerMinor)}
                 <ul>
                   {a.operations.map((o) => (
                     <li key={o.kind}>
-                      {o.kind === "payout" ? "বিক্রেতাকে পরিশোধ" : "ক্রেতাকে ফেরত"}:{" "}
+                      {o.kind === "payout" ? "সেলারকে পেমেন্ট" : "বায়ারকে ফেরত"}:{" "}
                       {formatBdt(o.amountMinor)} ·{" "}
                       {a.state === "INVALIDATED"
                         ? "বাতিল, পাঠানো হয়নি"
@@ -174,7 +174,7 @@ export default async function ReceiptPage({
 
       {receipt.disputes.length > 0 && (
         <section aria-labelledby="r-disputes">
-          <h2 id="r-disputes">বিরোধ</h2>
+          <h2 id="r-disputes">ডিসপিউট</h2>
           <ul>
             {receipt.disputes.map((d) => (
               <li key={d.openedAt}>
@@ -183,7 +183,7 @@ export default async function ReceiptPage({
               </li>
             ))}
           </ul>
-          <p>বিরোধের রেকর্ড কোনো পক্ষকে দোষী বলে না।</p>
+          <p>ডিসপিউটের রেকর্ড কোনো পক্ষকে দোষী বলে না।</p>
         </section>
       )}
       <p>

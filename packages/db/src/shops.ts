@@ -145,6 +145,16 @@ export async function shopCategoryCounts(
   return counts;
 }
 
+// Three real totals for the front page. Zeros are shown as zeros.
+export async function directoryStats(pool: Pool) {
+  const { rows } = await pool.query(
+    `select count(distinct subject_id)::int as shops, count(*)::int as reviews,
+            count(*) filter (where experience_type = 'negative')::int as reports
+     from community_report where state = 'PUBLISHED'`,
+  );
+  return rows[0] as { shops: number; reviews: number; reports: number };
+}
+
 export type ShopReview = {
   id: string;
   experienceType: ExperienceType;

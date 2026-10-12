@@ -19,12 +19,12 @@ test("a dispute is reviewed, decided with reasons, accepted by both parties and 
 
   // The buyer opens a dispute and asks for a human.
   await buyer.goto(dealUrl);
-  await buyer.getByText("সমস্যা জানান (বিরোধ খুলুন)").click();
+  await buyer.getByText("সমস্যা জানান (ডিসপিউট খুলুন)").click();
   await buyer.locator('select[name="claim"]').selectOption("CANNOT_ACCESS");
   await buyer.locator('input[name="detail"]').fill("invalid credentials");
-  await click(buyer, "বিরোধ খুলুন");
+  await click(buyer, "ডিসপিউট খুলুন");
   await expect(buyer.getByTestId("dispute-state")).toContainText("খোলা");
-  await click(buyer, "মানব পর্যালোচনা চাই");
+  await click(buyer, "হিউম্যান রিভিউ চাই");
   // Queued is shown as queued, not as assigned.
   await expect(buyer.getByTestId("dispute-state")).toContainText(
     "এখনো কাউকে দেওয়া হয়নি",

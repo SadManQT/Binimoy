@@ -18,8 +18,8 @@ import {
 } from "./actions";
 
 const SOURCE_TEXT: Record<string, string> = {
-  seller_statement: "বিক্রেতার ঘোষণা",
-  buyer_observation: "ক্রেতার নিজের পরীক্ষা",
+  seller_statement: "সেলারের ঘোষণা",
+  buyer_observation: "বায়ারের নিজের চেক",
   independent_fact: "স্বাধীন উৎস",
 };
 const isMock = (predicate: string | undefined) =>
@@ -36,7 +36,7 @@ export function PlainDeliveryForm({
 }) {
   return (
     <form action={submitDeliveryAction} data-testid="submit-delivery">
-      <h3>সরবরাহ জমা দিন</h3>
+      <h3>ডেলিভারি জমা দিন</h3>
       <input type="hidden" name="dealId" value={dealId} />
       <input type="hidden" name="vaultEvents" value="{}" />
       {declarable.map((item) => (
@@ -53,10 +53,10 @@ export function PlainDeliveryForm({
         </label>
       ))}
       <p>
-        এই ধরনের পণ্যে গোপন কিছু হস্তান্তর হয় না। জমা দিলে প্রোভাইডারের রেকর্ড মিলিয়ে দেখা
-        শুরু হয়। জমা দেওয়া মানে টাকা পাওয়া নয়।
+        এই ধরনের প্রোডাক্টে গোপন কিছু হস্তান্তর হয় না। জমা দিলে প্রোভাইডারের রেকর্ড মিলিয়ে
+        দেখা শুরু হয়। জমা দেওয়া মানে টাকা পাওয়া নয়।
       </p>
-      <button type="submit">সরবরাহ জমা দিন</button>
+      <button type="submit">ডেলিভারি জমা দিন</button>
     </form>
   );
 }
@@ -76,10 +76,11 @@ export function ProviderLab({
   if (used.length === 0) return null;
   return (
     <div data-testid="provider-lab">
-      <h3>পরীক্ষাগার: নকল প্রোভাইডার কী উত্তর দেবে</h3>
+      <h3>ল্যাব: টেস্ট প্রোভাইডার কী উত্তর দেবে</h3>
       <p>
-        এই ডিলের কোনো যাচাই আসল প্রোভাইডার থেকে আসে না। পরীক্ষার জন্য এখানে ঠিক করা যায় নকল
-        প্রোভাইডার কী বলবে। কিছু ঠিক না করলে উত্তর “রেকর্ড নেই”, অর্থাৎ যাচাই করা যায়নি।
+        এই ডিলের কোনো ভেরিফাই আসল প্রোভাইডার থেকে আসে না। চেকের জন্য এখানে ঠিক করা যায়
+        টেস্ট প্রোভাইডার কী বলবে। কিছু ঠিক না করলে উত্তর “রেকর্ড নেই”, অর্থাৎ ভেরিফাই করা
+        যায়নি।
       </p>
       {used.map((item) => {
         const fact = facts.find((f) => f.predicate === item.predicate);
@@ -93,7 +94,7 @@ export function ProviderLab({
               <select
                 name="outcome"
                 defaultValue={fact?.outcome ?? "PASSED"}
-                aria-label={`নকল প্রোভাইডার: ${item.title.bn}`}
+                aria-label={`টেস্ট প্রোভাইডার: ${item.title.bn}`}
                 style={{ display: "block", minHeight: 44 }}
               >
                 <option value="PASSED">নিশ্চিত করছে</option>
@@ -103,7 +104,7 @@ export function ProviderLab({
             </label>
             {field && (
               <label>
-                প্রোভাইডারের রেকর্ডে গন্তব্য (চুক্তিতে: {terms.product[field]})
+                প্রোভাইডারের রেকর্ডে গন্তব্য (ডিলে: {terms.product[field]})
                 <input
                   name="boundTo"
                   maxLength={200}
@@ -111,7 +112,7 @@ export function ProviderLab({
                 />
               </label>
             )}
-            <button type="submit">নকল উত্তর ঠিক করুন: {item.itemId}</button>
+            <button type="submit">টেস্ট উত্তর ঠিক করুন: {item.itemId}</button>
           </form>
         );
       })}
@@ -145,21 +146,21 @@ export function DeliverySection({
 
   return (
     <div data-testid="delivery-section">
-      <h3>সরবরাহ ও পরীক্ষা</h3>
+      <h3>ডেলিভারি ও চেক</h3>
       <dl>
-        <dt>সরবরাহের শেষ সময়</dt>
+        <dt>ডেলিভারির শেষ সময়</dt>
         <dd>{when(delivery.deliveryDueAt)}</dd>
         {pkg && (
           <>
-            <dt>সরবরাহ</dt>
+            <dt>ডেলিভারি</dt>
             <dd>
               {pkg.milestoneNo
                 ? `মাইলস্টোন ${pkg.milestoneNo} (${terms.milestones?.[pkg.milestoneNo - 1]?.title ?? ""}): `
                 : ""}
               সংস্করণ {pkg.versionNo} জমা পড়েছে
-              {pkg.accepted ? " এবং ক্রেতা গ্রহণ করেছেন" : ", এখনো গৃহীত হয়নি"}
+              {pkg.accepted ? " এবং বায়ার গ্রহণ করেছেন" : ", এখনো গৃহীত হয়নি"}
             </dd>
-            <dt>পরীক্ষার শেষ সময়</dt>
+            <dt>চেকের শেষ সময়</dt>
             <dd>{when(delivery.inspectionDueAt)}</dd>
           </>
         )}
@@ -167,8 +168,8 @@ export function DeliverySection({
 
       {!pkg && !settlement && (
         <p>
-          বিক্রেতা এখনো কিছু জমা দেননি। শেষ সময়ের মধ্যে কিছু জমা না পড়লে ক্রেতা পুরো টাকা
-          ফেরত পাবেন।
+          সেলার এখনো কিছু জমা দেননি। শেষ সময়ের মধ্যে কিছু জমা না পড়লে বায়ার পুরো টাকা ফেরত
+          পাবেন।
         </p>
       )}
 
@@ -205,7 +206,7 @@ export function DeliverySection({
                     {" "}
                     · উৎস:{" "}
                     {isMock(definition?.predicate)
-                      ? "নকল প্রোভাইডার (পরীক্ষামূলক)"
+                      ? "টেস্ট প্রোভাইডার (টেস্ট)"
                       : SOURCE_TEXT[inspection.proofType]}
                     {isMock(definition?.predicate) &&
                     inspection.note === "NO_RECORD"
@@ -244,9 +245,9 @@ export function DeliverySection({
                       type="submit"
                       name="outcome"
                       value="UNKNOWN"
-                      aria-label={`${definition?.title.bn}: পরীক্ষা করা যাচ্ছে না`}
+                      aria-label={`${definition?.title.bn}: চেক করা যাচ্ছে না`}
                     >
-                      পরীক্ষা করা যাচ্ছে না
+                      চেক করা যাচ্ছে না
                     </button>
                   </form>
                 )}
@@ -258,18 +259,18 @@ export function DeliverySection({
 
       {pkg?.objectiveNoticePending && !settlement && (
         <p data-testid="objective-pending" role="status">
-          প্রতিটি আবশ্যক শর্ত স্বাধীন উৎস থেকে প্রমাণিত হয়েছে। ক্রেতাকে নোটিশ দেওয়া হয়েছে,
-          কিন্তু ক্রেতা এখনো সেটি দেখেননি। ক্রেতা না দেখা পর্যন্ত আপত্তির সময় শুরু হয় না, এবং
-          শুধু সময় পার হওয়ার কারণে টাকা ছাড়া হবে না।
+          প্রতিটি আবশ্যক শর্ত স্বাধীন উৎস থেকে প্রমাণিত হয়েছে। বায়ারকে নোটিফিকেশন দেওয়া
+          হয়েছে, কিন্তু বায়ার এখনো সেটি দেখেননি। বায়ার না দেখা পর্যন্ত আপত্তির সময় শুরু হয় না,
+          এবং শুধু সময় পার হওয়ার কারণে টাকা ছাড়া হবে না।
         </p>
       )}
 
       {pkg?.objectiveDueAt && !settlement && (
         <p data-testid="objective-window" role="status">
-          প্রতিটি আবশ্যক শর্ত স্বাধীন উৎস থেকে প্রমাণিত হয়েছে। ক্রেতা{" "}
-          {when(pkg.objectiveDueAt)} এর মধ্যে আপত্তি (বিরোধ) না করলে বিক্রেতাকে
-          পরিশোধ হবে। আপত্তি করলে টাকা আটকে থাকবে। চুপ থাকা মানে পণ্য পেয়েছেন বলে স্বীকার
-          করা নয়; এটি শুধু এই চুক্তির নিয়ম।
+          প্রতিটি আবশ্যক শর্ত স্বাধীন উৎস থেকে প্রমাণিত হয়েছে। বায়ার{" "}
+          {when(pkg.objectiveDueAt)} এর মধ্যে আপত্তি (ডিসপিউট) না করলে সেলারকে
+          পেমেন্ট হবে। আপত্তি করলে টাকা আটকে থাকবে। চুপ থাকা মানে প্রোডাক্ট পেয়েছেন বলে
+          স্বীকার করা নয়; এটি শুধু এই ডিলের নিয়ম।
         </p>
       )}
 
@@ -288,16 +289,16 @@ export function DeliverySection({
                       terms.amountMinor)
                   : terms.amountMinor,
               )}{" "}
-              ({terms.currency}) বিক্রেতাকে পরিশোধের অনুমোদন হবে, সরবরাহের সংস্করণ{" "}
+              ({terms.currency}) সেলারকে পেমেন্টের অ্যাপ্রুভাল হবে, ডেলিভারির সংস্করণ{" "}
               {pkg.versionNo} এর জন্য। সব আবশ্যক অংশ পাস না হলে গ্রহণ করা যাবে না।
             </p>
-            <button type="submit">এই সরবরাহ গ্রহণ করুন</button>
+            <button type="submit">এই ডেলিভারি গ্রহণ করুন</button>
           </form>
         )}
 
       {settlement && (
         <div data-testid="settlement">
-          <h3>টাকার নিষ্পত্তি</h3>
+          <h3>টাকার সেটেলমেন্ট</h3>
           <p>
             {PATH_TEXT[settlement.path] ?? settlement.path} ·{" "}
             {AUTHORIZATION_TEXT[settlement.state] ?? settlement.state}
@@ -305,10 +306,8 @@ export function DeliverySection({
           <ul>
             {settlement.operations.map((operation) => (
               <li key={operation.kind}>
-                {operation.kind === "payout"
-                  ? "বিক্রেতাকে পরিশোধ"
-                  : "ক্রেতাকে ফেরত"}
-                : {formatBdt(operation.amountMinor)} ·{" "}
+                {operation.kind === "payout" ? "সেলারকে পেমেন্ট" : "বায়ারকে ফেরত"}:{" "}
+                {formatBdt(operation.amountMinor)} ·{" "}
                 <strong data-testid={`operation-${operation.kind}`}>
                   {settlement.state === "INVALIDATED"
                     ? "বাতিল, পাঠানো হয়নি"
@@ -317,28 +316,28 @@ export function DeliverySection({
               </li>
             ))}
           </ul>
-          <p>সব লেনদেন পরীক্ষামূলক (নকল); কোনো আসল টাকা নড়ে না।</p>
+          <p>সব লেনদেন টেস্ট; কোনো আসল টাকা নড়ে না।</p>
         </div>
       )}
 
       {dispute ? (
         <div data-testid="dispute">
-          <h3>বিরোধ</h3>
+          <h3>ডিসপিউট</h3>
           <p>
-            অভিযোগ: {CLAIM_TEXT[dispute.claim] ?? dispute.claim} ·{" "}
+            রিপোর্ট: {CLAIM_TEXT[dispute.claim] ?? dispute.claim} ·{" "}
             {disputeOpen ? "খোলা" : "বন্ধ"}
           </p>
           <p>
             {dispute.afterDispatch
-              ? "এই বিরোধ খোলার আগেই টাকা পাঠানোর প্রক্রিয়া শুরু হয়ে গিয়েছিল। তাই পাঠানো থামানো যায়নি; এটি পরিশোধ-পরবর্তী দাবি হিসেবে রেকর্ড হয়েছে। স্বয়ংক্রিয় ফেরতের প্রতিশ্রুতি দেওয়া হচ্ছে না।"
-              : "বিরোধ খোলা থাকা পর্যন্ত টাকা আটকে থাকবে। মীমাংসার উপায়গুলো নিচে আছে।"}
+              ? "এই ডিসপিউট খোলার আগেই টাকা পাঠানোর প্রক্রিয়া শুরু হয়ে গিয়েছিল। তাই পাঠানো থামানো যায়নি; এটি পেমেন্ট-পরবর্তী দাবি হিসেবে রেকর্ড হয়েছে। স্বয়ংক্রিয় ফেরতের প্রতিশ্রুতি দেওয়া হচ্ছে না।"
+              : "ডিসপিউট খোলা থাকা পর্যন্ত টাকা আটকে থাকবে। মীমাংসার উপায়গুলো নিচে আছে।"}
           </p>
         </div>
       ) : (
         <details>
-          <summary>সমস্যা জানান (বিরোধ খুলুন)</summary>
+          <summary>সমস্যা জানান (ডিসপিউট খুলুন)</summary>
           <p>
-            বিরোধ খুললে এখনো পাঠানো হয়নি এমন টাকা আটকে যায়। অভিযোগ মানেই কেউ দোষী নয়;
+            ডিসপিউট খুললে এখনো পাঠানো হয়নি এমন টাকা আটকে যায়। রিপোর্ট মানেই কেউ দোষী নয়;
             এটি শুধু বিষয়টি রেকর্ড করে।
           </p>
           <form action={openDisputeAction}>
@@ -361,7 +360,7 @@ export function DeliverySection({
               বিস্তারিত (পাসওয়ার্ড, OTP বা পিন লিখবেন না)
               <input name="detail" maxLength={2000} />
             </label>
-            <button type="submit">বিরোধ খুলুন</button>
+            <button type="submit">ডিসপিউট খুলুন</button>
           </form>
         </details>
       )}

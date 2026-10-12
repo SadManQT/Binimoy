@@ -1,10 +1,16 @@
 import { SHOP_CATEGORY_KEYS } from "@lp/db/community";
-import { listAlerts, SHOP_CATEGORIES } from "@lp/db/shops";
-import { bnDate, ISSUE_TEXT } from "../../lib/copy";
+import { listAlerts } from "@lp/db/shops";
+import { Warning } from "@phosphor-icons/react/dist/ssr";
+import { getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
+import { CategoryIcon } from "../components/category-icon";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "সতর্কতা · বিনিময়" };
+
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: `${t.alerts.title} · ${t.brand}` };
+}
 
 export default async function AlertsPage({
   searchParams,
@@ -12,41 +18,37 @@ export default async function AlertsPage({
   searchParams: Promise<{ category?: string }>;
 }) {
   const { category = "" } = await searchParams;
+  const { t, date } = await getI18n();
   const { reports, notes } = await listAlerts(pool(), { limit: 60, category });
 
   return (
     <main className="wide">
       <div className="page-head">
-        <h1>সতর্কতা</h1>
-        <p>
-          সম্প্রতি প্রকাশিত অভিযোগ, এবং মডারেটরদের লেখা সাধারণ সতর্কবার্তা। টাকা পাঠানোর আগে
-          দোকানের নামটি এখানে এবং দোকানের পাতায় মিলিয়ে নিন।
-        </p>
+        <h1>{t.alerts.title}</h1>
+        <p>{t.alerts.sub}</p>
       </div>
       <p className="notice" data-testid="allegation-note">
-        এখানে প্রতিটি অভিযোগ তার লেখকের নিজের দাবি। মডারেটর দেখেছেন লেখাটি প্রকাশের নিয়ম
-        মানে কি না; ঘটনাটি সত্য কি না, তা বিনিময় তদন্ত করেনি। দোকানের উত্তর দেওয়ার সুযোগ
-        আছে, এবং উত্তর না দেওয়া মানে স্বীকার করা নয়।
+        {t.alerts.note}
       </p>
 
       {notes.length > 0 && (
         <section aria-labelledby="notes" data-testid="safety-notes">
-          <h2 id="notes">মডারেটরদের সতর্কবার্তা</h2>
+          <h2 id="notes">{t.alerts.notesTitle}</h2>
           <ul className="notes">
             {notes.map((note) => (
               <li key={note.id}>
                 <h3>{note.title}</h3>
                 <p>{note.body}</p>
-                <small>{bnDate(note.publishedAt)}</small>
+                <small>{date(note.publishedAt)}</small>
               </li>
             ))}
           </ul>
         </section>
       )}
 
-      <nav className="filters" aria-label="দোকানের ধরন">
+      <nav className="filters" aria-label={t.home.categoriesTitle}>
         <a href="/alerts" aria-current={category ? undefined : "true"}>
-          সব ধরন
+          {t.shops.allCategories}
         </a>
         {SHOP_CATEGORY_KEYS.map((key) => (
           <a
@@ -54,52 +56,55 @@ export default async function AlertsPage({
             href={`/alerts?category=${key}`}
             aria-current={category === key ? "true" : undefined}
           >
-            {SHOP_CATEGORIES[key].bn}
+            <CategoryIcon category={key} size={18} />
+            {t.categories[key]}
           </a>
         ))}
       </nav>
 
       {reports.length === 0 ? (
         <div className="empty" data-testid="no-alerts">
-          <p>
-            এখন কোনো প্রকাশিত অভিযোগ নেই। এর মানে কোনো সমস্যা ঘটেনি, তা নয়; শুধু এখানে
-            কিছু প্রকাশ হয়নি।
-          </p>
-          <a className="button" href="/community">
-            অভিযোগ বা অভিজ্ঞতা লিখুন
+          <p>{t.alerts.none}</p>
+          <a className="button" href="/community?type=negative">
+            {t.alerts.report}
           </a>
         </div>
       ) : (
-        <ul className="cards" data-testid="alerts">
+        <ul className="reports" data-testid="alerts">
           {reports.map((report) => (
-            <li key={report.id} data-type="negative">
-              <div className="meta">
+            <li key={report.id}>
+              <div className="who">
+                <Warning size={20} weight="fill" aria-hidden="true" />
                 <a className="title" href={`/shops/${report.shopId}`}>
                   {report.shopName}
                 </a>
+              </div>
+              <div className="meta">
                 <span>
                   {report.shopCategory
-                    ? SHOP_CATEGORIES[report.shopCategory].bn
-                    : "ধরন জানা নেই"}
+                    ? t.categories[report.shopCategory]
+                    : t.shops.unknownCategory}
                 </span>
-                <span>প্রকাশ {bnDate(report.publishedAt)}</span>
+                <span>{date(report.publishedAt)}</span>
               </div>
               <p>
-                <strong>লেখকের অভিযোগ:</strong>{" "}
-                {ISSUE_TEXT[report.issue ?? "other"]}{" "}
-                <small>(যাচাই করা হয়নি)</small>
+                <strong>
+                  {t.shop.claim} {t.issues[report.issue ?? "other"]}
+                </strong>
+                <br />
+                <small>{t.shop.unverified}</small>
               </p>
               <blockquote>{report.text}</blockquote>
               <div className="meta">
                 <span className="chip plain">
-                  {report.answered ? "উত্তর দেওয়া হয়েছে" : "এখনো কোনো উত্তর নেই"}
+                  {report.answered ? t.alerts.answered : t.alerts.unanswered}
                 </span>
                 {report.resolved && (
                   <span className="chip" data-tone="ok">
-                    লেখক জানিয়েছেন সমাধান হয়েছে
+                    {t.alerts.resolved}
                   </span>
                 )}
-                <a href={`/community/${report.id}`}>পুরো লেখা ও উত্তর</a>
+                <a href={`/community/${report.id}`}>{t.alerts.open}</a>
               </div>
             </li>
           ))}
@@ -107,11 +112,11 @@ export default async function AlertsPage({
       )}
 
       <div className="actions">
-        <a className="button" href="/community">
-          অভিযোগ বা অভিজ্ঞতা লিখুন
+        <a className="button" href="/community?type=negative">
+          {t.alerts.report}
         </a>
         <a className="button quiet" href="/shops">
-          দোকান খুঁজুন
+          {t.home.search}
         </a>
       </div>
     </main>

@@ -21,28 +21,28 @@ test("a top-up is proven by the provider's record for the agreed player ID, not 
 
   // Nothing secret changes hands here, so the vault is not involved.
   await seller.goto(dealUrl);
-  await click(seller, "সরবরাহ জমা দিন");
+  await click(seller, "ডেলিভারি জমা দিন");
   const fulfilled = seller.getByTestId("inspection-fulfilled_to_destination");
   // The provider has no record yet: that is "not verified", not a pass.
   await expect(
     seller.getByTestId("inspection-supplier_authorized"),
-  ).toContainText("যাচাই করা যায়নি");
+  ).toContainText("ভেরিফাই করা যায়নি");
   await expect(seller.getByTestId("objective-window")).toHaveCount(0);
 
-  await click(seller, "নকল উত্তর ঠিক করুন: supplier_authorized");
+  await click(seller, "টেস্ট উত্তর ঠিক করুন: supplier_authorized");
 
   // Fulfilled, but to someone else's player ID.
   await seller
     .getByTestId("provider-lab")
     .locator('input[name="boundTo"]')
     .fill("PLAYER-0000");
-  await click(seller, "নকল উত্তর ঠিক করুন: fulfilled_to_destination");
+  await click(seller, "টেস্ট উত্তর ঠিক করুন: fulfilled_to_destination");
   await expect(fulfilled).toHaveText("ব্যর্থ");
   await expect(seller.locator("main")).toContainText("PLAYER-0000");
 
   // The buyer cannot accept an incomplete checklist.
   await buyer.goto(dealUrl);
-  await click(buyer, "এই সরবরাহ গ্রহণ করুন");
+  await click(buyer, "এই ডেলিভারি গ্রহণ করুন");
   await expect(buyer.locator('main [role="alert"]')).toContainText(
     "সব আবশ্যক অংশ",
   );
@@ -53,14 +53,14 @@ test("a top-up is proven by the provider's record for the agreed player ID, not 
     .getByTestId("provider-lab")
     .locator('input[name="boundTo"]')
     .fill("PLAYER-7781");
-  await click(seller, "নকল উত্তর ঠিক করুন: fulfilled_to_destination");
-  await click(seller, "নকল উত্তর ঠিক করুন: quantity_matches");
+  await click(seller, "টেস্ট উত্তর ঠিক করুন: fulfilled_to_destination");
+  await click(seller, "টেস্ট উত্তর ঠিক করুন: quantity_matches");
   await expect(seller.getByTestId("inspection-quantity_matches")).toHaveText(
     "পাস",
   );
   await expect(
     seller.getByTestId("inspection-quantity_matches").locator("xpath=.."),
-  ).toContainText("নকল প্রোভাইডার");
+  ).toContainText("টেস্ট প্রোভাইডার");
 
   // Every mandatory item is independently proven and the buyer has a notice
   // waiting. Until the buyer has been shown it, no period is running.
@@ -77,7 +77,7 @@ test("a top-up is proven by the provider's record for the agreed player ID, not 
   await expect(buyer.getByTestId("settlement")).toHaveCount(0);
 
   // The buyer need not wait for the window: accepting pays now.
-  await click(buyer, "এই সরবরাহ গ্রহণ করুন");
+  await click(buyer, "এই ডেলিভারি গ্রহণ করুন");
   await expect(async () => {
     await buyer.goto(dealUrl);
     await expect(buyer.getByTestId("operation-payout")).toHaveText("সম্পন্ন", {
@@ -88,7 +88,7 @@ test("a top-up is proven by the provider's record for the agreed player ID, not 
   // The receipt reconstructs it: versions, proof sources and the money.
   await buyer.getByRole("link", { name: "রসিদ ও পূর্ণ রেকর্ড" }).click();
   const receipt = buyer.getByTestId("receipt");
-  await expect(receipt).toContainText("পরীক্ষামূলক রেকর্ড");
+  await expect(receipt).toContainText("টেস্ট রেকর্ড");
   await expect(receipt).toContainText("CAT-03");
   await expect(receipt.getByTestId("receipt-seller-paid")).toHaveText(
     "৳1,500.00",

@@ -2,22 +2,22 @@ import type { AssessmentView } from "@lp/adapters";
 import { requestAssessmentAction } from "./actions";
 
 const NEXT_STEP_TEXT: Record<string, string> = {
-  CORRECT_AND_RETEST: "বিক্রেতা সংশোধন করুন, তারপর আবার পরীক্ষা",
-  BUYER_RETEST: "ক্রেতা আবার পরীক্ষা করুন",
-  PROVIDER_CHECK: "সেবাদাতার কাছ থেকে স্বাধীন যাচাই",
-  REQUEST_HUMAN_REVIEW: "মানব পর্যালোচনা চাওয়া",
+  CORRECT_AND_RETEST: "সেলার সংশোধন করুন, তারপর আবার চেক",
+  BUYER_RETEST: "বায়ার আবার চেক করুন",
+  PROVIDER_CHECK: "সেবাদাতার কাছ থেকে স্বাধীন ভেরিফাই",
+  REQUEST_HUMAN_REVIEW: "হিউম্যান রিভিউ চাওয়া",
   MUTUAL_RESOLUTION: "দুই পক্ষের সম্মত বণ্টন",
   NONE: "এখন কিছু করার দরকার নেই",
 };
 
 const FAILURE_TEXT: Record<string, string> = {
   MODEL_UNAVAILABLE:
-    "এআই এখন পাওয়া যাচ্ছে না। ডিলের বাকি সব কাজ (বার্তা, পরীক্ষা, বিরোধ, মীমাংসা) এআই ছাড়াই চলে।",
+    "এআই এখন পাওয়া যাচ্ছে না। ডিলের বাকি সব কাজ (বার্তা, চেক, ডিসপিউট, মীমাংসা) এআই ছাড়াই চলে।",
   INVALID_OUTPUT:
-    "এআই যা লিখেছিল তা যাচাইয়ে টেকেনি (যেমন এমন প্রমাণের উল্লেখ যা রেকর্ডে নেই), তাই দেখানো হয়নি।",
+    "এআই যা লিখেছিল তা ভেরিফাইয়ে টেকেনি (যেমন এমন প্রমাণের উল্লেখ যা রেকর্ডে নেই), তাই দেখানো হয়নি।",
   CONSENT_WITHDRAWN_DURING_RUN:
-    "কাজ চলার সময় একজন সম্মতি তুলে নিয়েছেন, তাই ফলাফল ফেলে দেওয়া হয়েছে।",
-  CONSENT_NOT_ACTIVE: "দুই পক্ষের সম্মতি সক্রিয় ছিল না, তাই চালানো হয়নি।",
+    "কাজ চলার সময় একজন কনসেন্ট তুলে নিয়েছেন, তাই ফলাফল ফেলে দেওয়া হয়েছে।",
+  CONSENT_NOT_ACTIVE: "দুই পক্ষের কনসেন্ট সক্রিয় ছিল না, তাই চালানো হয়নি।",
   INTERNAL_ERROR: "একটি অভ্যন্তরীণ ত্রুটিতে কাজটি শেষ হয়নি।",
 };
 
@@ -68,7 +68,7 @@ export function AssessmentSection({
             <small>
               মডেল: {assessment.modelId}
               {assessment.modelId === "fixture" &&
-                " (পরীক্ষামূলক নকল মডেল: এটি শুধু রেকর্ডের কথাগুলো সাজিয়ে দেখায়, বিচার-বিবেচনা করে না)"}{" "}
+                " (টেস্ট মডেল: এটি শুধু রেকর্ডের কথাগুলো সাজিয়ে দেখায়, বিচার-বিবেচনা করে না)"}{" "}
               ·{" "}
               {assessment.createdAt.toLocaleString("bn-BD", {
                 timeZone: "Asia/Dhaka",
@@ -78,7 +78,7 @@ export function AssessmentSection({
           {assessment.stale && (
             <p data-testid="assessment-stale">
               <strong>
-                এটি লেখার পর কথোপকথন, সরবরাহ বা চুক্তি বদলেছে। তাই এই সারসংক্ষেপ পুরোনো।
+                এটি লেখার পর কথোপকথন, ডেলিভারি বা ডিল বদলেছে। তাই এই সারসংক্ষেপ পুরোনো।
               </strong>
             </p>
           )}
@@ -96,7 +96,7 @@ export function AssessmentSection({
           <ul>
             {assessment.output.partyClaims.map((claim) => (
               <li key={`${claim.party}-${claim.text}`}>
-                {claim.party === "buyer" ? "ক্রেতা" : "বিক্রেতা"}: {claim.text}
+                {claim.party === "buyer" ? "বায়ার" : "সেলার"}: {claim.text}
               </li>
             ))}
           </ul>
@@ -152,7 +152,7 @@ export function AssessmentSection({
           )
         ) : (
           <p>
-            দুই পক্ষ কথোপকথনে সম্মতি না দিলে এআই কিছু পড়ে না, তাই সারসংক্ষেপ চাওয়া যাবে না।
+            দুই পক্ষ কথোপকথনে কনসেন্ট না দিলে এআই কিছু পড়ে না, তাই সারসংক্ষেপ চাওয়া যাবে না।
           </p>
         ))}
     </div>

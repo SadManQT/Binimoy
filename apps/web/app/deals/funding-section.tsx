@@ -24,7 +24,7 @@ export function FundingSection({
   const closed = !funding || ["EXPIRED", "CANCELLED"].includes(funding.state);
   return (
     <div>
-      <h3>টাকা জমা (পরীক্ষামূলক, কোনো আসল টাকা নয়)</h3>
+      <h3>টাকা জমা (টেস্ট, কোনো আসল টাকা নয়)</h3>
       <dl>
         <dt>অবস্থা</dt>
         <dd>
@@ -38,14 +38,14 @@ export function FundingSection({
           <>
             <dt>পাওয়া গেছে কিন্তু ডিলে লাগানো হয়নি</dt>
             <dd>
-              {formatBdt(balances.unapplied.toString())} · এটি ক্রেতার ফেরত পাওনা
+              {formatBdt(balances.unapplied.toString())} · এটি বায়ারের ফেরত পাওনা
               হিসেবে আলাদা রাখা আছে; ফেরতের ব্যবস্থা এখনো তৈরি হয়নি।
             </dd>
           </>
         )}
       </dl>
 
-      {!isBuyer && closed && <p>ক্রেতা ইনভয়েস তৈরি করে টাকা জমা দেবেন।</p>}
+      {!isBuyer && closed && <p>বায়ার ইনভয়েস তৈরি করে টাকা জমা দেবেন।</p>}
 
       {isBuyer && closed && (
         <form action={createInvoiceAction}>
@@ -72,7 +72,7 @@ export function FundingSection({
             })}{" "}
             (Asia/Dhaka)
           </p>
-          <button type="submit">নকল পেমেন্ট শুরু করুন</button>
+          <button type="submit">টেস্ট পেমেন্ট শুরু করুন</button>
         </form>
       )}
 
@@ -80,9 +80,9 @@ export function FundingSection({
         <form action={mockProviderAction}>
           <input type="hidden" name="dealId" value={dealId} />
           <fieldset>
-            <legend>নকল পেমেন্ট প্রোভাইডার: কী রিপোর্ট করবে?</legend>
+            <legend>টেস্ট পেমেন্ট প্রোভাইডার: কী রিপোর্ট করবে?</legend>
             <p>
-              বাস্তবে এই উত্তর পেমেন্ট প্রোভাইডার পাঠায়। পরীক্ষার জন্য আপনি বেছে নিচ্ছেন।
+              বাস্তবে এই উত্তর পেমেন্ট প্রোভাইডার পাঠায়। চেকের জন্য আপনি বেছে নিচ্ছেন।
               স্ক্রিনশট বা বোতাম চাপা টাকা জমা প্রমাণ করে না; শুধু প্রোভাইডারের স্বাক্ষরিত বার্তা করে।
             </p>
             <button type="submit" name="scenario" value="exact">
@@ -100,7 +100,7 @@ export function FundingSection({
 
       {funding?.state === "CONFIRMED" && (
         <p>
-          টাকা জমা নিশ্চিত হয়েছে। পরের ধাপ বিক্রেতার সরবরাহ, তারপর ক্রেতার পরীক্ষা। বিক্রেতা
+          টাকা জমা নিশ্চিত হয়েছে। পরের ধাপ সেলারের ডেলিভারি, তারপর বায়ারের চেক। সেলার
           "দিয়েছি" বললেই টাকা ছাড়া হবে না।
         </p>
       )}

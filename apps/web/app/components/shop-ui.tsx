@@ -1,46 +1,60 @@
 import type { ShopSummary } from "@lp/db/shops";
-import { bn } from "../../lib/copy";
+import { Star } from "@phosphor-icons/react/dist/ssr";
+import { fill, type I18n } from "../../lib/i18n";
 
-// A reviewer's own rating. Stars are decoration; the number carries it.
-export function Rating({ value }: { value: number }) {
+// A reviewer's own rating. The stars are decoration; the number carries it.
+export function Rating({ value, i18n }: { value: number; i18n: I18n }) {
   const full = Math.round(value);
   return (
     <span className="rating">
       <span aria-hidden="true">
-        {"★".repeat(full)}
-        <span className="off">{"★".repeat(5 - full)}</span>
-      </span>{" "}
-      {bn(value)} / ৫
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Star key={n} size={15} weight={n <= full ? "fill" : "regular"} />
+        ))}
+      </span>
+      {i18n.num(value)} / {i18n.num(5)}
     </span>
   );
 }
 
-// The evidence line: how many complaints were published, how many were
-// answered, how many their authors say were resolved. Counts, never a verdict.
-export function ComplaintLine({ shop }: { shop: ShopSummary }) {
+// The evidence line: how many reports were published, how many got a reply,
+// how many their writers say were resolved. Counts, never a verdict.
+export function ComplaintLine({
+  shop,
+  i18n,
+}: {
+  shop: ShopSummary;
+  i18n: I18n;
+}) {
+  const { t, num } = i18n;
   if (shop.complaints === 0) {
-    return <span className="chip plain">কোনো প্রকাশিত অভিযোগ নেই</span>;
+    return <span className="chip plain">{t.shops.noComplaints}</span>;
   }
   const open = shop.complaints - shop.complaintsResolved;
   return (
-    <span className="chip" data-tone={open > 0 ? "wait" : undefined}>
-      {bn(shop.complaints)}টি অভিযোগ
-      {shop.complaintsAnswered > 0
-        ? ` · ${bn(shop.complaintsAnswered)}টিতে উত্তর আছে`
-        : ""}
-      {shop.complaintsResolved > 0
-        ? ` · ${bn(shop.complaintsResolved)}টিতে সমাধান জানানো`
-        : ""}
+    <span className="chip plain" data-tone={open > 0 ? "wait" : undefined}>
+      {[
+        fill(t.shops.complaints, { n: num(shop.complaints) }),
+        shop.complaintsAnswered > 0
+          ? fill(t.shops.answered, { n: num(shop.complaintsAnswered) })
+          : "",
+        shop.complaintsResolved > 0
+          ? fill(t.shops.resolved, { n: num(shop.complaintsResolved) })
+          : "",
+      ]
+        .filter(Boolean)
+        .join(", ")}
     </span>
   );
 }
 
 // Proportions of what was written, with the words beside it.
-export function TypeBar({ shop }: { shop: ShopSummary }) {
+export function TypeBar({ shop, i18n }: { shop: ShopSummary; i18n: I18n }) {
+  const { t, num } = i18n;
   const parts = [
-    ["positive", shop.counts.positive, "ভালো অভিজ্ঞতা"],
-    ["mixed", shop.counts.mixed + shop.counts.neutral, "মিশ্র ও সাধারণ"],
-    ["negative", shop.counts.negative, "অভিযোগ"],
+    ["positive", shop.counts.positive, t.shop.good],
+    ["mixed", shop.counts.mixed + shop.counts.neutral, t.shop.mixed],
+    ["negative", shop.counts.negative, t.shop.bad],
   ] as const;
   return (
     <div className="typebar">
@@ -54,7 +68,7 @@ export function TypeBar({ shop }: { shop: ShopSummary }) {
       <ul>
         {parts.map(([key, count, label]) => (
           <li key={key} data-type={key}>
-            {label}: <strong>{bn(count)}</strong>
+            {label}: <strong>{num(count)}</strong>
           </li>
         ))}
       </ul>

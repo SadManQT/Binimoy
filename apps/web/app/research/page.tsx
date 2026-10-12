@@ -5,7 +5,7 @@ import { requireUser } from "../../lib/session";
 import { runResearchAction } from "./actions";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "বিক্রেতা খোঁজ · বিনিময়" };
+export const metadata = { title: "সেলার খোঁজ · বিনিময়" };
 
 const ERRORS: Record<string, string> = {
   VALIDATION_FAILED: "নামটি ২ থেকে ১২০ অক্ষরের মধ্যে লিখুন।",
@@ -31,10 +31,10 @@ export default async function ResearchPage({
   const live = loadConfig(process.env).RESEARCH_MODE === "live";
   return (
     <main>
-      <h1>বিক্রেতা খোঁজ</h1>
+      <h1>সেলার খোঁজ</h1>
       <p>
-        একটি পেজ বা দোকানের নাম লিখুন। আমরা ওয়েবে তার সম্পর্কে লেখা পোস্ট খুঁজে, কে কী বলেছে
-        তা উৎসসহ দেখাই। আমরা কাউকে ভালো বা খারাপ বলি না, কোনো স্কোর দিই না।
+        একটি পেজ বা শপের নাম লিখুন। আমরা ওয়েবে তার সম্পর্কে লেখা পোস্ট খুঁজে, কে কী বলেছে তা
+        উৎসসহ দেখাই। আমরা কাউকে ভালো বা খারাপ বলি না, কোনো স্কোর দিই না।
       </p>
       {live ? (
         <p data-testid="live-label">
@@ -44,14 +44,14 @@ export default async function ResearchPage({
         </p>
       ) : (
         <p data-testid="fixture-label">
-          <strong>পরীক্ষামূলক তথ্য:</strong> এখন শুধু বানানো নমুনা পোস্ট থেকে ফল আসে, আসল
-          ওয়েব সার্চ থেকে নয়।
+          <strong>টেস্ট তথ্য:</strong> এখন শুধু বানানো নমুনা পোস্ট থেকে ফল আসে, আসল ওয়েব
+          সার্চ থেকে নয়।
         </p>
       )}
       {error ? <p role="alert">{ERRORS[error] ?? "খোঁজ শুরু করা যায়নি।"}</p> : null}
       <form action={runResearchAction}>
         <label>
-          পেজ বা দোকানের নাম
+          পেজ বা শপের নাম
           <input
             name="subject"
             required

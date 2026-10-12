@@ -22,7 +22,7 @@ import {
 } from "../copy";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "অভিজ্ঞতা · বিনিময়" };
+export const metadata = { title: "এক্সপেরিয়েন্স · বিনিময়" };
 
 const when = (iso: string) => new Date(iso).toLocaleString("bn-BD");
 
@@ -49,7 +49,7 @@ export default async function ReportPage({
   return (
     <main>
       <p>
-        <a href="/community">← অভিজ্ঞতার পাতা</a>
+        <a href="/community">← এক্সপেরিয়েন্সের পাতা</a>
       </p>
       <h1>“{report.subject}” সম্পর্কে একজন ব্যবহারকারীর লেখা</h1>
       <p data-testid="report-state">
@@ -60,8 +60,8 @@ export default async function ReportPage({
       </p>
       {report.issue && (
         <p data-testid="report-issue">
-          <strong>লেখকের অভিযোগ:</strong> {ISSUE_TEXT[report.issue]}{" "}
-          <small>(লেখকের দাবি, যাচাই করা হয়নি)</small>
+          <strong>লেখকের রিপোর্ট:</strong> {ISSUE_TEXT[report.issue]}{" "}
+          <small>(লেখকের দাবি, ভেরিফাই করা হয়নি)</small>
         </p>
       )}
       {error ? (
@@ -78,14 +78,14 @@ export default async function ReportPage({
       {report.publicText && !editable ? (
         <section aria-labelledby="text">
           <h2 id="text">
-            {report.state === "PUBLISHED" ? "প্রকাশিত লেখা" : "প্রকাশের জন্য লেখা"}
+            {report.state === "PUBLISHED" ? "পাবলিশড লেখা" : "প্রকাশের জন্য লেখা"}
           </h2>
           <blockquote data-testid="public-text">{report.publicText}</blockquote>
           <p>
             <small data-testid="unverified-label">
-              এটি লেখকের নিজের বক্তব্য। বিনিময় ঘটনাটি যাচাই করেনি। মডারেটর শুধু দেখেছেন
-              লেখাটি প্রকাশের নিয়ম মানে কি না। এটি “{report.subject}” সম্পর্কে আমাদের
-              কোনো রায় নয়।
+              এটি লেখকের নিজের বক্তব্য। বিনিময় ঘটনাটি ভেরিফাই করেনি। মডারেটর শুধু
+              দেখেছেন লেখাটি প্রকাশের নিয়ম মানে কি না। এটি “{report.subject}” সম্পর্কে
+              আমাদের কোনো রায় নয়।
             </small>
           </p>
           {report.responseDueAt ? (
@@ -112,12 +112,12 @@ export default async function ReportPage({
       {editable ? (
         <>
           <section aria-labelledby="edit">
-            <h2 id="edit">খসড়া</h2>
+            <h2 id="edit">ড্রাফট</h2>
             <form action={saveDraftAction}>
               <input type="hidden" name="reportId" value={report.id} />
               <input type="hidden" name="subject" value={report.subject} />
               <label>
-                অভিজ্ঞতার ধরন
+                এক্সপেরিয়েন্সের ধরন
                 <select
                   name="experienceType"
                   defaultValue={report.experienceType}
@@ -141,7 +141,7 @@ export default async function ReportPage({
                 </select>
               </label>
               <label>
-                অভিযোগ হলে: কী ঘটেছে (শুধু “অভিযোগ” বা “মিশ্র” ধরনের জন্য)
+                রিপোর্ট হলে: কী ঘটেছে (শুধু “রিপোর্ট” বা “মিশ্র” ধরনের জন্য)
                 <select name="issue" defaultValue={report.issue ?? ""}>
                   <option value="">প্রযোজ্য নয়</option>
                   {Object.entries(ISSUE_TEXT).map(([value, label]) => (
@@ -200,7 +200,7 @@ export default async function ReportPage({
                   style={{ display: "block", width: "100%", font: "inherit" }}
                 />
               </label>
-              <button type="submit">খসড়া সংরক্ষণ করুন</button>
+              <button type="submit">ড্রাফট সংরক্ষণ করুন</button>
             </form>
           </section>
 
@@ -226,8 +226,8 @@ export default async function ReportPage({
                         minHeight: 0,
                       }}
                     />{" "}
-                    উপরের লেখাটি আমার নিজের অভিজ্ঞতা, এবং ঠিক এই লেখাটিই প্রকাশের জন্য
-                    আমি অনুমোদন করছি।
+                    উপরের লেখাটি আমার নিজের এক্সপেরিয়েন্স, এবং ঠিক এই লেখাটিই প্রকাশের
+                    জন্য আমি অ্যাপ্রুভাল করছি।
                   </label>
                   <button type="submit">মডারেটরের কাছে জমা দিন</button>
                 </form>
@@ -235,7 +235,7 @@ export default async function ReportPage({
             ) : (
               <p>
                 জমা দিতে হলে পুরো বিবরণ এবং প্রকাশের লেখা, দুটোই লিখে সংরক্ষণ করুন।
-                ততক্ষণ এটি আপনার ব্যক্তিগত খসড়া।
+                ততক্ষণ এটি আপনার ব্যক্তিগত ড্রাফট।
               </p>
             )}
           </section>
@@ -246,8 +246,8 @@ export default async function ReportPage({
         <section aria-labelledby="decide" data-testid="moderate">
           <h2 id="decide">মডারেটরের সিদ্ধান্ত</h2>
           <p>
-            সিদ্ধান্তটি শুধু এই নিয়ে: লেখাটি প্রকাশের নিয়ম মানে কি না। ঘটনা সত্য কি না বা
-            দোকানটি কেমন, তা নিয়ে নয়।
+            সিদ্ধান্তটি শুধু এই নিয়ে: লেখাটি প্রকাশের নিয়ম মানে কি না। ঘটনা সত্য কি না বা শপটি
+            কেমন, তা নিয়ে নয়।
           </p>
           <form action={decideReportAction}>
             <input type="hidden" name="reportId" value={report.id} />
@@ -284,12 +284,13 @@ export default async function ReportPage({
                   <blockquote>{f.body}</blockquote>
                   {f.kind === "RESPONSE" ? (
                     <small>
-                      যিনি লিখেছেন তিনি এই পেজ বা দোকানের পক্ষের কি না, তা যাচাই করা
+                      যিনি লিখেছেন তিনি এই পেজ বা শপের পক্ষের কি না, তা ভেরিফাই করা
                       হয়নি।
                     </small>
                   ) : (
                     <small>
-                      এটি লেখকের নিজের কথা; যাচাই করা হয়নি। আগের লেখাটি বদলানো হয়নি।
+                      এটি লেখকের নিজের কথা; ভেরিফাই করা হয়নি। আগের লেখাটি বদলানো
+                      হয়নি।
                     </small>
                   )}
                 </li>
