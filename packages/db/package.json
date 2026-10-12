@@ -13,7 +13,8 @@
     "./outbox": "./src/outbox.ts",
     "./delivery": "./src/delivery.ts",
     "./settlement": "./src/settlement.ts",
-    "./review": "./src/review.ts"
+    "./review": "./src/review.ts",
+    "./conversation": "./src/conversation.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

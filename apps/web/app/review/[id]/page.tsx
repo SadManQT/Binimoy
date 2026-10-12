@@ -1,4 +1,5 @@
 import { formatBdt } from "@lp/contracts";
+import { getConversation } from "@lp/db/conversation";
 import { getCase } from "@lp/db/review";
 import { notFound } from "next/navigation";
 import {
@@ -10,6 +11,7 @@ import {
 } from "../../../lib/copy";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
+import { ConversationSection } from "../../deals/conversation-section";
 import { DecisionText } from "../../deals/resolution-section";
 import { decideAction } from "../actions";
 
@@ -29,6 +31,10 @@ export default async function CasePage({
   // Only the reviewer currently assigned to this case gets anything.
   const view = await getCase(pool(), user.id, id);
   if (!view) notFound();
+  const conversation = await getConversation(pool(), {
+    userId: user.id,
+    dealId: view.dealId,
+  });
   const canDecide =
     (view.kind === "review" && view.state === "REVIEWING") ||
     (view.kind === "appeal" && view.state === "APPEALED");
@@ -101,6 +107,14 @@ export default async function CasePage({
         গোপন ভল্টে যা পাঠানো হয়েছে তা এখানে নেই এবং দেখা সম্ভব নয়: সার্ভার তা কখনো পড়তে পারে
         না। আপনি শুধু জানতে পারেন কিছু পাঠানো হয়েছিল কি না।
       </p>
+
+      {conversation && (
+        <ConversationSection
+          dealId={view.dealId}
+          conversation={conversation}
+          readOnly
+        />
+      )}
 
       {view.decisions.length > 0 && <h2>আগের সিদ্ধান্ত</h2>}
       {view.decisions.map((decision) => (

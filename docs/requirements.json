@@ -277,9 +277,17 @@
     "phase": "P0",
     "ownerTask": "LP-006",
     "acceptance": "Exact evidence retrieval, edit/tombstone history, scope and withdrawal work",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/conversation.ts",
+      "packages/domain/src/secrets.ts",
+      "apps/web/app/deals/conversation-section.tsx"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/conversation.int.test.ts",
+      "packages/domain/src/secrets.test.ts",
+      "tests/e2e/conversation.spec.ts"
+    ],
     "evidence": []
   },
   {

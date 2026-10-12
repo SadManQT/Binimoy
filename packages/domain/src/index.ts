@@ -6,3 +6,4 @@ export {
   type Role,
   type TransitionResult,
 } from "./machines";
+export { looksLikeSecret } from "./secrets";
