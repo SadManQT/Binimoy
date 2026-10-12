@@ -8,14 +8,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@lp/adapters": "workspace:*",
     "@lp/contracts": "workspace:*",
     "@lp/db": "workspace:*",
+    "@lp/templates": "workspace:*",
+    "better-auth": "1.7.7",
+    "matrix-js-sdk": "43.0.0",
     "next": "16.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "@lp/adapters": "workspace:*",
-    "better-auth": "1.7.7",
-    "@lp/templates": "workspace:*",
     "zod": "4.6.5"
   },
   "devDependencies": {

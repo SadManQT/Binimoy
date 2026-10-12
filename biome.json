@@ -1,6 +1,16 @@
 {
   "files": {
-    "includes": ["**", "!**/.next", "!docs/MASTER_SPEC.md", "!.superpowers"]
+    "includes": [
+      "**",
+      "!**/.next",
+      "!docs/MASTER_SPEC.md",
+      "!.superpowers",
+      "!test-results",
+      "!playwright-report"
+    ]
   },
-  "formatter": { "enabled": true, "indentStyle": "space" }
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  }
 }

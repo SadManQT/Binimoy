@@ -398,7 +398,8 @@ export type DealView = {
   dealId: string;
   title: string;
   myRole: "buyer" | "seller";
-  parties: { role: "buyer" | "seller"; name: string }[];
+  // userId is needed to address the counterparty in the secret vault.
+  parties: { role: "buyer" | "seller"; name: string; userId: string }[];
   agreement: {
     id: string;
     state: string;
@@ -443,7 +444,11 @@ export async function getDealView(
     dealId,
     title: row.title,
     myRole: mine.role,
-    parties: parties.rows.map((p) => ({ role: p.role, name: p.name })),
+    parties: parties.rows.map((p) => ({
+      role: p.role,
+      name: p.name,
+      userId: p.user_id,
+    })),
     agreement: {
       id: row.id,
       state: row.state,

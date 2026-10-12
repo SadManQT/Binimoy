@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { getVaultRoom, matrixUserId } from "@lp/adapters";
 import { formatBdt, loadConfig } from "@lp/contracts";
 import { getDealView } from "@lp/db/agreements";
 import { dealBalances, getFunding } from "@lp/db/ledger";
@@ -16,6 +17,7 @@ import { requireUser } from "../../../lib/session";
 import { agreementAction, createInviteAction } from "../actions";
 import { FundingSection } from "../funding-section";
 import { TermsFields } from "../terms-fields";
+import { VaultPanel } from "../vault-panel";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ডিল · বিনিময়" };
@@ -44,6 +46,12 @@ export default async function DealPage({
   const amount = BigInt(terms.amountMinor);
   const amountTaka = `${amount / 100n}.${(amount % 100n).toString().padStart(2, "0")}`;
   const seller = deal.parties.find((p) => p.role === "seller");
+  const counterparty = deal.parties.find((p) => p.role !== deal.myRole);
+  const vault = loadConfig(process.env).vault;
+  const vaultItems = terms.items
+    .filter((item) => item.dataClass === "vault_secret")
+    .map((item) => ({ itemId: item.itemId, title: item.title.bn }));
+  const vaultRoomId = await getVaultRoom(pool(), deal.dealId);
 
   // One fresh key per rendered form: a double click replays, a new page load
   // is a new action.
@@ -222,6 +230,26 @@ export default async function DealPage({
             idempotencyKey={`ui-${randomUUID()}`}
           />
         )}
+
+        {agreement.state === "ACCEPTED" &&
+          funding?.state === "CONFIRMED" &&
+          counterparty &&
+          (vault ? (
+            <VaultPanel
+              dealId={deal.dealId}
+              myRole={deal.myRole}
+              counterpartyMxid={matrixUserId(
+                counterparty.userId,
+                vault.serverName,
+              )}
+              roomId={vaultRoomId}
+              termsHash={agreement.termsHash}
+              agreementVersion={agreement.versionNo}
+              items={vaultItems}
+            />
+          ) : (
+            <p>এই পরিবেশে গোপন ভল্ট চালু নেই, তাই সরবরাহ এখন সম্ভব নয়।</p>
+          ))}
 
         {!open && agreement.state !== "ACCEPTED" && <p>এই চুক্তি আর সক্রিয় নয়।</p>}
 
