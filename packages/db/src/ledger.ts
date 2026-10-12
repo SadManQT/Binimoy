@@ -148,10 +148,13 @@ export async function createInvoice(
     );
     const row = agreement.rows[0];
     if (row?.state !== "ACCEPTED") return done(fail("ILLEGAL_TRANSITION"));
-    // ponytail: no reviewer can be assigned before LP-010, so a
-    // human-from-start deal cannot be funded at all yet (B2).
+    // B2: a human-from-start deal needs its reviewer before any money moves.
     if (row.terms.mode === "human_from_start") {
-      return done(fail("REVIEWER_NOT_ASSIGNED"));
+      const reviewer = await client.query(
+        "select 1 from deal_reviewer where deal_id = $1",
+        [dealId],
+      );
+      if (reviewer.rowCount !== 1) return done(fail("REVIEWER_NOT_ASSIGNED"));
     }
     const existing = await client.query(
       "select invoice_id from funding_invoice where deal_id = $1 and active",

@@ -38,6 +38,7 @@ test("two concurrent migrators apply each migration exactly once", async () => {
     "0007_idle_transaction_timeout.sql",
     "0008_vault_room.sql",
     "0009_delivery_settlement.sql",
+    "0010_review.sql",
   ]);
   expect(await migrate(pool)).toEqual([]);
 });
