@@ -202,6 +202,15 @@ const bn = {
     open: "পুরো লেখা ও রিপ্লাই",
     report: "স্ক্যাম রিপোর্ট করুন",
   },
+  compare: {
+    cta: "অন্য শপের সাথে তুলনা করুন",
+    title: "দুটো শপ পাশাপাশি",
+    sub: "দুটো শপের পাবলিশড রিভিউ, রেটিং আর রিপোর্ট পাশাপাশি দেখুন। কম রিভিউ থাকা শপ মানেই ভালো শপ না।",
+    pick: "আরেকটা শপ বেছে নিন",
+    show: "তুলনা দেখুন",
+    none: "তুলনা করার মতো আর কোনো শপ এখনো নেই।",
+    open: "শপের পেজ দেখুন",
+  },
   trust: {
     title: "ট্রাস্ট সিগন্যাল",
     levels: {
@@ -448,6 +457,15 @@ const en: Dictionary = {
     resolved: "The writer says it was resolved",
     open: "Full post and replies",
     report: "Report a scam",
+  },
+  compare: {
+    cta: "Compare with another shop",
+    title: "Two shops side by side",
+    sub: "See two shops' published reviews, ratings and reports next to each other. A shop with fewer reviews is not thereby the better shop.",
+    pick: "Pick another shop",
+    show: "Compare",
+    none: "There is no other shop to compare with yet.",
+    open: "Open the shop page",
   },
   trust: {
     title: "Trust signal",

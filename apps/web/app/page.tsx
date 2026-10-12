@@ -94,12 +94,36 @@ export default async function Home() {
         )}
       </div>
 
+      {alerts.reports.length > 0 && (
+        <a className="ticker" href="/alerts" data-testid="ticker">
+          <span className="ticker-label">
+            <Warning size={16} weight="fill" aria-hidden="true" />
+            {t.home.alertsTitle}
+          </span>
+          <span className="ticker-track">
+            {/* The list twice, so the loop has no seam; the copy is hidden
+                from screen readers. */}
+            {[0, 1].map((copy) => (
+              <span key={copy} aria-hidden={copy === 1}>
+                {alerts.reports.map((report) => (
+                  <span key={report.id}>
+                    <strong>{report.shopName}</strong>
+                    {t.issues[report.issue ?? "other"]}
+                    <small>{t.shop.unverified}</small>
+                  </span>
+                ))}
+              </span>
+            ))}
+          </span>
+        </a>
+      )}
+
       <section className="sec" aria-labelledby="features-title">
         <h2 id="features-title">{t.home.featuresTitle}</h2>
         <ul className="features" data-testid="features">
           {features.map((feature) => (
             <li key={feature.key} data-tone={feature.tone}>
-              <a href={feature.href}>
+              <a href={feature.href} data-tilt>
                 <div>
                   <h3>{feature.copy.title}</h3>
                   <p>{feature.copy.body}</p>

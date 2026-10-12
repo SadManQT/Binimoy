@@ -3,6 +3,7 @@ import { unseenNotices } from "@lp/db/notices";
 import { ROLE_TEXT, STATE_TEXT } from "../../lib/copy";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
+import { Mini3D } from "../components/mini-3d";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "আমার ডিল · বিনিময়" };
@@ -13,9 +14,12 @@ export default async function DealsPage() {
   const unseen = await unseenNotices(pool(), user.id);
   return (
     <main className="wide">
-      <div className="page-head">
-        <h1>আমার ডিল</h1>
-        <p>ধাপে ধাপে ভেরিফাই করে লেনদেন। সব টাকা টেস্ট।</p>
+      <div className="page-head with-3d">
+        <div>
+          <h1>আমার ডিল</h1>
+          <p>ধাপে ধাপে ভেরিফাই করে লেনদেন। সব টাকা টেস্ট।</p>
+        </div>
+        <Mini3D kind="lock" />
       </div>
       <div className="actions">
         <a className="button" href="/deals/new">

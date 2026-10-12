@@ -9,6 +9,7 @@ import type { ReactNode } from "react";
 import { getI18n } from "../lib/i18n";
 import { getShell } from "../lib/shell";
 import { SiteFooter, SiteHeader } from "./components/site-header";
+import { TiltEffects } from "./components/tilt";
 
 // Bangla: a display face with character for headings, and a body face chosen
 // for long reading at small sizes. English: one clean face for both.
@@ -62,6 +63,7 @@ export default async function RootLayout({
           {children}
         </div>
         <SiteFooter shell={shell} i18n={i18n} />
+        <TiltEffects />
       </body>
     </html>
   );

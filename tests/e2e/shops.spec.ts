@@ -90,6 +90,13 @@ test("a complaint about a shop reaches the directory, the shop's page and the al
   // And on the front page.
   await visitor.goto("/");
   await expect(visitor.getByTestId("home-alerts")).toContainText(shop);
+  await expect(visitor.getByTestId("ticker")).toContainText(shop);
+
+  // Side by side with another shop: the same counts, still no verdict.
+  await visitor.goto(shopUrl);
+  await visitor.getByRole("link", { name: "অন্য শপের সাথে তুলনা করুন" }).click();
+  await expect(visitor.getByTestId("versus")).toContainText(shop);
+  await expect(visitor.getByTestId("versus")).toContainText("ডেটা কম");
 
   // One person, one live report per shop.
   await author.goto(`/community?subject=${encodeURIComponent(shop)}`);

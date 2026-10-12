@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { REVIEW_TONE } from "../../../lib/copy";
 import { fill, getI18n } from "../../../lib/i18n";
 import { pool } from "../../../lib/pool";
+import { Mini3D } from "../../components/mini-3d";
 import {
   ComplaintLine,
   Rating,
@@ -95,6 +96,11 @@ export default async function ShopPage({
           </div>
         </div>
         <div className="trust-panel" data-testid="trust-panel">
+          <Mini3D
+            kind="gauge"
+            value={shop.trust.score}
+            className="mini3d dial"
+          />
           <h3>{t.trust.title}</h3>
           <p className="meta">
             <TrustBadge shop={shop} i18n={i18n} />
@@ -135,6 +141,9 @@ export default async function ShopPage({
           </a>
           <a className="button quiet" href={`/research?subject=${name}`}>
             {t.shop.searchWeb}
+          </a>
+          <a className="button quiet" href={`/shops/compare?a=${shop.id}`}>
+            {t.compare.cta}
           </a>
         </div>
       </section>

@@ -21,7 +21,7 @@ const PAPER = 0xeef2ff;
 
 export type SceneOptions = { reducedMotion: boolean; onReady: () => void };
 
-const clay = (
+export const clay = (
   color: number,
   extra: THREE.MeshStandardMaterialParameters = {},
 ) =>
@@ -32,7 +32,7 @@ const clay = (
     ...extra,
   });
 
-const solid = (shape: THREE.Shape, depth: number) => {
+export const solid = (shape: THREE.Shape, depth: number) => {
   const geometry = new THREE.ExtrudeGeometry(shape, {
     depth,
     bevelEnabled: true,
@@ -45,7 +45,7 @@ const solid = (shape: THREE.Shape, depth: number) => {
   return geometry;
 };
 
-function starShape(outer: number, inner: number) {
+export function starShape(outer: number, inner: number) {
   const shape = new THREE.Shape();
   for (let i = 0; i < 10; i += 1) {
     const radius = i % 2 === 0 ? outer : inner;
@@ -73,7 +73,7 @@ function roundedRect(w: number, h: number, r: number) {
   return shape;
 }
 
-function roundedTriangle(size: number, r: number) {
+export function roundedTriangle(size: number, r: number) {
   const points = [0, 1, 2].map((i) => {
     const angle = Math.PI / 2 + (i * Math.PI * 2) / 3;
     return new THREE.Vector2(Math.cos(angle) * size, Math.sin(angle) * size);
