@@ -1,4 +1,5 @@
 import { listDeals } from "@lp/db/agreements";
+import { unseenNotices } from "@lp/db/notices";
 import { ROLE_TEXT, STATE_TEXT } from "../../lib/copy";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
@@ -9,11 +10,15 @@ export const metadata = { title: "আমার ডিল · বিনিময�
 export default async function DealsPage() {
   const user = await requireUser();
   const deals = await listDeals(pool(), user.id);
+  const unseen = await unseenNotices(pool(), user.id);
   return (
     <main>
       <h1>আমার ডিল</h1>
       <p>
-        <a href="/deals/new">নতুন ডিল শুরু করুন</a>
+        <a href="/deals/new">নতুন ডিল শুরু করুন</a> ·{" "}
+        <a href="/notifications" data-testid="notices-link">
+          নোটিশ{unseen > 0 ? ` (${unseen.toLocaleString("bn-BD")}টি নতুন)` : ""}
+        </a>
       </p>
       {deals.length === 0 ? (
         <p>এখনো কোনো ডিল নেই। উপরের লিংক থেকে প্রথম ডিল তৈরি করুন।</p>

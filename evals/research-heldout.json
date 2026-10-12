@@ -1,0 +1,395 @@
+{
+  "note": "Held-out cases for pnpm eval:ai. Synthetic. Written after the keyword sorter and not used to tune it. Nothing under packages/ or apps/ may import this file (D.11: ground truth stays outside the app).",
+  "classification": [
+    {
+      "id": "en-pos-1",
+      "lang": "english",
+      "kind": "plain",
+      "author": "customer",
+      "text": "Got my key within ten minutes, activated without any issue.",
+      "expect": "positive"
+    },
+    {
+      "id": "en-pos-2",
+      "lang": "english",
+      "kind": "plain",
+      "author": "customer",
+      "text": "Smooth deal. Would buy again.",
+      "expect": "positive"
+    },
+    {
+      "id": "en-neg-1",
+      "lang": "english",
+      "kind": "plain",
+      "author": "customer",
+      "text": "Sent the money on Monday and he stopped replying.",
+      "expect": "negative"
+    },
+    {
+      "id": "en-neg-2",
+      "lang": "english",
+      "kind": "plain",
+      "author": "customer",
+      "text": "The account was taken back two days later.",
+      "expect": "negative"
+    },
+    {
+      "id": "en-neg-3",
+      "lang": "english",
+      "kind": "negation",
+      "author": "customer",
+      "text": "It does not work and nobody answers.",
+      "expect": "negative"
+    },
+    {
+      "id": "en-neg-4",
+      "lang": "english",
+      "kind": "negation",
+      "author": "customer",
+      "text": "I would not recommend them to anyone.",
+      "expect": "negative"
+    },
+    {
+      "id": "en-pos-3",
+      "lang": "english",
+      "kind": "negation",
+      "author": "customer",
+      "text": "No complaint at all, everything arrived.",
+      "expect": "positive"
+    },
+    {
+      "id": "en-pos-4",
+      "lang": "english",
+      "kind": "negation",
+      "author": "customer",
+      "text": "Not a scam. I was paid back the same day I asked.",
+      "expect": "resolution"
+    },
+    {
+      "id": "en-sar-1",
+      "lang": "english",
+      "kind": "sarcasm",
+      "author": "customer",
+      "text": "Great service, if you enjoy waiting three weeks for nothing.",
+      "expect": "negative"
+    },
+    {
+      "id": "en-sar-2",
+      "lang": "english",
+      "kind": "sarcasm",
+      "author": "customer",
+      "text": "Oh sure, it works. On his computer, not mine.",
+      "expect": "negative"
+    },
+    {
+      "id": "en-quo-1",
+      "lang": "english",
+      "kind": "quote",
+      "author": "customer",
+      "text": "People keep saying 'scam, never delivered' but my order came the next morning.",
+      "expect": "positive"
+    },
+    {
+      "id": "en-quo-2",
+      "lang": "english",
+      "kind": "quote",
+      "author": "customer",
+      "text": "The page says 'delivered and working' but I have received nothing.",
+      "expect": "negative"
+    },
+    {
+      "id": "en-res-1",
+      "lang": "english",
+      "kind": "correction",
+      "author": "customer",
+      "text": "Earlier I wrote that I lost my money. Correction: they returned it this morning.",
+      "expect": "resolution"
+    },
+    {
+      "id": "en-res-2",
+      "lang": "english",
+      "kind": "correction",
+      "author": "customer",
+      "text": "Update: still no refund, a month later.",
+      "expect": "negative"
+    },
+    {
+      "id": "en-mix-1",
+      "lang": "english",
+      "kind": "plain",
+      "author": "customer",
+      "text": "The first key was invalid; the replacement activated fine.",
+      "expect": "mixed"
+    },
+    {
+      "id": "en-neu-1",
+      "lang": "english",
+      "kind": "plain",
+      "author": "customer",
+      "text": "Has anyone here bought from them? Thinking about it.",
+      "expect": "neutral"
+    },
+    {
+      "id": "en-neu-2",
+      "lang": "english",
+      "kind": "plain",
+      "author": "customer",
+      "text": "They moved to a new page last month.",
+      "expect": "neutral"
+    },
+    {
+      "id": "bn-pos-1",
+      "lang": "bangla",
+      "kind": "plain",
+      "author": "customer",
+      "text": "অর্ডার দেওয়ার এক ঘণ্টার মধ্যে হাতে পেয়ে গেছি, সব ঠিক আছে।",
+      "expect": "positive"
+    },
+    {
+      "id": "bn-pos-2",
+      "lang": "bangla",
+      "kind": "plain",
+      "author": "customer",
+      "text": "খুব দ্রুত ডেলিভারি দিয়েছে, ধন্যবাদ।",
+      "expect": "positive"
+    },
+    {
+      "id": "bn-neg-1",
+      "lang": "bangla",
+      "kind": "plain",
+      "author": "customer",
+      "text": "টাকা নিয়ে ব্লক করে দিয়েছে।",
+      "expect": "negative"
+    },
+    {
+      "id": "bn-neg-2",
+      "lang": "bangla",
+      "kind": "negation",
+      "author": "customer",
+      "text": "এক সপ্তাহ হয়ে গেল, এখনো কিছু পাইনি।",
+      "expect": "negative"
+    },
+    {
+      "id": "bn-neg-3",
+      "lang": "bangla",
+      "kind": "negation",
+      "author": "customer",
+      "text": "সার্ভিস মোটেও ভালো না।",
+      "expect": "negative"
+    },
+    {
+      "id": "bn-neg-4",
+      "lang": "bangla",
+      "kind": "negation",
+      "author": "customer",
+      "text": "অ্যাকাউন্টটা কাজ করছে না, উত্তরও দেয় না।",
+      "expect": "negative"
+    },
+    {
+      "id": "bn-pos-3",
+      "lang": "bangla",
+      "kind": "negation",
+      "author": "customer",
+      "text": "কোনো সমস্যা হয়নি, যা বলেছিল তাই দিয়েছে।",
+      "expect": "positive"
+    },
+    {
+      "id": "bn-sar-1",
+      "lang": "bangla",
+      "kind": "sarcasm",
+      "author": "customer",
+      "text": "বাহ, কী ভালো সার্ভিস! টাকা নিয়ে উধাও।",
+      "expect": "negative"
+    },
+    {
+      "id": "bn-quo-1",
+      "lang": "bangla",
+      "kind": "quote",
+      "author": "customer",
+      "text": "অনেকে বলে প্রতারক, কিন্তু আমি ঠিকঠাক জিনিস বুঝে পেয়েছি।",
+      "expect": "positive"
+    },
+    {
+      "id": "bn-res-1",
+      "lang": "bangla",
+      "kind": "correction",
+      "author": "customer",
+      "text": "আগের পোস্টে অভিযোগ করেছিলাম। আজ টাকা ফেরত দিয়েছে।",
+      "expect": "resolution"
+    },
+    {
+      "id": "bn-res-2",
+      "lang": "bangla",
+      "kind": "correction",
+      "author": "customer",
+      "text": "টাকা ফেরত চেয়েছিলাম, এখনো দেয়নি।",
+      "expect": "negative"
+    },
+    {
+      "id": "bn-neu-1",
+      "lang": "bangla",
+      "kind": "plain",
+      "author": "customer",
+      "text": "এদের কাছ থেকে কেউ কিনেছেন? কেমন?",
+      "expect": "neutral"
+    },
+    {
+      "id": "bl-pos-1",
+      "lang": "banglish",
+      "kind": "plain",
+      "author": "customer",
+      "text": "Order korar 20 min er moddhe peye gesi, thik ase.",
+      "expect": "positive"
+    },
+    {
+      "id": "bl-pos-2",
+      "lang": "banglish",
+      "kind": "plain",
+      "author": "customer",
+      "text": "Valo service, abar nibo.",
+      "expect": "positive"
+    },
+    {
+      "id": "bl-neg-1",
+      "lang": "banglish",
+      "kind": "plain",
+      "author": "customer",
+      "text": "Taka niye r reply dey na.",
+      "expect": "negative"
+    },
+    {
+      "id": "bl-neg-2",
+      "lang": "banglish",
+      "kind": "negation",
+      "author": "customer",
+      "text": "Ekhono kisu pai nai, 5 din hoye gelo.",
+      "expect": "negative"
+    },
+    {
+      "id": "bl-neg-3",
+      "lang": "banglish",
+      "kind": "negation",
+      "author": "customer",
+      "text": "Key ta kaj kore na.",
+      "expect": "negative"
+    },
+    {
+      "id": "bl-pos-3",
+      "lang": "banglish",
+      "kind": "negation",
+      "author": "customer",
+      "text": "Kono jhamela hoy nai, sob peyechi.",
+      "expect": "positive"
+    },
+    {
+      "id": "bl-res-1",
+      "lang": "banglish",
+      "kind": "correction",
+      "author": "customer",
+      "text": "Age complain disilam, aj taka ferot diyeche.",
+      "expect": "resolution"
+    },
+    {
+      "id": "bl-sar-1",
+      "lang": "banglish",
+      "kind": "sarcasm",
+      "author": "customer",
+      "text": "Khub valo, taka niye block mere dise.",
+      "expect": "negative"
+    },
+    {
+      "id": "se-ad-1",
+      "lang": "english",
+      "kind": "seller",
+      "author": "seller",
+      "text": "Limited stock! Grab your subscription today at half price.",
+      "expect": "advertisement"
+    },
+    {
+      "id": "se-re-1",
+      "lang": "english",
+      "kind": "seller",
+      "author": "seller",
+      "text": "We are sorry for the delay. The order was completed last night.",
+      "expect": "response"
+    },
+    {
+      "id": "se-ad-2",
+      "lang": "bangla",
+      "kind": "seller",
+      "author": "seller",
+      "text": "আজই অর্ডার করুন, দাম কমানো হয়েছে।",
+      "expect": "advertisement"
+    },
+    {
+      "id": "se-re-2",
+      "lang": "bangla",
+      "kind": "seller",
+      "author": "seller",
+      "text": "আপনার অভিযোগ দেখেছি, আমরা যোগাযোগ করছি।",
+      "expect": "response"
+    }
+  ],
+  "identity": [
+    {
+      "id": "id-1",
+      "subject": "Tech Bazar BD",
+      "text": "Bought from Tech Bazar BD last week.",
+      "expect": "exact"
+    },
+    {
+      "id": "id-2",
+      "subject": "Tech Bazar BD",
+      "text": "bought from tech  bazar bd",
+      "expect": "exact"
+    },
+    {
+      "id": "id-3",
+      "subject": "Tech Bazar BD",
+      "text": "Tech Bazar Sylhet sold me a phone.",
+      "expect": "ambiguous"
+    },
+    {
+      "id": "id-4",
+      "subject": "Tech Bazar BD",
+      "text": "I went to the bazar to buy tech.",
+      "expect": "none"
+    },
+    {
+      "id": "id-5",
+      "subject": "Shanti",
+      "text": "Finally some shanti after the exam.",
+      "expect": "ambiguous"
+    },
+    {
+      "id": "id-6",
+      "subject": "Shanti",
+      "text": "Shanti Store delivered late.",
+      "expect": "ambiguous"
+    },
+    {
+      "id": "id-7",
+      "subject": "Gamer Zone",
+      "text": "Gamer Zone BD is a different page from Gamer Zone.",
+      "expect": "ambiguous"
+    },
+    {
+      "id": "id-8",
+      "subject": "Gamer Zone",
+      "text": "This gamerzone page is fake.",
+      "expect": "ambiguous"
+    },
+    {
+      "id": "id-9",
+      "subject": "Rahim Digital",
+      "text": "রহিম ডিজিটাল থেকে কিনেছি।",
+      "expect": "ambiguous"
+    },
+    {
+      "id": "id-10",
+      "subject": "Rahim Digital",
+      "text": "Karim Digital is better.",
+      "expect": "none"
+    }
+  ]
+}

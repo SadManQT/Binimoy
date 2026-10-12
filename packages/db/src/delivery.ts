@@ -564,6 +564,8 @@ export type DeliveryView = {
     milestoneNo: number | null;
     // B9 objective release: when the challenge window ends, if one is open.
     objectiveDueAt: Date | null;
+    // The buyer has not yet been shown the notice, so no period is running.
+    objectiveNoticePending: boolean;
     inspections: {
       inspectionId: string;
       itemId: string;
@@ -640,6 +642,8 @@ export async function getDeliveryView(
           accepted: current.accepted,
           milestoneNo: current.milestone_no,
           objectiveDueAt: objective?.rows[0]?.due_at ?? null,
+          objectiveNoticePending:
+            objective?.rowCount === 1 && objective.rows[0].due_at === null,
           inspections: (inspections?.rows ?? []).map((r) => ({
             inspectionId: r.inspection_id,
             itemId: r.item_id,

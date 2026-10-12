@@ -9,6 +9,7 @@ import {
 } from "./commands";
 import type { Pool } from "./index";
 import { postEntry } from "./ledger";
+import { isPaused } from "./ops";
 
 // Spec D.5. Money leaves the held balance only through this file, and always
 // in the same order: authorize and reserve, commit the dispatch, call the
@@ -408,6 +409,9 @@ export async function dispatchSettlements(
   pool: Pool,
   adapter: TransferAdapter,
 ): Promise<number> {
+  // D.13: a settlement pause stops new dispatches only. Transfers already
+  // committed are still reconciled, and nothing reserved is released.
+  if (await isPaused(pool, "settlement")) return 0;
   const due = await pool.query(
     `select s.authorization_id from settlement_authorization s
      join aggregate a on a.id = s.authorization_id
@@ -576,6 +580,14 @@ export async function openDispute(
         (input.detail ?? "").slice(0, 2000),
         afterDispatch,
       ],
+    );
+    // The other party is told at once that a dispute exists: the fact and
+    // the deal, never the claim text.
+    await client.query(
+      `insert into notice (recipient_id, deal_id, kind)
+       select user_id, deal_id, 'DISPUTE_OPENED' from deal_party
+       where deal_id = $1 and user_id <> $2`,
+      [input.dealId, input.userId],
     );
     const pending = await client.query(
       `select s.authorization_id from settlement_authorization s

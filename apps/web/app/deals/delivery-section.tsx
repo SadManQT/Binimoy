@@ -244,6 +244,14 @@ export function DeliverySection({
         </ol>
       )}
 
+      {pkg?.objectiveNoticePending && !settlement && (
+        <p data-testid="objective-pending" role="status">
+          প্রতিটি আবশ্যক শর্ত স্বাধীন উৎস থেকে প্রমাণিত হয়েছে। ক্রেতাকে নোটিশ দেওয়া হয়েছে,
+          কিন্তু ক্রেতা এখনো সেটি দেখেননি। ক্রেতা না দেখা পর্যন্ত আপত্তির সময় শুরু হয় না, এবং
+          শুধু সময় পার হওয়ার কারণে টাকা ছাড়া হবে না।
+        </p>
+      )}
+
       {pkg?.objectiveDueAt && !settlement && (
         <p data-testid="objective-window" role="status">
           প্রতিটি আবশ্যক শর্ত স্বাধীন উৎস থেকে প্রমাণিত হয়েছে। ক্রেতা{" "}

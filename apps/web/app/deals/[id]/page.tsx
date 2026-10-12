@@ -5,6 +5,7 @@ import { getDealView } from "@lp/db/agreements";
 import { getConversation } from "@lp/db/conversation";
 import { getDeliveryView } from "@lp/db/delivery";
 import { dealBalances, getFunding } from "@lp/db/ledger";
+import { renderNotices } from "@lp/db/notices";
 import { getDisputeView } from "@lp/db/review";
 import { getMockFacts } from "@lp/db/verification";
 import { getTemplate } from "@lp/templates";
@@ -64,6 +65,9 @@ export default async function DealPage({
     .filter((item) => item.dataClass === "vault_secret")
     .map((item) => ({ itemId: item.itemId, title: item.title.bn }));
   const vaultRoomId = await getVaultRoom(pool(), deal.dealId);
+  // D.6: this signed-in page is where a party is shown the notices of this
+  // deal, including the one that starts an objective-release challenge period.
+  await renderNotices(pool(), user.id, deal.dealId);
   const delivery =
     funding?.state === "CONFIRMED"
       ? await getDeliveryView(pool(), deal.dealId)
@@ -114,6 +118,9 @@ export default async function DealPage({
         <a href="/deals">← আমার ডিল</a>
       </p>
       <h1>{deal.title}</h1>
+      <p>
+        <a href={`/deals/${deal.dealId}/receipt`}>রসিদ ও পূর্ণ রেকর্ড</a>
+      </p>
       {error && <p role="alert">{ERROR_TEXT[error] ?? error}</p>}
       <dl>
         <dt>অবস্থা</dt>

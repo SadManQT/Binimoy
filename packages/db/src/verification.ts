@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { Terms } from "./agreements";
 import { lockDeal, systemTransition } from "./commands";
 import type { Pool } from "./index";
+import { insertNotice } from "./notices";
 import {
   createAuthorization,
   hasOpenDispute,
@@ -183,8 +184,11 @@ async function objectiveStep(
                    where i.package_id = p.package_id and i.mandatory and ia.state <> 'PASSED') as proven,
        exists (select 1 from settlement_authorization s join aggregate sa on sa.id = s.authorization_id
                where s.deal_id = p.deal_id and sa.state not in ('INVALIDATED', 'EXPIRED')) as authorized,
-       (select w.due_at <= now() from objective_window w where w.package_id = p.package_id) as due
+       w.package_id is not null as noticed,
+       w.due_at <= now() as due,
+       (select user_id from deal_party where deal_id = p.deal_id and role = 'buyer') as buyer_id
      from delivery_package p join aggregate a on a.id = p.package_id
+     left join objective_window w on w.package_id = p.package_id
      where p.deal_id = $1 and a.state = 'SUBMITTED'
        and p.version_no = (select max(version_no) from delivery_package where deal_id = $1)`,
     [dealId],
@@ -199,14 +203,28 @@ async function objectiveStep(
     ]);
     return false;
   }
-  if (row.due === null) {
+  if (!row.noticed) {
+    // D.6: the notice names the package and the exact allocation. The period
+    // has no end time until the buyer has been shown it (V7-15); a notice
+    // nobody was shown can never turn silence into a release.
+    const noticeId = await insertNotice(client, {
+      recipientId: row.buyer_id,
+      dealId,
+      kind: "OBJECTIVE_RELEASE_NOTICE",
+      detail: {
+        packageId: row.package_id,
+        toSellerMinor: terms.amountMinor,
+        challengeHours: hours,
+      },
+    });
     await client.query(
-      "insert into objective_window (package_id, due_at) values ($1, now() + make_interval(hours => $2))",
-      [row.package_id, hours],
+      "insert into objective_window (package_id, notice_id, challenge_hours) values ($1, $2, $3)",
+      [row.package_id, noticeId, hours],
     );
     return false;
   }
-  if (!row.due) return false;
+  // Null while the notice has not been shown; false while the period runs.
+  if (row.due !== true) return false;
   const held = await heldMinor(client, dealId);
   if (held !== BigInt(terms.amountMinor)) return false;
   const authorizationId = await createAuthorization(client, {

@@ -184,7 +184,7 @@ test("a failing search provider gives partial coverage, or a failed search, neve
     name: "fixture",
     async search(query) {
       call += 1;
-      if (call % 2 === 0) throw new Error("429 from provider");
+      if (call % 2 === 0) throw new Error("rate-limited: key sk-leaky-key");
       return real.search(query);
     },
   };
@@ -195,7 +195,7 @@ test("a failing search provider gives partial coverage, or a failed search, neve
   );
   expect(partial.cards.length).toBeGreaterThan(0);
   // The provider's error text is not stored or shown.
-  expect(JSON.stringify(partial)).not.toContain("429");
+  expect(JSON.stringify(partial)).not.toContain("sk-leaky-key");
 
   const down: SearchProvider = {
     name: "scripted",

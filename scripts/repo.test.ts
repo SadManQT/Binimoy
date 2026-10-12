@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { expect, test } from "vitest";
 
 type Requirement = {
@@ -39,5 +39,27 @@ test("a VERIFIED requirement must carry paths, tests and evidence", () => {
     expect(r.implementationPaths.length, r.id).toBeGreaterThan(0);
     expect(r.acceptanceTests.length, r.id).toBeGreaterThan(0);
     expect(r.evidence.length, r.id).toBeGreaterThan(0);
+  }
+});
+
+test("INV-16: a requirement that claims progress names files that exist, a test, and evidence", () => {
+  for (const r of requirements.filter((r) => r.status !== "NOT_STARTED")) {
+    expect(r.implementationPaths.length, r.id).toBeGreaterThan(0);
+    expect(r.acceptanceTests.length, r.id).toBeGreaterThan(0);
+    expect(r.evidence.length, r.id).toBeGreaterThan(0);
+    for (const path of [
+      ...r.implementationPaths,
+      ...r.acceptanceTests,
+      ...r.evidence,
+    ]) {
+      expect(existsSync(path), `${r.id}: ${path}`).toBe(true);
+    }
+  }
+});
+
+test("E4: nothing is marked verified or done by this repository itself", () => {
+  // Only an independent reviewer may set VERIFIED (INV-16, AGENTS.md).
+  for (const r of requirements) {
+    expect(["NOT_STARTED", "IN_PROGRESS"], r.id).toContain(r.status);
   }
 });

@@ -28,6 +28,8 @@ export const ERROR_TEXT: Record<string, string> = {
   SECRET_SUSPECTED:
     "বার্তাটি পাসওয়ার্ড, কোড বা পিনের মতো দেখাচ্ছে, তাই সংরক্ষণ করা হয়নি। গোপন তথ্য ভল্টে দিন। এই শনাক্তকরণ নিখুঁত নয়; ভুল হলে বাক্যটি অন্যভাবে লিখুন।",
   BUDGET_EXHAUSTED: "এই ডিলে এআই ব্যবহারের সীমা শেষ হয়েছে।",
+  PAUSED:
+    "পরিচালনাকারী এই কাজটি সাময়িকভাবে বন্ধ রেখেছেন। আপনার আগের তথ্য ও টাকা যেমন ছিল তেমনই আছে; বিরোধ জানানো ও অবস্থা দেখা চালু আছে।",
   INVITE_INVALID: "আমন্ত্রণটি আর কার্যকর নয়: মেয়াদ শেষ, ব্যবহৃত বা বাতিল।",
 };
 
@@ -132,4 +134,19 @@ export const PROOF_TEXT: Record<string, string> = {
   seller_statement: "বিক্রেতার বক্তব্য",
   buyer_observation: "ক্রেতার নিজের পরীক্ষা",
   independent_fact: "স্বাধীন যাচাই",
+};
+
+// D.6: a notice says that something happened and where to look. It carries
+// no message text, no claim text and no button that accepts anything.
+export const NOTICE_TEXT: Record<string, string> = {
+  AGREEMENT_ACCEPTED: "দুই পক্ষ চুক্তিতে সম্মত হয়েছেন",
+  FUNDING_CONFIRMED: "টাকা জমা নিশ্চিত হয়েছে (পরীক্ষামূলক)",
+  DELIVERY_SUBMITTED: "বিক্রেতা সরবরাহ জমা দিয়েছেন; আপনার পরীক্ষার সময় চলছে",
+  OBJECTIVE_RELEASE_NOTICE:
+    "সব আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হয়েছে। আপনি নির্ধারিত সময়ের মধ্যে আপত্তি না করলে বিক্রেতাকে পরিশোধ হবে। ডিলটি খুলে দেখুন।",
+  SETTLEMENT_AUTHORIZED: "টাকা নিষ্পত্তির অনুমোদন হয়েছে, এখনো পাঠানো হয়নি",
+  TRANSFER_COMPLETED: "টাকা পাঠানো সম্পন্ন হয়েছে (পরীক্ষামূলক)",
+  TRANSFER_FAILED: "টাকা পাঠানো ব্যর্থ হয়েছে; টাকা আবার আটকে রাখা হয়েছে",
+  DISPUTE_OPENED: "অন্য পক্ষ একটি বিরোধ খুলেছেন। অভিযোগ মানেই কেউ দোষী নয়।",
+  DISPUTE_UPDATED: "বিরোধের অবস্থা বদলেছে",
 };

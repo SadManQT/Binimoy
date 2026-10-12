@@ -62,8 +62,16 @@ test("a top-up is proven by the provider's record for the agreed player ID, not 
     seller.getByTestId("inspection-quantity_matches").locator("xpath=.."),
   ).toContainText("নকল প্রোভাইডার");
 
-  // Every mandatory item is independently proven: the buyer is told, and has
-  // a stated time to object. Nothing is paid yet.
+  // Every mandatory item is independently proven and the buyer has a notice
+  // waiting. Until the buyer has been shown it, no period is running.
+  await expect(seller.getByTestId("objective-pending")).toContainText(
+    "এখনো সেটি দেখেননি",
+  );
+  await buyer.goto("/deals");
+  await expect(buyer.getByTestId("notices-link")).toContainText("নতুন");
+
+  // The buyer opens the deal: now they are told, with a stated time to
+  // object. Nothing is paid yet.
   await buyer.goto(dealUrl);
   await expect(buyer.getByTestId("objective-window")).toContainText("আপত্তি");
   await expect(buyer.getByTestId("settlement")).toHaveCount(0);
@@ -76,4 +84,24 @@ test("a top-up is proven by the provider's record for the agreed player ID, not 
       timeout: 2000,
     });
   }).toPass({ timeout: 120_000 });
+
+  // The receipt reconstructs it: versions, proof sources and the money.
+  await buyer.getByRole("link", { name: "রসিদ ও পূর্ণ রেকর্ড" }).click();
+  const receipt = buyer.getByTestId("receipt");
+  await expect(receipt).toContainText("পরীক্ষামূলক রেকর্ড");
+  await expect(receipt).toContainText("CAT-03");
+  await expect(receipt.getByTestId("receipt-seller-paid")).toHaveText(
+    "৳1,500.00",
+  );
+  await expect(receipt.getByTestId("receipt-pending")).toHaveCount(0);
+  // Nobody outside the deal can open it.
+  const { page: stranger } = await signUp(browser, "Stranger");
+  expect((await stranger.goto(buyer.url()))?.status()).toBe(404);
+
+  // The notices list says what happened and offers no way to accept anything.
+  await seller.goto("/notifications");
+  await expect(
+    seller.getByTestId("notices").locator('[data-kind="TRANSFER_COMPLETED"]'),
+  ).toHaveCount(1, { timeout: 60_000 });
+  await expect(seller.locator("main button")).toHaveCount(0);
 });

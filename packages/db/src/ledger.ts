@@ -9,6 +9,7 @@ import {
   lockDeal,
 } from "./commands";
 import type { Pool } from "./index";
+import { isPaused } from "./ops";
 
 const INVOICE_HOURS = 24;
 const PROVIDER = "mock";
@@ -121,9 +122,16 @@ export async function createInvoice(
   dealId: string,
 ): Promise<
   | { ok: true; invoiceId: string }
-  | Failure<"NOT_AUTHORIZED" | "ILLEGAL_TRANSITION" | "REVIEWER_NOT_ASSIGNED">
+  | Failure<
+      | "NOT_AUTHORIZED"
+      | "ILLEGAL_TRANSITION"
+      | "REVIEWER_NOT_ASSIGNED"
+      | "PAUSED"
+    >
 > {
   if (!z.uuid().safeParse(dealId).success) return fail("NOT_AUTHORIZED");
+  // D.13: an operator has paused new funding. Existing deals are untouched.
+  if (await isPaused(pool, "funding")) return fail("PAUSED");
   const client = await pool.connect();
   try {
     await client.query("begin");
@@ -220,6 +228,7 @@ export function startFunding(
         [aggregate.id],
       );
       const invoice = rows[0];
+      if (await isPaused(client, "funding")) return { error: "PAUSED" };
       if (invoice.state !== "ACCEPTED") return { error: "ILLEGAL_TRANSITION" };
       if (!invoice.live) return { error: "INVOICE_EXPIRED" };
       const paymentRef = `mockpay_${randomUUID()}`;

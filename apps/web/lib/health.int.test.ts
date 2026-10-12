@@ -12,12 +12,17 @@ beforeAll(async () => {
 afterAll(() => pool.end());
 
 test("database up, no worker yet: ready but worker not seen", async () => {
-  expect(await getHealth(pool)).toEqual({
+  const health = await getHealth(pool);
+  expect(health).toMatchObject({
     ready: true,
     db: "ok",
     worker: "not_seen",
     workerHeartbeatAgeSeconds: null,
   });
+  // D.13: queue and reconciliation figures are numbers, never guessed.
+  expect(typeof health.outboxPending).toBe("number");
+  expect(typeof health.operationsUnreconciled).toBe("number");
+  expect(Array.isArray(health.paused)).toBe(true);
 });
 
 test("fresh heartbeat reports the worker as ok", async () => {
@@ -36,11 +41,13 @@ test("stale heartbeat reports the worker as not seen", async () => {
 
 test("database unreachable: not ready, never a healthy answer", async () => {
   const dead = createPool("postgres://lp:lp@127.0.0.1:1/lp");
-  expect(await getHealth(dead)).toEqual({
+  expect(await getHealth(dead)).toMatchObject({
     ready: false,
     db: "unavailable",
     worker: "not_seen",
     workerHeartbeatAgeSeconds: null,
+    outboxPending: null,
+    operationsUnreconciled: null,
   });
   await dead.end();
 });

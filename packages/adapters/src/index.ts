@@ -36,6 +36,8 @@ export {
   type SearchProvider,
   setCardMatch,
 } from "./research";
+export { httpRetriever, isPublicAddress } from "./safe-fetch";
+export { tavilySearchProvider } from "./tavily";
 export {
   createVaultAdmin,
   matrixUserId,

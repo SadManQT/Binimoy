@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import type { ErrorCode } from "@lp/contracts";
 import { getConversation, MONITORING_POLICY } from "@lp/db/conversation";
 import { getDeliveryView } from "@lp/db/delivery";
+import { isPaused } from "@lp/db/ops";
 import { type Assessment, validateAssessment } from "@lp/domain";
 import type { Pool } from "pg";
 import {
@@ -279,6 +280,8 @@ export async function runAssessmentJobs(
   pool: Pool,
   model: AssessmentModel,
 ): Promise<number> {
+  // D.13: an operator stop. Queued jobs wait; nothing new reaches the model.
+  if (await isPaused(pool, "ai")) return 0;
   const claimed = await pool.query(
     `update ai_job set status = 'RUNNING'
      where id in (select id from ai_job where status = 'QUEUED'

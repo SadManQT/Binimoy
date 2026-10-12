@@ -3,8 +3,10 @@
 import {
   fixtureRetriever,
   fixtureSearchProvider,
+  httpRetriever,
   runResearch,
   setCardMatch,
+  tavilySearchProvider,
 } from "@lp/adapters";
 import { loadConfig } from "@lp/contracts";
 import { redirect } from "next/navigation";
@@ -13,16 +15,18 @@ import { requireUser } from "../../lib/session";
 
 export async function runResearchAction(form: FormData) {
   const user = await requireUser();
-  // No live search provider is built yet. Fixtures are never passed off as
-  // live results.
-  if (loadConfig(process.env).RESEARCH_MODE !== "fixture") {
-    redirect("/research?error=LIVE_SEARCH_NOT_BUILT");
-  }
+  // Live mode uses the configured provider and real pages; fixture mode
+  // replays invented pages. There is no fallback from one to the other, and
+  // every result records which provider produced it.
+  const config = loadConfig(process.env);
+  const live = config.RESEARCH_MODE === "live" && config.SEARCH_API_KEY;
   const result = await runResearch(pool(), {
     userId: user.id,
     subjectInput: String(form.get("subject") ?? ""),
-    search: fixtureSearchProvider(),
-    retrieve: fixtureRetriever(),
+    search: live
+      ? tavilySearchProvider(config.SEARCH_API_KEY as string)
+      : fixtureSearchProvider(),
+    retrieve: live ? httpRetriever() : fixtureRetriever(),
   });
   redirect(
     result.ok
