@@ -2,11 +2,11 @@
 
 - Product name: Binimoy (ADR-008)
 - Completion level: D0. Nothing at D1 or above is verified.
-- Active branch: none. `main` holds LP-001 to LP-005.
-- Active task: none in progress. LP-001 to LP-005 are MERGED. Handoffs in `docs/handoffs/`
+- Active branch: `chunk-vault`. `main` holds LP-001 to LP-005.
+- Active task: LP-007 (IN_PROGRESS: server side done, browser side not built). LP-001 to LP-005 are MERGED.
 - Verified milestones: none
-- Blockers: LP-007 (secret vault) needs a Matrix homeserver to run against; where it runs is a founder decision. Staging needs an email and SMS sender and its own OAuth apps.
-- Next task: LP-006, then LP-007 once a homeserver is available
+- Blockers: none for local work. The vault needs Docker running (`pnpm matrix:local`). Staging needs a reachable homeserver, an email and SMS sender and its own OAuth apps.
+- Next task: LP-007 part 2 (browser vault), then LP-008 and LP-009
 
 ## Scripts
 

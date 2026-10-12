@@ -11,7 +11,8 @@
   "dependencies": {
     "better-auth": "1.7.7",
     "pg": "8.23.1",
-    "@lp/db": "workspace:*"
+    "@lp/db": "workspace:*",
+    "@lp/contracts": "workspace:*"
   },
   "devDependencies": {
     "@types/pg": "8.23.1"

@@ -296,9 +296,17 @@
     "phase": "P0",
     "ownerTask": "LP-007",
     "acceptance": "D.7's participant/device/manifest tests pass; new buyer security credentials never reach seller",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/adapters/src/vault.ts",
+      "packages/adapters/src/vault-rooms.ts",
+      "apps/web/app/api/vault",
+      "infra/docker-compose.yml"
+    ],
+    "acceptanceTests": [
+      "packages/adapters/src/vault.int.test.ts",
+      "packages/adapters/src/vault-rooms.int.test.ts"
+    ],
     "evidence": []
   },
   {

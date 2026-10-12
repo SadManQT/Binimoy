@@ -22,6 +22,14 @@ Set `DATABASE_URL` in `.env`.
 - **Supabase:** use the direct connection or the session pooler (port 5432), not the transaction pooler (6543).
 - **Local Docker (optional):** `pnpm db:local`, then use `postgres://lp:lp_local_only@localhost:54329/lp`.
 
+### Secret vault (optional)
+
+The vault needs a Matrix homeserver. With Docker running:
+
+    pnpm matrix:local         # starts it and fills MATRIX_* in .env
+
+Without it the app runs, and vault features report that they are unavailable.
+
 `pnpm setup` is a pnpm built-in; the project script is `pnpm run setup`.
 
 ## Checks

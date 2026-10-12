@@ -8,6 +8,13 @@ type Social = Partial<
   Record<SocialProvider, { clientId: string; clientSecret: string }>
 >;
 
+const MATRIX_KEYS = [
+  "MATRIX_HOMESERVER_URL",
+  "MATRIX_SERVER_NAME",
+  "MATRIX_JWT_SECRET",
+  "MATRIX_REGISTRATION_SECRET",
+] as const;
+
 const schema = z
   .object({
     APP_ENV: z.enum(["local", "test", "staging", "production"]),
@@ -20,6 +27,10 @@ const schema = z
     FACEBOOK_CLIENT_SECRET: z.string().optional(),
     GITHUB_CLIENT_ID: z.string().optional(),
     GITHUB_CLIENT_SECRET: z.string().optional(),
+    MATRIX_HOMESERVER_URL: z.string().optional(),
+    MATRIX_SERVER_NAME: z.string().optional(),
+    MATRIX_JWT_SECRET: z.string().optional(),
+    MATRIX_REGISTRATION_SECRET: z.string().optional(),
     PAYMENT_MODE: z.literal("mock").default("mock"),
     VERIFIER_MODE: z.literal("mock").default("mock"),
     RESEARCH_MODE: mode,
@@ -43,6 +54,17 @@ const schema = z
         message:
           "AI_MODE=live needs MODEL_API_KEY. Set it, or set AI_MODE=fixture.",
       });
+    }
+    // The secret vault needs all four values or none of them.
+    const matrix = MATRIX_KEYS.filter((key) => c[key]);
+    if (matrix.length > 0 && matrix.length < MATRIX_KEYS.length) {
+      for (const key of MATRIX_KEYS.filter((k) => !c[k])) {
+        ctx.addIssue({
+          code: "custom",
+          path: [key],
+          message: `${key} is required when any MATRIX_ value is set.`,
+        });
+      }
     }
     // A provider with only half its credentials would fail at sign-in time.
     for (const provider of SOCIAL) {
@@ -71,7 +93,20 @@ const schema = z
       if (clientId && clientSecret)
         social[provider] = { clientId, clientSecret };
     }
-    return { ...c, social };
+    // Null means the vault capability is unavailable, never silently faked.
+    const vault =
+      c.MATRIX_HOMESERVER_URL &&
+      c.MATRIX_SERVER_NAME &&
+      c.MATRIX_JWT_SECRET &&
+      c.MATRIX_REGISTRATION_SECRET
+        ? {
+            homeserverUrl: c.MATRIX_HOMESERVER_URL,
+            serverName: c.MATRIX_SERVER_NAME,
+            jwtSecret: c.MATRIX_JWT_SECRET,
+            registrationSecret: c.MATRIX_REGISTRATION_SECRET,
+          }
+        : null;
+    return { ...c, social, vault };
   });
 
 export type Config = z.infer<typeof schema>;
