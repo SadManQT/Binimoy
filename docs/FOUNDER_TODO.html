@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Binimoy: what you need to do</title>
+<style>
+  :root {
+    --bg: #fbfaf7; --panel: #ffffff; --ink: #1c1b19; --muted: #5f5b53;
+    --line: #dedad1; --accent: #0b6e4f; --warn: #9a4b00; --warn-bg: #fff4e2;
+    --stop: #9b1c1c; --stop-bg: #fdeceb; --ok-bg: #e7f4ee; --code: #f1eee7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161614; --panel: #1f1e1b; --ink: #ecebe6; --muted: #a9a59b;
+      --line: #37352f; --accent: #58c39d; --warn: #f0b469; --warn-bg: #33270f;
+      --stop: #f29a94; --stop-bg: #3a1a18; --ok-bg: #16302a; --code: #2a2925;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 17px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  main { max-width: 52rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0.5rem 0 0.25rem; }
+  h2 { font-size: 1.35rem; margin: 2.75rem 0 0.5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+  h3 { font-size: 1.1rem; margin: 0 0 0.25rem; }
+  h4 { font-size: 1rem; margin: 1rem 0 0.25rem; }
+  p, ul, ol { margin: 0.5rem 0; }
+  li { margin: 0.25rem 0; }
+  a { color: var(--accent); }
+  .lede { color: var(--muted); margin-bottom: 1.25rem; }
+  .note, .warn, .stop { border-radius: 8px; padding: 0.75rem 1rem; margin: 1rem 0; }
+  .note { background: var(--ok-bg); }
+  .warn { background: var(--warn-bg); }
+  .stop { background: var(--stop-bg); }
+  .warn strong { color: var(--warn); } .stop strong { color: var(--stop); }
+  .task { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; margin: 1rem 0; }
+  .tag { display: inline-block; font-size: 0.8rem; border: 1px solid var(--line); border-radius: 999px; padding: 0 0.6rem; margin-right: 0.35rem; color: var(--muted); }
+  .tag.must { color: var(--stop); border-color: var(--stop); }
+  .tag.soon { color: var(--warn); border-color: var(--warn); }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; background: var(--code); border-radius: 5px; }
+  code { padding: 0.1em 0.35em; overflow-wrap: anywhere; }
+  pre { padding: 0.75rem 0.9rem; overflow-x: auto; line-height: 1.45; }
+  pre code { background: none; padding: 0; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; font-size: 0.95rem; }
+  th, td { text-align: left; vertical-align: top; padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; }
+  nav ol { padding-left: 1.25rem; }
+  small { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Binimoy: what you need to do</h1>
+<p class="lede">Written 12 October 2026, after pull request #14 was merged to <code>main</code>. This page lists the things only you can do, the ways to do each one, and exact steps. It also says plainly what is still not built.</p>
+
+<div class="stop">
+<strong>Read this first: the project is not fully complete.</strong>
+You asked for every feature to be finished. A lot more is built and tested than this morning, but the specification is larger than what exists. The software runs end to end on fake money, a fake provider and sample search data. Section 9 lists what is missing. Nothing has been checked by anyone other than the agent that wrote it, so nothing may be called "verified" yet.
+</div>
+
+<nav aria-label="Contents">
+<ol>
+  <li><a href="#state">Where the project stands</a></li>
+  <li><a href="#see">See it running (10 minutes, no accounts needed)</a></li>
+  <li><a href="#order">Your tasks, in order</a></li>
+  <li><a href="#search">Task A: real web search</a></li>
+  <li><a href="#ai">Task B: real AI</a></li>
+  <li><a href="#mail">Task C: email and SMS</a></li>
+  <li><a href="#host">Task D: put it online privately</a></li>
+  <li><a href="#people">Tasks E to H: logins, staff, a reviewer, clean-up</a></li>
+  <li><a href="#missing">What is still not built</a></li>
+  <li><a href="#money">Real money: not a coding task</a></li>
+  <li><a href="#commands">Command list</a></li>
+</ol>
+</nav>
+
+<h2 id="state">1. Where the project stands</h2>
+<div class="scroll">
+<table>
+<tr><th>Part</th><th>State</th><th>What is real and what is fake</th></tr>
+<tr><td>Accounts and login</td><td>Works</td><td>Real. Email and password, Google and GitHub were signed in by hand on your computer. Facebook gave you an error and has not been fixed.</td></tr>
+<tr><td>Deals for all 11 product types</td><td>Works</td><td>Real agreements and checklists. 99 test cases pass (11 types × 3 service modes × 3 outcomes).</td></tr>
+<tr><td>Money</td><td>Works</td><td><strong>Fake.</strong> A pretend payment provider. No real taka can move, by design.</td></tr>
+<tr><td>Secret vault</td><td>Works on your computer</td><td>Real encryption, using a chat server (Matrix) running in Docker on your Mac. Not online anywhere.</td></tr>
+<tr><td>"Independent" checks (registrar, supplier, issuer…)</td><td>Works</td><td><strong>Fake.</strong> A person in the deal types what the pretend provider says. Good for a demo, a hole in anything real.</td></tr>
+<tr><td>Disputes, human review, appeals</td><td>Works</td><td>Real logic. Reviewers are whoever you give the role to.</td></tr>
+<tr><td>Deal chat with AI summary</td><td>Works</td><td>The AI is a <strong>stand-in</strong> that only repeats the record. Claude has never been called.</td></tr>
+<tr><td>Seller lookup</td><td>Works</td><td><strong>Sample data only:</strong> 12 invented posts about one invented shop. Real search code exists but has never run.</td></tr>
+<tr><td>Community reports and moderation</td><td>Works</td><td>Real logic, text only (no screenshots).</td></tr>
+<tr><td>Notices</td><td>Works</td><td>Inside the app only. No email, no SMS.</td></tr>
+<tr><td>Online / staging</td><td>Does not exist</td><td>Everything runs only on your computer. A container image builds, but was never deployed.</td></tr>
+</table>
+</div>
+<p>Checks at the last merge: 167 unit tests, 265 database tests, 6 browser tests, all passing. The database tests ran on a local test database, and GitHub runs them again on every pull request.</p>
+
+<h2 id="see">2. See it running (10 minutes, no accounts needed)</h2>
+<p>This uses a separate practice area of the database called the lab, so it cannot touch your other data.</p>
+<ol>
+  <li>Open the Terminal app and go to the project:
+<pre><code>cd ~/Binimoy</code></pre></li>
+  <li>Make sure Docker Desktop is open (the whale icon in the menu bar). The vault needs it.</li>
+  <li>Create the practice data. This prints four email addresses and one password:
+<pre><code>DB_SCHEMA=lp_lab pnpm demo:reset</code></pre>
+  <small>If a safety prompt asks you to confirm, say yes. It only rebuilds the <code>lp_lab</code> practice area and refuses to run on anything else.</small></li>
+  <li>Start the app on the practice area:
+<pre><code>DB_SCHEMA=lp_lab pnpm dev</code></pre></li>
+  <li>Open <a href="http://localhost:3000/login">http://localhost:3000/login</a>. Sign in as the <strong>buyer</strong> address in one browser and the <strong>seller</strong> address in a private window. Password: <code>binimoy lab 2026</code>.</li>
+  <li>Open "আমার ডিল". You will find three deals:
+    <ul>
+      <li><strong>Lab 1</strong>: a license deal, agreed, waiting for the buyer to pay (fake).</li>
+      <li><strong>Lab 2</strong>: a game top-up where the pretend supplier says it sent to the wrong player. Use the "পরীক্ষাগার" panel on the deal page to change what the supplier says and watch the checklist change.</li>
+      <li><strong>Lab 3</strong>: a design job in two milestones.</li>
+    </ul>
+  </li>
+  <li>Also try <code>/research</code> (type <code>Tech Bazar BD</code>), <code>/community</code>, and as the moderator account <code>/moderation</code>.</li>
+</ol>
+<div class="warn"><strong>Not tested:</strong> the lab accounts were created by a script. Nobody has signed in with them in a browser yet. If sign-in fails, tell me and I will fix it. You can always create fresh accounts with the "নতুন অ্যাকাউন্ট" form instead.</div>
+
+<h2 id="order">3. Your tasks, in order</h2>
+<div class="scroll">
+<table>
+<tr><th></th><th>Task</th><th>Why it matters</th><th>Your time</th><th>Cost</th></tr>
+<tr><td>A</td><td>Get a search key</td><td>Without it the seller lookup only shows invented posts</td><td>15 min</td><td>Has a free tier; check the current price page</td></tr>
+<tr><td>B</td><td>Get an Anthropic key and make two decisions</td><td>Without it the AI is a stand-in</td><td>20 min</td><td>Pay per use; not measured yet</td></tr>
+<tr><td>C</td><td>Choose an email (and SMS) service</td><td>Password reset and login codes cannot reach anyone</td><td>30 min</td><td>Email has free tiers; SMS costs per message</td></tr>
+<tr><td>D</td><td>Choose where to host</td><td>Nobody but you can open the app</td><td>1 to 2 hours with me</td><td>Monthly server fee</td></tr>
+<tr><td>E</td><td>Fix Facebook login; make login apps for the real address</td><td>Facebook errors; Google is in "testing" mode</td><td>30 min</td><td>Free</td></tr>
+<tr><td>F</td><td>Give staff roles to real people</td><td>No reviewers or moderators exist</td><td>5 min</td><td>Free</td></tr>
+<tr><td>G</td><td>Get someone else to check the work</td><td>Rule of the spec: the builder cannot verify itself</td><td>Depends</td><td>Depends</td></tr>
+<tr><td>H</td><td>Small clean-up on your Mac</td><td>Old containers and a stale worker</td><td>5 min</td><td>Free</td></tr>
+</table>
+</div>
+<p>A, B and C are independent; do them in any order. D needs C if you want password reset to work online. For each one, when you have the key, <strong>do not paste it into chat.</strong> Put it in the <code>.env</code> file as shown, then tell me "done".</p>
+<p><small>The <code>.env</code> file is hidden. In Finder press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>.</kbd> to show hidden files, or in VS Code open it from the file list.</small></p>
+
+<h2 id="search">4. Task A: real web search</h2>
+<div class="task">
+<span class="tag soon">do soon</span><span class="tag">15 minutes</span>
+<h3>What it is</h3>
+<p>A search service finds public posts that mention a shop's name. The code for one service, <strong>Tavily</strong>, is already written. It has only been tested against a pretend reply, never the real service.</p>
+<h4>Way 1 (ready now): Tavily</h4>
+<ol>
+  <li>Go to <a href="https://tavily.com">tavily.com</a>, create an account, and copy your API key (it starts with <code>tvly-</code>).</li>
+  <li>Look at their pricing page for the current free allowance. One seller lookup uses <strong>12 searches</strong> (12 credits at the "basic" depth).</li>
+  <li>In <code>.env</code> set these two lines:
+<pre><code>RESEARCH_MODE=live
+SEARCH_API_KEY=tvly-your-key-here</code></pre></li>
+  <li>Restart the app (<kbd>Ctrl</kbd>+<kbd>C</kbd>, then <code>pnpm dev</code>).</li>
+  <li>Open <code>/research</code>. The page should say "আসল ওয়েব সার্চ চালু". Search for a real page name.</li>
+  <li>Tell me what you saw. I expect to fix things after the first real run.</li>
+</ol>
+<h4>Way 2: another service (Exa, Brave Search, Google Programmable Search)</h4>
+<p>Possible, but I have to write and test a new adapter for it first. Tell me which one and give me a key the same way.</p>
+<h4>What to expect, honestly</h4>
+<ul>
+  <li>Facebook posts in private groups or behind a login will show as "link only". The app does not and will not go around login walls.</li>
+  <li>In live mode the cards will <strong>not</strong> say "complaint" or "good experience". The app cannot tell who wrote a page, and the simple word-matching sorter is too weak for real posts (see section 9). That needs the AI key from Task B and more work from me.</li>
+  <li>Before this is opened to other people, the server needs a firewall rule that blocks outgoing requests to private addresses. I will set that up with the hosting in Task D.</li>
+</ul>
+</div>
+
+<h2 id="ai">5. Task B: real AI</h2>
+<div class="task">
+<span class="tag soon">do soon</span><span class="tag">20 minutes</span>
+<h3>What it is</h3>
+<p>The deal page has a "summary" that should come from Claude. Today it comes from a stand-in that just restates the record. The Claude code is written but has never been run.</p>
+<h4>Steps</h4>
+<ol>
+  <li>Go to <a href="https://console.anthropic.com">console.anthropic.com</a>, sign in, add a payment method, and create an API key.</li>
+  <li>Set a monthly spending limit in the console. Start small. Nobody has measured what one summary costs.</li>
+  <li>In <code>.env</code> add the key, but <strong>leave the mode on fixture for now</strong>:
+<pre><code>MODEL_API_KEY=sk-ant-your-key-here
+AI_MODE=fixture</code></pre></li>
+  <li>Tell me "the Anthropic key is in .env". I will then run one real summary on a test deal, check the result, measure the cost, and report back before anything is switched on.</li>
+</ol>
+<h4>Two decisions I need from you</h4>
+<ol>
+  <li><strong>May deal messages be sent to Anthropic?</strong> Both buyer and seller must agree to this in the consent text, by name. Today the consent text says no AI provider is used. If you say yes, I will write a new consent version that names Anthropic, and everyone must accept it again before AI reads their chat.</li>
+  <li><strong>If Claude declines or is cut off, may a second model answer instead?</strong>
+    <ul>
+      <li><em>No (how it is now):</em> the deal simply continues without an AI summary. Simpler, and the consent text names one company.</li>
+      <li><em>Yes:</em> fewer missing summaries, but the consent text must name the fallback too.</li>
+    </ul>
+    My recommendation is <strong>no</strong> for now.</li>
+</ol>
+<h4>What the AI will never do, whichever you choose</h4>
+<p>It cannot move money, cannot read the vault, cannot decide a dispute, and anything it writes that names someone a scammer is rejected before it is shown. Those rules are tested.</p>
+</div>
+
+<h2 id="mail">6. Task C: email and SMS</h2>
+<div class="task">
+<span class="tag must">needed before anyone else uses it</span><span class="tag">30 minutes</span>
+<h3>What it is</h3>
+<p>Password reset links, "magic" login links and one-time codes are written to a test page (<code>/dev/messages</code>) instead of being sent. That page only exists on your own computer. Online, a person who forgets their password is stuck.</p>
+<h4>Email: pick one</h4>
+<div class="scroll">
+<table>
+<tr><th>Way</th><th>Good for</th><th>What you do</th></tr>
+<tr><td><strong>Resend</strong></td><td>Simplest to start</td><td>Create an account, verify your domain (they show DNS records to add), create an API key</td></tr>
+<tr><td><strong>Postmark</strong></td><td>Very reliable delivery of login emails</td><td>Same: account, verify domain, server token</td></tr>
+<tr><td><strong>Amazon SES</strong></td><td>Cheapest at volume</td><td>More setup; you must request to leave their "sandbox"</td></tr>
+</table>
+</div>
+<p>All three need <strong>a domain you own</strong> (for example <code>binimoy.app</code>) so mail comes from <code>no-reply@your-domain</code>. If you do not have one yet, buy it first; you need it for Task D too.</p>
+<h4>SMS (only if you want phone login)</h4>
+<p>Sending codes to Bangladeshi numbers usually needs a local SMS gateway or an international one such as Twilio. Local gateways often require business papers and a registered sender name. If this is slow, <strong>skip SMS</strong>: tell me to switch off phone login and keep email and Google. That is my recommendation for the first private release.</p>
+<h4>Then</h4>
+<ol>
+  <li>Tell me which service you chose.</li>
+  <li>I will write the sending code and tell you the exact names of the lines to add to <code>.env</code>.</li>
+  <li>You add the key; I send a test email to your address.</li>
+</ol>
+</div>
+
+<h2 id="host">7. Task D: put it online privately</h2>
+<div class="task">
+<span class="tag must">needed before anyone else uses it</span><span class="tag">1 to 2 hours, with me</span>
+<h3>What has to run</h3>
+<ol>
+  <li><strong>The website</strong> (one container).</li>
+  <li><strong>The worker</strong> (same container image, different start command). It sends payouts, runs timers and makes notices. Without it deals get stuck.</li>
+  <li><strong>The database</strong>: you already have it on Supabase. Nothing to do.</li>
+  <li><strong>The vault server</strong> (Matrix "Synapse"). It needs a small always-on machine and its own address such as <code>vault.your-domain</code>. Without it, deals that hand over a secret cannot be delivered.</li>
+</ol>
+<h4>Way 1 (my recommendation): one small server that runs Docker</h4>
+<p>One machine from a provider such as Hetzner, DigitalOcean or Vultr runs the website, the worker and the vault. About 2 GB of memory is a sensible start; check current prices on their sites.</p>
+<ol>
+  <li>Buy a domain if you do not have one.</li>
+  <li>Create the server (choose Ubuntu, the smallest size with 2 GB memory, a region near Bangladesh such as Singapore).</li>
+  <li>Give me access the safe way: add an SSH key, do not send a password in chat. I will tell you how at that point.</li>
+  <li>In your domain's DNS add two "A" records pointing to the server's address: one for the app, one for the vault.</li>
+  <li>I install Docker, the three services, HTTPS certificates and the firewall rules, then run the checks and report.</li>
+</ol>
+<h4>Way 2: a hosting platform (Railway, Render, Fly.io)</h4>
+<p>Less server care, usually higher monthly cost. You create two services from the same GitHub repository: the website and the worker. The vault server still needs somewhere to live; these platforms can run it, but it needs a disk that is kept.</p>
+<h4>Way 3: Vercel for the website</h4>
+<p>I do not recommend it here. Vercel cannot run the always-on worker or the vault, so you would still need a server for those.</p>
+<h4>Settings the online copy needs</h4>
+<p>These go into the host's "environment variables" screen, never into GitHub.</p>
+<div class="scroll">
+<table>
+<tr><th>Name</th><th>Value</th></tr>
+<tr><td><code>APP_ENV</code></td><td><code>staging</code></td></tr>
+<tr><td><code>APP_URL</code></td><td><code>https://your-app-address</code> (no slash at the end)</td></tr>
+<tr><td><code>DATABASE_URL</code></td><td>The Supabase "session pooler" address you already use</td></tr>
+<tr><td><code>AUTH_SECRET</code></td><td>A <strong>new</strong> random value: run <code>openssl rand -base64 32</code></td></tr>
+<tr><td><code>PAYMENT_MODE</code>, <code>VERIFIER_MODE</code></td><td><code>mock</code> (the app refuses anything else)</td></tr>
+<tr><td><code>RESEARCH_MODE</code>, <code>AI_MODE</code></td><td><code>fixture</code> until Tasks A and B are done and tested</td></tr>
+<tr><td><code>MATRIX_*</code> (four values)</td><td>I create these when the vault server is set up</td></tr>
+<tr><td>Login keys</td><td>From Task E</td></tr>
+</table>
+</div>
+<div class="warn"><strong>Use a separate database for online testing if you can.</strong> Today the online copy would share the same Supabase database as your computer. A second free Supabase project for staging is cleaner; tell me if you want that and I will set it up the way I did the first one.</div>
+</div>
+
+<h2 id="people">8. Tasks E to H</h2>
+
+<div class="task">
+<span class="tag soon">E</span><span class="tag">30 minutes</span>
+<h3>Logins: fix Facebook, and make apps for the online address</h3>
+<p>The Google, Facebook and GitHub login apps you made work only for <code>http://localhost:3000</code>. The online copy needs its own, with this return address in each:</p>
+<pre><code>https://your-app-address/api/auth/callback/google
+https://your-app-address/api/auth/callback/facebook
+https://your-app-address/api/auth/callback/github</code></pre>
+<ul>
+  <li><strong>Google</strong> (<a href="https://console.cloud.google.com/apis/credentials">console.cloud.google.com → Credentials</a>): the consent screen is in "Testing", so only test users you list can sign in. To let anyone sign in, press "Publish app" on the OAuth consent screen. Then create a new "Web application" client with the return address above.</li>
+  <li><strong>GitHub</strong> (<a href="https://github.com/settings/developers">github.com → Settings → Developer settings → OAuth Apps</a>): "New OAuth App", homepage is your app address, callback is the GitHub line above.</li>
+  <li><strong>Facebook</strong> (<a href="https://developers.facebook.com/apps">developers.facebook.com → My Apps</a>): this is the one that gave you an error. The usual causes are: the app is still in "Development" mode (only you can log in), the return address is not listed under Facebook Login → Settings → "Valid OAuth Redirect URIs", or the "email" permission is not added. <strong>Send me the exact words of the error</strong> and I will tell you which. If it stays painful, the simplest way is to switch Facebook login off; tell me and I will.</li>
+</ul>
+<p>Put each ID and secret into the host's settings as <code>GOOGLE_CLIENT_ID</code>, <code>GOOGLE_CLIENT_SECRET</code>, and the same pattern for <code>FACEBOOK_</code> and <code>GITHUB_</code>. A login button appears only when both of its values are set.</p>
+</div>
+
+<div class="task">
+<span class="tag">F</span><span class="tag">5 minutes</span>
+<h3>Give staff roles to real people</h3>
+<p>Nobody can make themselves a reviewer or moderator inside the app. You grant it from the terminal, after the person has created an account:</p>
+<pre><code>pnpm staff grant person@example.com reviewer "handles disputes"
+pnpm staff grant person@example.com moderator "checks community reports"
+pnpm staff list person@example.com
+pnpm staff revoke person@example.com reviewer</code></pre>
+<ul>
+  <li>A <strong>reviewer</strong> decides disputes at <code>/review</code>. A reviewer cannot take a case on a deal they are part of.</li>
+  <li>A <strong>moderator</strong> decides whether community reports are published, at <code>/moderation</code>.</li>
+  <li>You need <strong>at least two reviewers and two moderators</strong>, because an appeal must go to a different person.</li>
+</ul>
+<p>Emergency switches, also from the terminal:</p>
+<pre><code>pnpm ops status
+pnpm ops pause funding "reason"      # also: settlement, research, ai
+pnpm ops resume funding "reason"</code></pre>
+</div>
+
+<div class="task">
+<span class="tag must">G</span>
+<h3>Get someone else to check the work</h3>
+<p>The specification says the one who built a thing cannot be the one who verifies it. Everything is marked "in progress", and an automatic check now fails if anything is marked verified by the builder. The ways to do this:</p>
+<ul>
+  <li><strong>A developer you trust</strong> reads the handoff files in <code>docs/handoffs/</code>, runs the commands in section 11, and tries to break it.</li>
+  <li><strong>A separate AI review session</strong> on the same branch, started by you, that has not seen this conversation. In Claude Code you can run <code>/code-review ultra</code>; it is billed and only you can start it.</li>
+  <li><strong>A paid security review</strong> before any real users, focused on the vault, permissions and the money ledger.</li>
+</ul>
+</div>
+
+<div class="task">
+<span class="tag">H</span><span class="tag">5 minutes</span>
+<h3>Small clean-up on your Mac</h3>
+<ul>
+  <li>If <code>pnpm dev</code> has been running since before today, stop it (<kbd>Ctrl</kbd>+<kbd>C</kbd>) and start it again so it runs the new code.</li>
+  <li>I started one extra test database container to make tests fast. It is safe to remove, or keep it for faster tests:
+<pre><code>docker rm -f binimoy-test-pg</code></pre></li>
+  <li>An older container, <code>binimoy-postgres-1</code>, is broken ("exited") and unused since you moved to Supabase. To remove it: <code>docker rm binimoy-postgres-1</code>.</li>
+  <li>I did not touch your other project's containers (<code>cholo-…</code>) or its Supabase project.</li>
+</ul>
+</div>
+
+<h2 id="missing">9. What is still not built</h2>
+<p>These are in the specification and do not exist yet. I can keep building them; most need no input from you. Say which matter most.</p>
+<div class="scroll">
+<table>
+<tr><th>Missing</th><th>What that means for a user</th><th>Needs you?</th></tr>
+<tr><td>AI that reads real posts</td><td>The current word-matching sorter got <strong>9 of 41</strong> held-out test posts right and showed 4 complaints as good reviews. It must not be trusted on real posts.</td><td>Task B</td></tr>
+<tr><td>Real provider checks</td><td>Every "independent" check is typed in by a person in the deal</td><td>A real partner (registrar, game publisher…) would have to offer an API</td></tr>
+<tr><td>Email / SMS notices</td><td>People only see notices if they open the app</td><td>Task C</td></tr>
+<tr><td>Uploading screenshots and receipts as evidence</td><td>Disputes and community reports are text only</td><td>No</td></tr>
+<tr><td>Vault on a second device, key backup</td><td>If a buyer loses their browser data, old secrets cannot be opened</td><td>No</td></tr>
+<tr><td>AI help during a deal</td><td>No guided "why can't I log in" help, no draft checking</td><td>Task B</td></tr>
+<tr><td>Live updates</td><td>You must reload the page to see changes</td><td>No</td></tr>
+<tr><td>Phone-size and screen-reader check</td><td>Pages are plain and usable but nobody has tested them on a small phone or with a screen reader</td><td>Helpful if you test on your phone</td></tr>
+<tr><td>Proper visual design</td><td>The app is unstyled on purpose so far</td><td>Your taste: colours, logo</td></tr>
+<tr><td>Fees</td><td>The platform fee is always zero</td><td>Decide the fee rule</td></tr>
+<tr><td>Deleting old data, backups, restore practice</td><td>Nothing is cleaned up or rehearsed</td><td>No</td></tr>
+<tr><td>Load test</td><td>Unknown how many users it can take</td><td>No (after Task D)</td></tr>
+<tr><td>Shop can appeal a published report; proof that a replier owns the page</td><td>Replies are labelled "not checked who wrote this"</td><td>No</td></tr>
+<tr><td>Later ideas (watchlists, compare two sellers, mobile apps, screen sharing)</td><td>Not started</td><td>Decide if you want them</td></tr>
+</table>
+</div>
+<p>The detailed lists, with what was and was not tested, are in <code>docs/handoffs/LP-012.md</code>, <code>LP-013.md</code>, <code>LP-021.md</code> and <code>LP-018-022.md</code>.</p>
+
+<h2 id="money">10. Real money: not a coding task</h2>
+<div class="stop">
+<strong>The app cannot move real money and I will not make it do so.</strong> It refuses to start with any payment mode other than "mock". Do not describe it to anyone as escrow or as protecting their payment.
+</div>
+<p>Before real money is even possible, these have to exist. None of them is something I can do for you:</p>
+<ul>
+  <li>Advice from a lawyer in Bangladesh on whether a company may hold buyers' money for sellers, and under what licence.</li>
+  <li>A payment partner (a bank or a licensed payment company) willing to hold the money and pay out on instruction.</li>
+  <li>Rules for refunds, chargebacks, fees and tax.</li>
+  <li>People to answer support and decide disputes every day.</li>
+</ul>
+<p>When you have a partner and their technical documents, I can write the connection to them and test it in their sandbox.</p>
+
+<h2 id="commands">11. Command list</h2>
+<p>Run all of these inside the project folder (<code>cd ~/Binimoy</code>).</p>
+<div class="scroll">
+<table>
+<tr><th>Command</th><th>What it does</th></tr>
+<tr><td><code>pnpm dev</code></td><td>Starts the website and the worker on your computer</td></tr>
+<tr><td><code>pnpm matrix:local</code></td><td>Starts the vault server in Docker (needed for deals with secrets)</td></tr>
+<tr><td><code>pnpm run setup</code></td><td>Brings the database tables up to date</td></tr>
+<tr><td><code>DB_SCHEMA=lp_lab pnpm demo:reset</code></td><td>Rebuilds the practice area with sample people and deals</td></tr>
+<tr><td><code>DB_SCHEMA=lp_lab pnpm dev</code></td><td>Runs the app on the practice area</td></tr>
+<tr><td><code>pnpm staff grant &lt;email&gt; &lt;role&gt; "&lt;reason&gt;"</code></td><td>Makes someone a reviewer or moderator</td></tr>
+<tr><td><code>pnpm ops status</code></td><td>Shows pauses, stuck transfers and backlog</td></tr>
+<tr><td><code>pnpm lint</code> · <code>pnpm typecheck</code> · <code>pnpm test:unit</code></td><td>Quick checks (seconds)</td></tr>
+<tr><td><code>pnpm test:integration</code></td><td>Database tests. About 10 minutes on Supabase</td></tr>
+<tr><td><code>pnpm test:e2e</code></td><td>Browser tests. About 5 minutes; needs Docker running</td></tr>
+<tr><td><code>pnpm eval:ai</code></td><td>Prints how well the post sorter does on held-out examples</td></tr>
+<tr><td><code>docker build -t binimoy .</code></td><td>Builds the container image for hosting</td></tr>
+</table>
+</div>
+
+<div class="note">
+<strong>The shortest path to something you can show another person:</strong> do Task C (pick an email service) and Task D (a small server and a domain), then Task F (two reviewers). Tasks A and B make it smarter but are not needed for a first private demo.
+</div>
+
+</main>
+</body>
+</html>
