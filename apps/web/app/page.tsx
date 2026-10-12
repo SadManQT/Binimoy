@@ -13,7 +13,7 @@ export default function Home() {
       </p>
       <p>
         <a href="/login">লগইন</a> · <a href="/account">অ্যাকাউন্ট</a> ·{" "}
-        <a href="/deals">আমার ডিল</a>
+        <a href="/deals">আমার ডিল</a> · <a href="/research">বিক্রেতা খোঁজ</a>
       </p>
       <dl>
         <dt>পরিবেশ</dt>
