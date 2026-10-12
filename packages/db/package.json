@@ -8,7 +8,9 @@
     "./testing": "./src/testing.ts",
     "./commands": "./src/commands.ts",
     "./access": "./src/access.ts",
-    "./agreements": "./src/agreements.ts"
+    "./agreements": "./src/agreements.ts",
+    "./ledger": "./src/ledger.ts",
+    "./outbox": "./src/outbox.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

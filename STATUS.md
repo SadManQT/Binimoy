@@ -2,11 +2,11 @@
 
 - Product name: Binimoy (ADR-008)
 - Completion level: D0. Nothing at D1 or above is verified.
-- Active branch: `lp-004-agreements` (stacked on PRs #1 to #3; none merged)
-- Active tasks: LP-001 to LP-004 (all IN_REVIEW). Handoffs in `docs/handoffs/`
+- Active branch: `chunk-money`. `main` holds LP-001 to LP-004 (merged through PR #4).
+- Active task: LP-005 (IN_REVIEW). LP-001 to LP-004 are MERGED. Handoffs in `docs/handoffs/`
 - Verified milestones: none
-- Blockers: none for local work. Staging needs an email and SMS sender and its own OAuth apps (see `docs/handoffs/LP-003.md`).
-- Next task: LP-005 (LP-006, LP-007 and LP-012 can run alongside it)
+- Blockers: LP-007 (secret vault) needs a Matrix homeserver to run against; where it runs is a founder decision. Staging needs an email and SMS sender and its own OAuth apps.
+- Next task: LP-006, then LP-007 once a homeserver is available
 
 ## Scripts
 

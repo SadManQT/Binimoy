@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { formatBdt, loadConfig } from "@lp/contracts";
 import { getDealView } from "@lp/db/agreements";
+import { dealBalances, getFunding } from "@lp/db/ledger";
 import { getTemplate } from "@lp/templates";
 import { notFound } from "next/navigation";
 import {
@@ -13,6 +14,7 @@ import {
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
 import { agreementAction, createInviteAction } from "../actions";
+import { FundingSection } from "../funding-section";
 import { TermsFields } from "../terms-fields";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +34,8 @@ export default async function DealPage({
   const deal = await getDealView(pool(), user.id, id);
   if (!deal) notFound();
 
+  const funding = await getFunding(pool(), deal.dealId);
+  const balances = await dealBalances(pool(), deal.dealId);
   const { agreement } = deal;
   const { terms } = agreement;
   const template = getTemplate(terms.templateId, terms.templateVersion);
@@ -210,10 +214,13 @@ export default async function DealPage({
         )}
 
         {agreement.state === "ACCEPTED" && (
-          <p>
-            দুই পক্ষ সম্মত। পরের ধাপ ক্রেতার পরীক্ষামূলক টাকা জমা, যা এই সংস্করণে এখনো তৈরি
-            হয়নি।
-          </p>
+          <FundingSection
+            dealId={deal.dealId}
+            isBuyer={deal.myRole === "buyer"}
+            funding={funding}
+            balances={balances}
+            idempotencyKey={`ui-${randomUUID()}`}
+          />
         )}
 
         {!open && agreement.state !== "ACCEPTED" && <p>এই চুক্তি আর সক্রিয় নয়।</p>}
@@ -242,7 +249,9 @@ export default async function DealPage({
           </details>
         )}
 
-        {(open || agreement.state === "ACCEPTED") && (
+        {(open ||
+          (agreement.state === "ACCEPTED" &&
+            (!funding || funding.state === "CREATED"))) && (
           <details>
             <summary>ডিল বাতিল করুন</summary>
             <p>

@@ -1,6 +1,8 @@
 import { hostname } from "node:os";
 import { loadConfig } from "@lp/contracts";
 import { beat, createPool } from "@lp/db";
+import { expireInvoices, sweepPaymentEvents } from "@lp/db/ledger";
+import { claimOutbox, completeOutbox } from "@lp/db/outbox";
 
 const config = loadConfig(process.env);
 const pool = createPool(config.DATABASE_URL);
@@ -8,10 +10,46 @@ const workerId = `${hostname()}:${process.pid}`;
 const log = (level: string, msg: string, extra = {}) =>
   console.log(JSON.stringify({ level, msg, workerId, ...extra }));
 
-const tick = () =>
-  beat(pool, workerId).catch((e) =>
-    log("error", "heartbeat_failed", { error: String(e) }),
-  );
+// One failing job must not stop the others or the heartbeat.
+async function step(name: string, job: () => Promise<number>) {
+  try {
+    const count = await job();
+    if (count > 0) log("info", name, { count });
+  } catch (error) {
+    log("error", `${name}_failed`, { error: String(error) });
+  }
+}
+
+// ponytail: no event has a handler yet (notifications arrive with LP-018), so
+// entries are acknowledged under their lease and nothing else happens.
+async function drainOutbox(): Promise<number> {
+  const claims = await claimOutbox(pool, workerId, 50, 60);
+  let done = 0;
+  for (const claim of claims) {
+    if (await completeOutbox(pool, claim)) done++;
+  }
+  return done;
+}
+
+let running = false;
+async function tick() {
+  // A slow tick must not overlap the next one.
+  if (running) return;
+  running = true;
+  try {
+    await step("heartbeat", async () => {
+      await beat(pool, workerId);
+      return 0;
+    });
+    await step("invoices_expired", () => expireInvoices(pool, config.APP_ENV));
+    await step("payment_events_swept", () =>
+      sweepPaymentEvents(pool, config.APP_ENV),
+    );
+    await step("outbox_dispatched", drainOutbox);
+  } finally {
+    running = false;
+  }
+}
 
 await tick();
 log("info", "worker_started", {

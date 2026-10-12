@@ -13,6 +13,7 @@ import {
   type CommandResult,
   createAggregate,
   executeCommand,
+  systemTransition,
 } from "./commands";
 import type { Pool } from "./index";
 
@@ -340,9 +341,27 @@ const HOOKS = {
     };
   },
 
-  // ponytail: no "only while unfunded" guard yet, because nothing can be
-  // funded. LP-005 adds it together with the funding invoice.
-  WithdrawAgreement: async (client, { aggregate }) => {
+  // D.3: either party may withdraw while the deal is unfunded. Once a payment
+  // has started, money may be in flight, so withdrawal is no longer possible.
+  WithdrawAgreement: async (client, { aggregate, commandId }) => {
+    const invoices = await client.query(
+      `select f.invoice_id, a.state from funding_invoice f
+       join aggregate a on a.id = f.invoice_id
+       where f.deal_id = $1 and f.active`,
+      [aggregate.dealId],
+    );
+    for (const invoice of invoices.rows) {
+      if (invoice.state !== "CREATED") return { error: "ALREADY_FUNDED" };
+      await systemTransition(client, {
+        aggregateId: invoice.invoice_id,
+        command: "CancelInvoice",
+        causationId: commandId,
+      });
+      await client.query(
+        "update funding_invoice set active = false where invoice_id = $1",
+        [invoice.invoice_id],
+      );
+    }
     await client.query(
       "update deal_invite set revoked_at = now() where deal_id = $1 and accepted_at is null and revoked_at is null",
       [aggregate.dealId],

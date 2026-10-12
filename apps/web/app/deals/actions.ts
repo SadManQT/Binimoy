@@ -8,8 +8,17 @@ import {
   agreementCommand,
   createDeal,
   createInvite,
+  getDealView,
 } from "@lp/db/agreements";
+import {
+  createInvoice,
+  getFunding,
+  ingestPaymentEvent,
+  signMockEvent,
+  startFunding,
+} from "@lp/db/ledger";
 import { redirect } from "next/navigation";
+import { mockWebhookSecret } from "../../lib/mock-payment";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
 
@@ -105,6 +114,81 @@ export async function agreementAction(form: FormData) {
         expectedAggregateVersion: Number(text(form, "expectedVersion")),
         payload,
       },
+    },
+  );
+  redirect(
+    result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
+  );
+}
+
+export async function createInvoiceAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  const result = await createInvoice(pool(), user.id, dealId);
+  redirect(
+    result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
+  );
+}
+
+export async function startFundingAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  const config = loadConfig(process.env);
+  const result = await startFunding(
+    pool(),
+    config.APP_ENV,
+    {
+      userId: user.id,
+      invoiceId: text(form, "invoiceId"),
+      envelope: {
+        commandId: randomUUID(),
+        idempotencyKey: text(form, "idempotencyKey"),
+        dealId,
+        expectedAggregateVersion: Number(text(form, "expectedVersion")),
+        payload: {},
+      },
+    },
+    config.PAYMENT_MODE,
+  );
+  redirect(
+    result.ok ? `/deals/${dealId}` : `/deals/${dealId}?error=${result.error}`,
+  );
+}
+
+// Plays the synthetic provider: the buyer picks what the "provider" reports,
+// and a signed event goes through the same path a real callback would take.
+// It exists only because PAYMENT_MODE can only be mock.
+export async function mockProviderAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  const funding = await getFunding(pool(), dealId);
+  const view = await getDealView(pool(), user.id, dealId);
+  if (!funding?.paymentRef || view?.myRole !== "buyer") {
+    redirect(`/deals/${dealId}?error=NOT_AUTHORIZED`);
+  }
+  const expected = BigInt(funding.amountMinor);
+  const scenario = text(form, "scenario");
+  const amount =
+    scenario === "under"
+      ? expected - 10000n
+      : scenario === "over"
+        ? expected + 10000n
+        : expected;
+  const rawBody = JSON.stringify({
+    eventId: `mockevt_${randomUUID()}`,
+    type: "payment.succeeded",
+    paymentRef: funding.paymentRef,
+    amountMinor: (amount > 0n ? amount : 1n).toString(),
+    currency: funding.currency,
+  });
+  const secret = mockWebhookSecret();
+  const result = await ingestPaymentEvent(
+    pool(),
+    loadConfig(process.env).APP_ENV,
+    {
+      rawBody,
+      signature: signMockEvent(rawBody, secret),
+      secret,
     },
   );
   redirect(

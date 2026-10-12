@@ -34,8 +34,21 @@ test("two concurrent migrators apply each migration exactly once", async () => {
     "0003_command_kernel.sql",
     "0004_auth_and_consent.sql",
     "0005_agreements.sql",
+    "0006_ledger.sql",
+    "0007_idle_transaction_timeout.sql",
   ]);
   expect(await migrate(pool)).toEqual([]);
+});
+
+// Read from the catalog, not from this session: pooled sessions opened before
+// the migration keep their old value until they are recycled.
+test("a transaction abandoned by a dead process is ended by the server", async () => {
+  const { rows } = await pool.query(
+    "select rolconfig from pg_roles where rolname = current_user",
+  );
+  expect(rows[0].rolconfig).toContain(
+    "idle_in_transaction_session_timeout=30s",
+  );
 });
 
 // On Supabase, a table without RLS is readable and writable through the Data
