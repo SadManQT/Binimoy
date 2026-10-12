@@ -15,8 +15,18 @@ export async function signUp(
   await form.locator('input[name="name"]').fill(name);
   await form.locator('input[name="email"]').fill(email);
   await form.locator('input[name="password"]').fill(PASSWORD);
-  await form.getByRole("button", { name: "নতুন অ্যাকাউন্ট" }).click();
-  await page.waitForURL("**/account");
+  // The auth server allows three sign-ups per ten seconds from one address,
+  // and back-to-back tests exceed that. Wait out the window and try again.
+  for (let attempt = 1; ; attempt += 1) {
+    await form.getByRole("button", { name: "নতুন অ্যাকাউন্ট" }).click();
+    try {
+      await page.waitForURL("**/account", { timeout: 20_000 });
+      break;
+    } catch (error) {
+      if (attempt === 3) throw error;
+      await page.waitForTimeout(11_000);
+    }
+  }
   return { page, email };
 }
 

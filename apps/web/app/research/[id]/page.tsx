@@ -1,4 +1,5 @@
 import { getCollection, type ReportCard } from "@lp/adapters";
+import { listPublished } from "@lp/db/community";
 import { notFound } from "next/navigation";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
@@ -116,6 +117,7 @@ export default async function CollectionPage({
   });
   if (!view) notFound();
 
+  const community = await listPublished(pool(), view.subject);
   const confirmed = view.cards.filter((c) => c.subjectMatch === "exact");
   const possible = view.cards.filter((c) => c.subjectMatch === "ambiguous");
   const dates = confirmed
@@ -201,6 +203,31 @@ export default async function CollectionPage({
           </ul>
         </section>
       ) : null}
+
+      <section aria-labelledby="community" data-testid="community-reports">
+        <h2 id="community">বিনিময় ব্যবহারকারীদের জমা দেওয়া অভিজ্ঞতা</h2>
+        <p>
+          এগুলো ব্যবহারকারীর নিজের বক্তব্য। আমরা এগুলোর সত্যতা যাচাই করিনি, এবং এগুলো উপরের
+          গণনায় নেই।
+        </p>
+        {community.length === 0 ? (
+          <p>ঠিক এই নামে এখনো কোনো প্রকাশিত অভিজ্ঞতা নেই।</p>
+        ) : (
+          <ul>
+            {community.map((report) => (
+              <li key={report.id}>
+                <a href={`/community/${report.id}`}>
+                  {TYPE_TEXT[report.experienceType]} · প্রকাশ:{" "}
+                  {date(report.publishedAt)}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p>
+          <a href="/community">আপনার নিজের অভিজ্ঞতা জানান</a>
+        </p>
+      </section>
     </main>
   );
 }

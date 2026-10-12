@@ -1,6 +1,6 @@
 # ADR-007: Language model provider and how it is used
 
-- Status: ACCEPTED for deal assessment (2026-10-12). Search providers for research are decided with LP-012.
+- Status: ACCEPTED for deal assessment (2026-10-12). The search provider for research is still undecided: LP-012 built the `SearchProvider` seam and a fixture only.
 - Affects: LP-011, LP-022, FE-14
 
 ## Problem

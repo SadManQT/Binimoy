@@ -21,8 +21,8 @@ tasks:
   - {id: LP-009, title: "Settlement paths and reconciliation", status: IN_PROGRESS, owner: claude-code, branch: chunk-settlement, base_sha: main, depends_on: [LP-005, LP-008], evidence: [docs/handoffs/LP-008-009.md], blockers: []}
   - {id: LP-010, title: "Disputes, human review, appeals", status: MERGED, owner: claude-code, branch: chunk-review, base_sha: main, depends_on: [LP-006, LP-009], evidence: [docs/handoffs/LP-010.md], blockers: []}
   - {id: LP-011, title: "AI deal guidance and evidence assessment", status: IN_PROGRESS, owner: claude-code, branch: chunk-ai, base_sha: main, depends_on: [LP-006, LP-008, LP-010], evidence: [docs/handoffs/LP-011.md], blockers: []}
-  - {id: LP-012, title: "Research, subject resolution, sources", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-002, LP-003], evidence: [], blockers: []}
-  - {id: LP-013, title: "Community reporting/corrections", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-012], evidence: [], blockers: []}
+  - {id: LP-012, title: "Research, subject resolution, sources", status: IN_PROGRESS, owner: claude-code, branch: chunk-research, base_sha: main, depends_on: [LP-002, LP-003], evidence: [docs/handoffs/LP-012.md], blockers: ["no live search provider chosen or keyed"]}
+  - {id: LP-013, title: "Community reporting/corrections", status: IN_PROGRESS, owner: claude-code, branch: chunk-research, base_sha: main, depends_on: [LP-012], evidence: [docs/handoffs/LP-013.md], blockers: []}
   - {id: LP-014, title: "Integrated Bangla UX and Scenario Lab", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-009, LP-010, LP-011, LP-012, LP-013, LP-017, LP-018, LP-019, LP-020, LP-021, LP-022], evidence: [], blockers: []}
   - {id: LP-015, title: "CI/release hardening and private staging", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-014], evidence: [], blockers: []}
   - {id: LP-016, title: "P1/P2 extensions (FE-29 to FE-37)", status: TODO, owner: null, branch: null, base_sha: null, depends_on: [LP-014], evidence: [], blockers: []}
