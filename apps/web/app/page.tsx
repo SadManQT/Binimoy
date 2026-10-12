@@ -6,7 +6,7 @@ export default function Home() {
   const config = loadConfig(process.env);
   return (
     <main>
-      <h1>লেনদেন প্রহরী</h1>
+      <h1>বিনিময়</h1>
       <p>এটি একটি খালি পরীক্ষামূলক শেল। এখনো কোনো ফিচার চালু হয়নি।</p>
       <dl>
         <dt>পরিবেশ</dt>

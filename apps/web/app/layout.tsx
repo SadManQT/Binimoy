@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export const metadata = { title: "লেনদেন প্রহরী" };
+export const metadata = { title: "বিনিময়" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

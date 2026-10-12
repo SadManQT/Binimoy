@@ -1,4 +1,4 @@
-# Lenden Prohori engineering instructions
+# Binimoy engineering instructions
 Read docs/MASTER_SPEC.md, STATUS.md, TASKS.yaml, and relevant ADRs before editing.
 Confirm the working tree, assigned task, owner, base commit, and permitted paths.
 Preserve founder changes. Use one task branch/worktree; coordinate shared files.
