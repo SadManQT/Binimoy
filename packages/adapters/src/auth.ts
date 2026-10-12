@@ -40,10 +40,13 @@ export const facebookTempEmail = (profile: {
   id?: string;
   sub?: string;
   email?: string;
-}) =>
-  profile.email
-    ? {}
-    : { email: `${profile.id ?? profile.sub}@facebook.binimoy.invalid` };
+}) => {
+  const id = profile.id ?? profile.sub;
+  // Without an ID there is nothing unique to build from; sign-in then fails
+  // instead of merging strangers under one shared address.
+  if (profile.email || !id) return {};
+  return { email: `${id}@facebook.binimoy.invalid` };
+};
 
 export function createAuth(options: AuthOptions) {
   const { send } = options;
