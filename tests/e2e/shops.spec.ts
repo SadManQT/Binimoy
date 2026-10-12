@@ -61,6 +61,11 @@ test("a complaint about a shop reaches the directory, the shop's page and the al
   await row.getByRole("link", { name: shop }).click();
 
   // The shop's page: counts and the reviewer's own rating, never a verdict.
+  // One review is not enough for a trust signal, and the page says so.
+  await expect(visitor.getByTestId("trust-panel")).toContainText("ডেটা কম");
+  await expect(visitor.getByTestId("trust-panel")).toContainText(
+    "কেউ তদন্ত করেনি",
+  );
   const evidence = visitor.getByTestId("shop-evidence");
   await expect(evidence).toContainText("স্ক্যাম রিপোর্ট");
   await expect(visitor.getByTestId("not-a-verdict")).toContainText(

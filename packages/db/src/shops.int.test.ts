@@ -214,11 +214,17 @@ test("a shop profile shows what was published: counts, the reviewers' own rating
   for (const userId of [a, b, c, d, seller]) {
     expect(serialized).not.toContain(userId);
   }
+  // The trust signal is arithmetic on those numbers and says why.
+  expect(shop.trust).toMatchObject({ level: "mixed" });
+  expect(shop.trust.reasons).toEqual(
+    expect.arrayContaining(["UNRESOLVED_REPORTS", "REPORTS_RESOLVED"]),
+  );
+  // No field passes a verdict in words.
   const keys = serialized.match(/"[A-Za-z]+":/g) ?? [];
-  expect(keys.join(" ")).not.toMatch(/trust|score|verdict|safe|scam|risk/i);
+  expect(keys.join(" ")).not.toMatch(/verdict|safe|scam|fraud/i);
 });
 
-test("shops can be found by part of a name and by category, and are never ranked by rating", async () => {
+test("shops can be found by part of a name and by category, and sorted by recency, volume or trust signal", async () => {
   const author = await newUser(pool);
   const other = await newUser(pool);
   const moderator = await newUser(pool, "moderator");
@@ -251,6 +257,10 @@ test("shops can be found by part of a name and by category, and are never ranked
   expect(
     (await listShops(pool, { q: tag, sort: "most" })).map((s) => s.name),
   ).toEqual([games, cards]);
+  // With one or two reviews each, neither has enough for a signal.
+  for (const listed of await listShops(pool, { q: tag, sort: "trust" })) {
+    expect(listed.trust).toMatchObject({ level: "unknown", score: null });
+  }
   expect(Object.keys(SHOP_CATEGORIES)).toContain("gift_cards");
   const counts = await shopCategoryCounts(pool);
   expect(counts.gift_cards).toBeGreaterThanOrEqual(1);
@@ -362,4 +372,40 @@ test("alerts show published complaints as allegations, and moderators' own warni
     }),
   ).toEqual({ ok: true });
   expect(await notes()).toEqual([]);
+});
+
+test("a moderator is told when a report closely matches another report on the same shop", async () => {
+  const moderator = await newUser(pool, "moderator");
+  const name = shopName("Copy Shop");
+  const text =
+    "I paid for the top-up and nothing arrived, the seller stopped replying.";
+  await publish(await newUser(pool), moderator, name, {
+    experienceType: "negative",
+    publicText: text,
+  });
+  const copycat = await newUser(pool);
+  const copy = await draft(copycat, name, {
+    experienceType: "negative",
+    publicText: `${text.toUpperCase()}!!`,
+  });
+  const fresh = await draft(await newUser(pool), name, {
+    publicText: "Bought a gift card last month, code worked first time.",
+  });
+  if (!copy.ok || !fresh.ok) throw new Error("draft failed");
+  await submitReport(pool, {
+    userId: copycat,
+    reportId: copy.reportId,
+    expectedVersion: copy.version,
+  });
+  const { getReport } = await import("./community");
+  const seen = await getReport(pool, {
+    userId: moderator,
+    reportId: copy.reportId,
+  });
+  expect(seen?.similarity).toBeGreaterThan(0.9);
+  // The writer is never shown this, and a draft is not compared.
+  expect(
+    (await getReport(pool, { userId: copycat, reportId: copy.reportId }))
+      ?.similarity,
+  ).toBeUndefined();
 });

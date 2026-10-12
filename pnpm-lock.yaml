@@ -199,6 +199,9 @@ importers:
       '@lp/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@lp/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@lp/templates':
         specifier: workspace:*
         version: link:../../packages/templates

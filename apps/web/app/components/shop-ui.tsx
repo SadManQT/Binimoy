@@ -1,5 +1,11 @@
 import type { ShopSummary } from "@lp/db/shops";
-import { Star } from "@phosphor-icons/react/dist/ssr";
+import {
+  Question,
+  ShieldCheck,
+  ShieldWarning,
+  Star,
+  Warning,
+} from "@phosphor-icons/react/dist/ssr";
 import { fill, type I18n } from "../../lib/i18n";
 
 // A reviewer's own rating. The stars are decoration; the number carries it.
@@ -73,5 +79,36 @@ export function TypeBar({ shop, i18n }: { shop: ShopSummary; i18n: I18n }) {
         ))}
       </ul>
     </div>
+  );
+}
+
+const TRUST_ICON = {
+  strong: ShieldCheck,
+  mixed: ShieldWarning,
+  caution: Warning,
+  unknown: Question,
+};
+const TRUST_TONE = {
+  strong: "ok",
+  mixed: "wait",
+  caution: "bad",
+  unknown: undefined,
+};
+
+// The trust signal as a badge: an icon, the level in words, and the number.
+export function TrustBadge({ shop, i18n }: { shop: ShopSummary; i18n: I18n }) {
+  const { level, score } = shop.trust;
+  const Icon = TRUST_ICON[level];
+  return (
+    <span
+      className="chip plain trust"
+      data-tone={TRUST_TONE[level]}
+      data-testid="trust-badge"
+      data-level={level}
+    >
+      <Icon size={16} weight="fill" aria-hidden="true" />
+      {i18n.t.trust.levels[level]}
+      {score !== null && <b>{i18n.num(score)}</b>}
+    </span>
   );
 }

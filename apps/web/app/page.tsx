@@ -10,7 +10,7 @@ import { fill, getI18n } from "../lib/i18n";
 import { pool } from "../lib/pool";
 import { CategoryIcon } from "./components/category-icon";
 import { HeroScene } from "./components/hero-scene";
-import { ComplaintLine, Rating } from "./components/shop-ui";
+import { ComplaintLine, Rating, TrustBadge } from "./components/shop-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -210,6 +210,7 @@ export default async function Home() {
                     {shop.ratingAverage !== null && (
                       <Rating value={shop.ratingAverage} i18n={i18n} />
                     )}
+                    <TrustBadge shop={shop} i18n={i18n} />
                     <ComplaintLine shop={shop} i18n={i18n} />
                   </div>
                 </li>
