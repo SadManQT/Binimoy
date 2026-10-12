@@ -30,7 +30,7 @@ Spec D.3 requires independent state machines, version checks, idempotency and at
 The transition rows are this project's reading of D.3, B9 and D.6. These are the ones most worth a second opinion:
 
 - `AcceptAgreement` and `AcceptResolution` keep the state on the first party's consent and move it on the second.
-- `WithdrawAgreement` is allowed from `ACCEPTED`; the "only while unfunded" guard is left to LP-004.
+- `WithdrawAgreement` is allowed from `ACCEPTED`; the "only while unfunded" guard is added with funding in LP-005.
 - `ReopenDispute` is allowed only from `UNRESOLVED_CLOSED`. New evidence after `RESOLVED` opens a new dispute.
 - Final adapter results (`SUCCEEDED`, `FAILED_FINAL`, `CANCELLED_CONFIRMED`) have no outgoing transitions.
 
