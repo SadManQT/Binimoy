@@ -47,6 +47,6 @@ Option 3, on founder instruction ("start from nothing remove all"). The prototyp
 
 - The repository no longer runs on the Emergent FastAPI/React/MongoDB preview image.
 - Supabase must be reached through its direct connection or session pooler. The transaction pooler does not hold the session lock the migration runner relies on.
-- **Supabase connectivity is not yet verified.** Everything in LP-001 was exercised against the local PostgreSQL 17 container only. TLS settings for the Supabase connection string are untested.
-- The Supabase PostgreSQL major version must be recorded once connected; it may differ from 17.
+- Supabase connectivity was verified on 2026-10-12 through the session pooler (project `binimoy`, PostgreSQL 17): schema setup, 9 integration tests and the live health check.
+- Every table must have row level security enabled, because Supabase exposes `public` tables through its Data API. A test enforces this.
 - Object storage, the Matrix homeserver and the notification adapter are not provisioned. They are added by the tasks that first use them (LP-006, LP-007, LP-018).

@@ -27,8 +27,23 @@ test("a pool survives the server killing its idle connection", async () => {
 
 test("two concurrent migrators apply each migration exactly once", async () => {
   const [a, b] = await Promise.all([migrate(pool), migrate(pool)]);
-  expect([...a, ...b]).toEqual(["0001_worker_heartbeat.sql"]);
+  expect([...a, ...b]).toEqual([
+    "0001_worker_heartbeat.sql",
+    "0002_enable_rls.sql",
+  ]);
   expect(await migrate(pool)).toEqual([]);
+});
+
+// On Supabase, a table without RLS is readable and writable through the Data
+// API with the public anon key. The app connects as the table owner, which
+// bypasses RLS, so RLS with no policies closes that door without affecting it.
+test("every table has row level security enabled", async () => {
+  const { rows } = await pool.query(
+    `select c.relname from pg_class c
+     join pg_namespace n on n.oid = c.relnamespace
+     where n.nspname = current_schema() and c.relkind = 'r' and not c.relrowsecurity`,
+  );
+  expect(rows.map((r) => r.relname)).toEqual([]);
 });
 
 test("heartbeat age is null before any beat and small after one", async () => {

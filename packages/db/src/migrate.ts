@@ -14,6 +14,9 @@ export async function migrate(pool: Pool): Promise<string[]> {
     await client.query(
       "create table if not exists schema_migrations (name text primary key, applied_at timestamptz not null default now())",
     );
+    await client.query(
+      "alter table schema_migrations enable row level security",
+    );
     const done = new Set(
       (await client.query("select name from schema_migrations")).rows.map(
         (r) => r.name as string,
