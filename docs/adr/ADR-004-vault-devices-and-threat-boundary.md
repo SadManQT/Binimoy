@@ -1,6 +1,6 @@
 # ADR-004: Secret vault design and threat boundary
 
-- Status: ACCEPTED for the server side (2026-10-12). The browser side is not built yet.
+- Status: ACCEPTED (2026-10-12). Encrypted delivery between two browsers is built and tested; device verification and key backup are not.
 - Affects: LP-007, LP-008, LP-017, FE-15
 
 ## Problem
@@ -33,11 +33,14 @@ These are known and not yet closed. FE-15 stays in progress until they are eithe
 5. **Lost devices.** Without key backup, losing every device loses access to earlier deliveries. Key backup and recovery are not built.
 6. **A recipient who copies a secret** keeps it. Nothing can change that.
 
+## Run
+
+- Two separate Chromium sessions exchange a delivery through the real pages; the homeserver holds only ciphertext (`tests/e2e/vault.spec.ts`).
+
 ## Not run
 
-- Any browser-side encryption: creating a device, exchanging keys, encrypting and decrypting a delivery between two real browser sessions.
 - Device verification, key backup, device revocation, new-device behaviour (V7-22).
-- Wrong recipient, item or version binding checks in the client (V7-21).
+- A payload addressed to the wrong deal, item or version (V7-21): the client check exists but no test exercises it.
 
 ## Consequences
 

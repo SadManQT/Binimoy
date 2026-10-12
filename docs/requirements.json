@@ -301,11 +301,14 @@
       "packages/adapters/src/vault.ts",
       "packages/adapters/src/vault-rooms.ts",
       "apps/web/app/api/vault",
-      "infra/docker-compose.yml"
+      "infra/docker-compose.yml",
+      "apps/web/lib/vault-client.ts",
+      "apps/web/app/deals/vault-panel.tsx"
     ],
     "acceptanceTests": [
       "packages/adapters/src/vault.int.test.ts",
-      "packages/adapters/src/vault-rooms.int.test.ts"
+      "packages/adapters/src/vault-rooms.int.test.ts",
+      "tests/e2e/vault.spec.ts"
     ],
     "evidence": []
   },

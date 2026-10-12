@@ -2,16 +2,17 @@
 
 - Product name: Binimoy (ADR-008)
 - Completion level: D0. Nothing at D1 or above is verified.
-- Active branch: `chunk-vault`. `main` holds LP-001 to LP-005.
-- Active task: LP-007 (IN_PROGRESS: server side done, browser side not built). LP-001 to LP-005 are MERGED.
+- Active branch: `chunk-vault-browser`. `main` holds LP-001 to LP-005 and LP-007 part 1.
+- Active task: LP-007 (IN_PROGRESS: encrypted delivery between two browsers works; device verification and key backup not built). LP-001 to LP-005 are MERGED.
 - Verified milestones: none
 - Blockers: none for local work. The vault needs Docker running (`pnpm matrix:local`). Staging needs a reachable homeserver, an email and SMS sender and its own OAuth apps.
-- Next task: LP-007 part 2 (browser vault), then LP-008 and LP-009
+- Next task: LP-008 (delivery packages, inspection, mock providers), then LP-009 (payout and refund)
 
 ## Scripts
 
 Exist and were run: `pnpm run setup`, `pnpm dev`, `pnpm lint`, `pnpm typecheck`, `pnpm test:unit`, `pnpm test:integration`, `pnpm build`, `pnpm db:migrate`, `pnpm db:local`.
-Not implemented: `test:e2e`, `eval:ai`, `demo:seed`, `demo:reset`.
+Also exist: `pnpm test:e2e` (needs `pnpm matrix:local`), `pnpm matrix:local`.
+Not implemented: `eval:ai`, `demo:seed`, `demo:reset`.
 
 ## Prototype
 

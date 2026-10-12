@@ -14,3 +14,5 @@ next-env.d.ts
 
 # Local Matrix homeserver data (keys, database, generated config)
 infra/synapse/data/
+test-results/
+playwright-report/
