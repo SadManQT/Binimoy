@@ -2,11 +2,11 @@
 
 - Product name: Binimoy (ADR-008)
 - Completion level: D0. Nothing at D1 or above is verified.
-- Active branch: `lp-003-auth` (stacked on `lp-002-contracts` PR #2 and `lp-001-bootstrap` PR #1; none merged)
-- Active tasks: LP-001, LP-002, LP-003 (all IN_REVIEW). Handoffs in `docs/handoffs/`
+- Active branch: `lp-004-agreements` (stacked on PRs #1 to #3; none merged)
+- Active tasks: LP-001 to LP-004 (all IN_REVIEW). Handoffs in `docs/handoffs/`
 - Verified milestones: none
-- Blockers: none for local work. Staging needs an email and SMS sender and OAuth credentials (see `docs/handoffs/LP-003.md`). GitHub Actions has not produced a run yet.
-- Next task: LP-004
+- Blockers: none for local work. Staging needs an email and SMS sender and its own OAuth apps (see `docs/handoffs/LP-003.md`).
+- Next task: LP-005 (LP-006, LP-007 and LP-012 can run alongside it)
 
 ## Scripts
 

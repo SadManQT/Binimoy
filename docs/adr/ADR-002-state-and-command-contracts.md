@@ -34,6 +34,11 @@ The transition rows are this project's reading of D.3, B9 and D.6. These are the
 - `ReopenDispute` is allowed only from `UNRESOLVED_CLOSED`. New evidence after `RESOLVED` opens a new dispute.
 - Final adapter results (`SUCCEEDED`, `FAILED_FINAL`, `CANCELLED_CONFIRMED`) have no outgoing transitions.
 
+## Amendment, 2026-10-12 (LP-004)
+
+- `ReviseAgreement` is allowed from `DRAFT` as well as `AWAITING_ACCEPTANCE`, so a draft can be edited before it is proposed. It always creates a new immutable version.
+- The open item above is settled: `executeCommand` takes an `apply` hook that chooses the target state from data read inside the transaction.
+
 ## Test implications
 
 Every later task tests its commands through `executeCommand` against a real database. A new table must enable row level security or the schema test fails.

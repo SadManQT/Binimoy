@@ -217,7 +217,7 @@ test("a signed-in user cannot act on a deal they are not party to", async () => 
   const seller = await signUp();
   const outsider = await signUp();
   const deal = await pool.query(
-    "insert into deal (created_by) values ($1) returning id",
+    "insert into deal (created_by, title) values ($1, 'Test deal') returning id",
     [buyer.userId],
   );
   const dealId: string = deal.rows[0].id;

@@ -5,9 +5,9 @@
     "phase": "P0",
     "ownerTask": "LP-004",
     "acceptance": "Buyer control, seller recovery retained, sessions and rotation chronology. Objective release: Disabled unless the registered mock independently proves every mandatory item",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": ["packages/templates/src/catalog.ts"],
+    "acceptanceTests": ["packages/templates/src/templates.test.ts"],
     "evidence": []
   },
   {
@@ -38,9 +38,9 @@
     "phase": "P0",
     "ownerTask": "LP-004",
     "acceptance": "Wrong edition, consumed key, expiry and later revocation. Objective release: Disabled unless rights, correct entitlement and every mandatory item have supported independent proof",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": ["packages/templates/src/catalog.ts"],
+    "acceptanceTests": ["packages/templates/src/templates.test.ts"],
     "evidence": []
   },
   {
@@ -71,9 +71,9 @@
     "phase": "P0",
     "ownerTask": "LP-004",
     "acceptance": "Missing editable source, failed opening, subjective quality and copied-file refund limits. Objective release: Disabled for any mandatory subjective quality or unverified rights requirement",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": ["packages/templates/src/catalog.ts"],
+    "acceptanceTests": ["packages/templates/src/templates.test.ts"],
     "evidence": []
   },
   {
@@ -233,9 +233,17 @@
     "phase": "P0",
     "ownerTask": "LP-004",
     "acceptance": "Both accept the same terms; amendments/version conflicts cannot reuse stale consent",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src",
+      "packages/db/src/agreements.ts",
+      "apps/web/app/deals",
+      "apps/web/app/invite"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/agreements.int.test.ts",
+      "packages/templates/src/templates.test.ts"
+    ],
     "evidence": []
   },
   {

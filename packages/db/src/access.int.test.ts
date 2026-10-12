@@ -29,7 +29,7 @@ async function newDeal() {
   const buyer = await newUser();
   const seller = await newUser();
   const { rows } = await pool.query(
-    "insert into deal (created_by) values ($1) returning id",
+    "insert into deal (created_by, title) values ($1, 'Test deal') returning id",
     [buyer],
   );
   const dealId: string = rows[0].id;

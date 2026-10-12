@@ -57,6 +57,12 @@ Roles: `buyer`, `seller`, `reviewer`, `appeal_reviewer`, `approver`, `system`.
 
 Guards beyond role and state (consent, held funds, proof freshness, deadlines) are not in this table. The task that owns a command adds them inside the same transaction.
 
+## Command-specific logic
+
+A command may pass an `apply` hook to `executeCommand`. The hook runs inside the transaction, under the aggregate lock, only after the role, idempotency and version checks have passed. It can refuse with an error code, choose the target state, write its own rows, and replace the payload stored in the event. Agreement commands (`packages/db/src/agreements.ts`) are the first users.
+
+Additional codes raised by LP-004: `COUNTERPARTY_MISSING`, `INVITE_INVALID`.
+
 ## Events
 
 Type `DomainEvent` in `packages/contracts/src/command.ts`; table `event`.

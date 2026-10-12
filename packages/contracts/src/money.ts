@@ -20,3 +20,27 @@ export function formatMoney(value: bigint): string {
   }
   return value.toString();
 }
+
+// Turns what a person types ("2500" or "2500.50") into minor units, using
+// string arithmetic only. Returns null instead of guessing at anything else.
+// ponytail: ASCII digits only. Accepting Bangla numerals needs an explicit,
+// tested mapping (D.12), so they are refused for now rather than misread.
+export function takaToMinor(input: string): string | null {
+  const match = /^([0-9]+)(?:\.([0-9]{1,2}))?$/.exec(input.trim());
+  if (!match) return null;
+  const minor =
+    BigInt(match[1] as string) * 100n + BigInt((match[2] ?? "").padEnd(2, "0"));
+  try {
+    return formatMoney(minor);
+  } catch {
+    return null;
+  }
+}
+
+// Display only. Digits stay ASCII so an amount reads the same everywhere.
+export function formatBdt(minor: string): string {
+  const value = parseMoney(minor);
+  const taka = (value / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const paisa = (value % 100n).toString().padStart(2, "0");
+  return `৳${taka}.${paisa}`;
+}

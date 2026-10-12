@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { commandEnvelope, type ErrorCode } from "@lp/contracts";
 import {
   type AggregateType,
+  allowedTargets,
   checkTransition,
   MACHINES,
   type Role,
@@ -25,9 +26,34 @@ export type CommandInput = {
   aggregateId: string;
   command: string;
   envelope: unknown;
-  // Required when the command has more than one possible target state.
+  // Required when the command has more than one possible target state and no
+  // `apply` hook chooses it.
   to?: string;
+  // Command-specific guards and writes. Runs inside the transaction, under the
+  // aggregate lock, after role, idempotency and version checks have passed.
+  apply?: ApplyHook;
 };
+
+export type ApplyContext = {
+  aggregate: {
+    id: string;
+    type: AggregateType;
+    dealId: string;
+    state: string;
+    version: number;
+  };
+  actor: Actor;
+  roles: Role[];
+  payload: Record<string, unknown>;
+};
+export type ApplyResult =
+  // `event` replaces the command payload in the stored event, for commands
+  // whose payload should not be kept verbatim.
+  { to?: string; event?: Record<string, unknown> } | { error: ErrorCode };
+export type ApplyHook = (
+  client: PoolClient,
+  context: ApplyContext,
+) => Promise<ApplyResult>;
 
 const fail = (error: ErrorCode): CommandResult => ({ ok: false, error });
 
@@ -148,12 +174,36 @@ async function run(
   if (envelope.expectedAggregateVersion !== aggregate.version) {
     return fail("VERSION_CONFLICT");
   }
+  // Role and state are checked before the hook, so an actor who may not issue
+  // this command never reaches command-specific code.
+  const permitted = allowedTargets(
+    aggregate.type,
+    aggregate.state,
+    input.command,
+    roles,
+  );
+  if (!permitted.ok) return fail(permitted.error);
+  const applied = input.apply
+    ? await input.apply(client, {
+        aggregate: {
+          id: input.aggregateId,
+          type: aggregate.type,
+          dealId: aggregate.deal_id,
+          state: aggregate.state,
+          version: aggregate.version,
+        },
+        actor: input.actor,
+        roles,
+        payload: envelope.payload,
+      })
+    : {};
+  if ("error" in applied) return fail(applied.error);
   const transition = checkTransition(
     aggregate.type,
     aggregate.state,
     input.command,
     roles,
-    input.to,
+    applied.to ?? input.to,
   );
   if (!transition.ok) return fail(transition.error);
 
@@ -175,7 +225,11 @@ async function run(
       version,
       principal,
       envelope.commandId,
-      { from: aggregate.state, to: transition.to, data: envelope.payload },
+      {
+        from: aggregate.state,
+        to: transition.to,
+        data: applied.event ?? envelope.payload,
+      },
     ],
   );
   const eventId: string = event.rows[0].event_id;

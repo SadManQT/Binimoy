@@ -1,5 +1,6 @@
 export {
   type AggregateType,
+  allowedTargets,
   checkTransition,
   MACHINES,
   type Role,

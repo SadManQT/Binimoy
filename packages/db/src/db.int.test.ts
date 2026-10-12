@@ -33,6 +33,7 @@ test("two concurrent migrators apply each migration exactly once", async () => {
     "0002_enable_rls.sql",
     "0003_command_kernel.sql",
     "0004_auth_and_consent.sql",
+    "0005_agreements.sql",
   ]);
   expect(await migrate(pool)).toEqual([]);
 });

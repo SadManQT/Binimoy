@@ -46,7 +46,7 @@ export const MACHINES = {
       },
       {
         command: "ReviseAgreement",
-        from: ["AWAITING_ACCEPTANCE"],
+        from: ["DRAFT", "AWAITING_ACCEPTANCE"],
         to: ["DRAFT"],
         actors: PARTY,
       },
@@ -373,13 +373,17 @@ export type TransitionResult =
   | { ok: true; to: string }
   | { ok: false; error: "ILLEGAL_TRANSITION" | "NOT_AUTHORIZED" };
 
-export function checkTransition(
+type Targets =
+  | { ok: true; targets: string[] }
+  | { ok: false; error: "ILLEGAL_TRANSITION" | "NOT_AUTHORIZED" };
+
+// Which states this command may lead to, for these roles, from this state.
+export function allowedTargets(
   type: AggregateType,
   state: string,
   command: string,
   roles: readonly Role[],
-  to?: string,
-): TransitionResult {
+): Targets {
   const machine: Machine = MACHINES[type];
   const rows = machine.transitions.filter(
     (row) => row.command === command && row.from.includes(state),
@@ -389,9 +393,21 @@ export function checkTransition(
     row.actors.some((a) => roles.includes(a)),
   );
   if (allowed.length === 0) return { ok: false, error: "NOT_AUTHORIZED" };
-  const targets = [...new Set(allowed.flatMap((row) => row.to))];
-  const target = to ?? (targets.length === 1 ? targets[0] : undefined);
-  if (target === undefined || !targets.includes(target)) {
+  return { ok: true, targets: [...new Set(allowed.flatMap((row) => row.to))] };
+}
+
+export function checkTransition(
+  type: AggregateType,
+  state: string,
+  command: string,
+  roles: readonly Role[],
+  to?: string,
+): TransitionResult {
+  const found = allowedTargets(type, state, command, roles);
+  if (!found.ok) return found;
+  const target =
+    to ?? (found.targets.length === 1 ? found.targets[0] : undefined);
+  if (target === undefined || !found.targets.includes(target)) {
     return { ok: false, error: "ILLEGAL_TRANSITION" };
   }
   return { ok: true, to: target };

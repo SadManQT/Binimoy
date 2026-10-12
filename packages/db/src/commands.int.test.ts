@@ -23,7 +23,7 @@ async function newDeal() {
   const buyer = await newUser();
   const seller = await newUser();
   const { rows } = await pool.query(
-    "insert into deal (created_by) values ($1) returning id",
+    "insert into deal (created_by, title) values ($1, 'Test deal') returning id",
     [buyer],
   );
   const dealId: string = rows[0].id;
@@ -272,7 +272,7 @@ test("events are append-only", async () => {
 test("one identity cannot be both buyer and seller of a deal (D.2)", async () => {
   const solo = await newUser();
   const { rows } = await pool.query(
-    "insert into deal (created_by) values ($1) returning id",
+    "insert into deal (created_by, title) values ($1, 'Test deal') returning id",
     [solo],
   );
   await expect(
