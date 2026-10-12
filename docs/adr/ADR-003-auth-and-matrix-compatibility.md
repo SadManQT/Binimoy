@@ -29,7 +29,8 @@ Spec A2 requires a maintained authentication solution and forbids writing custom
 | Email magic link | Works in local and test only (no email sender yet) |
 | Email one-time code | Works in local and test only |
 | Phone one-time code | Works in local and test only (no SMS sender yet) |
-| Google, Facebook, GitHub | Implemented; each appears only when its client ID and secret are configured. Not exercised against a real provider |
+| Google, GitHub | Work locally: the founder signed in with both on 2026-10-12 (manual test, localhost only) |
+| Facebook | Configured; the authorization redirect is correct, but sign-in fails with an error on Facebook's side that is not yet diagnosed |
 | Two-factor (TOTP) | Library plugin and table are enabled. No enrollment screen and no enforcement yet |
 | Passkeys | Not included. Needs a separate package |
 | Apple | Not included |
