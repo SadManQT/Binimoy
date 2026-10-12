@@ -45,6 +45,7 @@ import {
   waiveAppeal,
 } from "@lp/db/review";
 import { openDispute } from "@lp/db/settlement";
+import { setMockFact } from "@lp/db/verification";
 import { redirect } from "next/navigation";
 import { mockWebhookSecret } from "../../lib/mock-payment";
 import { pool } from "../../lib/pool";
@@ -70,6 +71,19 @@ function termsFromForm(form: FormData) {
     // An unreadable amount becomes "" and is rejected as VALIDATION_FAILED.
     amountMinor: takaToMinor(text(form, "amountTaka")) ?? "",
     product,
+    // C14.12: rows left blank are skipped; a row with an unreadable price
+    // keeps "" and is rejected.
+    milestones: form
+      .getAll("milestoneTitle")
+      .map((title, n) => ({
+        title: String(title).trim(),
+        taka: String(form.getAll("milestoneTaka")[n] ?? "").trim(),
+      }))
+      .filter((m) => m.title || m.taka)
+      .map((m) => ({
+        title: m.title,
+        amountMinor: takaToMinor(m.taka) ?? "",
+      })),
   };
 }
 
@@ -415,4 +429,23 @@ export async function requestAssessmentAction(form: FormData) {
   const user = await requireUser();
   const dealId = text(form, "dealId");
   back(dealId, await requestAssessment(pool(), { userId: user.id, dealId }));
+}
+
+// Scenario Lab: a party plays the fictional provider for their own deal.
+export async function setMockFactAction(form: FormData) {
+  const user = await requireUser();
+  const dealId = text(form, "dealId");
+  back(
+    dealId,
+    await setMockFact(pool(), {
+      userId: user.id,
+      dealId,
+      fact: {
+        predicate: text(form, "predicate"),
+        outcome: text(form, "outcome"),
+        boundTo: text(form, "boundTo") || undefined,
+        detail: "Set from the Scenario Lab",
+      },
+    }),
+  );
 }

@@ -16,6 +16,7 @@ import {
   heldMinor,
   invalidateAuthorization,
 } from "./settlement";
+import { verifyPackage } from "./verification";
 
 // Spec B5 steps 5 to 7 and INV-06: submitting, inspecting, accepting and
 // paying are separate recorded events. None of them implies the next.
@@ -90,14 +91,34 @@ const submission = z.array(
 
 async function currentPackage(client: Pool | PoolClient, dealId: string) {
   const { rows } = await client.query(
-    `select p.package_id, p.version_no, a.state from delivery_package p
+    `select p.package_id, p.version_no, p.milestone_no, a.state,
+       exists (select 1 from delivery_acceptance d where d.package_id = p.package_id) as accepted
+     from delivery_package p
      join aggregate a on a.id = p.package_id
      where p.deal_id = $1 order by p.version_no desc limit 1`,
     [dealId],
   );
   return rows[0] as
-    | { package_id: string; version_no: number; state: string }
+    | {
+        package_id: string;
+        version_no: number;
+        milestone_no: number | null;
+        state: string;
+        accepted: boolean;
+      }
     | undefined;
+}
+
+// C14.12: milestones are delivered in order. The next one is the first whose
+// package has not been accepted.
+async function nextMilestone(client: Pool | PoolClient, dealId: string) {
+  const { rows } = await client.query(
+    `select count(distinct p.milestone_no)::int as done from delivery_package p
+     join delivery_acceptance d on d.package_id = p.package_id
+     where p.deal_id = $1 and p.milestone_no is not null`,
+    [dealId],
+  );
+  return (rows[0].done as number) + 1;
 }
 
 // B5 step 5. The seller hands over a versioned package. This starts
@@ -156,14 +177,25 @@ export async function submitDelivery(
     await lockDeal(client, context.dealId);
     // V7-11: if the no-delivery refund already won the lock, there is no
     // second workflow. Any authorization at all means delivery is over.
+    const milestones = context.terms.milestones ?? [];
+    const milestoneNo =
+      milestones.length > 0
+        ? await nextMilestone(client, context.dealId)
+        : null;
+    // A milestone deal goes on after an accepted milestone has been paid; any
+    // other settlement, or the last milestone, ends delivery.
     const settled = await client.query(
       `select 1 from settlement_authorization s
        join aggregate a on a.id = s.authorization_id
        where s.deal_id = $1 and a.state not in ('INVALIDATED', 'EXPIRED')
-         and (s.path = 'NO_DELIVERY_REFUND' or a.state in ('DISPATCH_COMMITTED', 'CONSUMED'))`,
-      [context.dealId],
+         and (s.path = 'NO_DELIVERY_REFUND' or a.state in ('DISPATCH_COMMITTED', 'CONSUMED'))
+         and ($2::int is null or s.path <> 'ACCEPTED_RELEASE')`,
+      [context.dealId, milestoneNo],
     );
-    if (settled.rowCount !== 0) {
+    if (
+      settled.rowCount !== 0 ||
+      (milestoneNo !== null && milestoneNo > milestones.length)
+    ) {
       await client.query("rollback");
       return fail("ILLEGAL_TRANSITION");
     }
@@ -173,7 +205,12 @@ export async function submitDelivery(
 
     // INV-07: a replacement invalidates what depended on the old version and
     // keeps the old records.
-    if (previous?.state === "SUBMITTED") {
+    // An accepted milestone is finished: what follows it is the next
+    // milestone, not a replacement.
+    if (
+      previous?.state === "SUBMITTED" &&
+      !(milestoneNo !== null && previous.accepted)
+    ) {
       await systemTransition(client, {
         aggregateId: previous.package_id,
         command: "ReplaceDelivery",
@@ -212,8 +249,8 @@ export async function submitDelivery(
     const versionNo = (previous?.version_no ?? 0) + 1;
     await client.query(
       `insert into delivery_package (package_id, deal_id, version_no, agreement_id,
-         agreement_version_no, terms_hash, submitted_by)
-       values ($1, $2, $3, $4, $5, $6, $7)`,
+         agreement_version_no, terms_hash, submitted_by, milestone_no)
+       values ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
         packageId,
         context.dealId,
@@ -222,6 +259,7 @@ export async function submitDelivery(
         context.versionNo,
         context.termsHash,
         input.userId,
+        milestoneNo,
       ],
     );
     await transitionWithin(client, {
@@ -283,6 +321,9 @@ export async function submitDelivery(
       "update deal_deadline set inspection_due_at = now() + make_interval(hours => $2) where deal_id = $1",
       [context.dealId, context.terms.timing.inspectionHours],
     );
+    // Ask the provider at once, so the first thing both parties see is what
+    // it actually says rather than a blank.
+    await verifyPackage(client, context.dealId, context.terms);
     await client.query("commit");
     return { ok: true, packageId, versionNo };
   } catch (error) {
@@ -474,7 +515,19 @@ export async function acceptDelivery(
     if (failing.rowCount !== 0) return done(fail("INCOMPLETE_DELIVERY"));
 
     const held = await heldMinor(client, dealId);
-    if (held !== BigInt(context.terms.amountMinor)) {
+    // For a milestone, what must still be held is this milestone and every
+    // later one; what is released is this milestone only.
+    const milestones = context.terms.milestones ?? [];
+    const from = (current.milestone_no ?? 1) - 1;
+    const expected =
+      milestones.length > 0
+        ? milestones
+            .slice(from)
+            .reduce((sum, m) => sum + BigInt(m.amountMinor), 0n)
+        : BigInt(context.terms.amountMinor);
+    const release =
+      milestones.length > 0 ? BigInt(milestones[from]?.amountMinor ?? 0) : held;
+    if (held !== expected || release <= 0n) {
       return done(fail("INSUFFICIENT_HELD_FUNDS"));
     }
     await client.query(
@@ -484,7 +537,7 @@ export async function acceptDelivery(
     const authorizationId = await createAuthorization(client, {
       dealId,
       path: "ACCEPTED_RELEASE",
-      toSellerMinor: held,
+      toSellerMinor: release,
       toBuyerMinor: 0n,
       packageId: input.packageId,
       causationId: randomUUID(),
@@ -507,11 +560,18 @@ export type DeliveryView = {
     versionNo: number;
     state: string;
     accepted: boolean;
+    // Set for a milestone deal: which milestone this package delivers.
+    milestoneNo: number | null;
+    // B9 objective release: when the challenge window ends, if one is open.
+    objectiveDueAt: Date | null;
     inspections: {
       inspectionId: string;
       itemId: string;
       mandatory: boolean;
       state: string;
+      // Where the latest result came from, and what its source said.
+      proofType: string | null;
+      note: string;
     }[];
   } | null;
   settlement: {
@@ -534,15 +594,18 @@ export async function getDeliveryView(
   const current = await currentPackage(pool, dealId);
   const inspections = current
     ? await pool.query(
-        `select i.inspection_id, i.item_id, i.mandatory, a.state
+        `select i.inspection_id, i.item_id, i.mandatory, a.state, r.proof_type, r.note
          from inspection_item i join aggregate a on a.id = i.inspection_id
+         left join lateral (select proof_type, note from inspection_result
+                            where inspection_id = i.inspection_id
+                            order by id desc limit 1) r on true
          where i.package_id = $1 order by a.created_at, i.item_id`,
         [current.package_id],
       )
     : null;
-  const accepted = current
+  const objective = current
     ? await pool.query(
-        "select 1 from delivery_acceptance where package_id = $1",
+        "select due_at from objective_window where package_id = $1",
         [current.package_id],
       )
     : null;
@@ -574,12 +637,16 @@ export async function getDeliveryView(
           packageId: current.package_id,
           versionNo: current.version_no,
           state: current.state,
-          accepted: accepted?.rowCount === 1,
+          accepted: current.accepted,
+          milestoneNo: current.milestone_no,
+          objectiveDueAt: objective?.rows[0]?.due_at ?? null,
           inspections: (inspections?.rows ?? []).map((r) => ({
             inspectionId: r.inspection_id,
             itemId: r.item_id,
             mandatory: r.mandatory,
             state: r.state,
+            proofType: r.proof_type,
+            note: r.note ?? "",
           })),
         }
       : null,

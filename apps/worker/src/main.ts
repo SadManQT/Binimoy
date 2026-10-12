@@ -15,6 +15,7 @@ import {
   reconcileOperations,
   refundOverdueDeliveries,
 } from "@lp/db/settlement";
+import { sweepVerifications } from "@lp/db/verification";
 
 const config = loadConfig(process.env);
 const pool = createPool(config.DATABASE_URL);
@@ -68,6 +69,8 @@ async function tick() {
     await step("no_delivery_refunds", () => refundOverdueDeliveries(pool));
     await step("decisions_finalized", () => finalizeDecisions(pool));
     await step("ai_only_closed_unresolved", () => closeUnresolvedAiOnly(pool));
+    // Provider answers and objective-release windows, before anything is sent.
+    await step("verifications_swept", () => sweepVerifications(pool));
     // Reconcile before dispatching: unfinished transfers come first.
     await step("operations_reconciled", () =>
       reconcileOperations(pool, transfers),

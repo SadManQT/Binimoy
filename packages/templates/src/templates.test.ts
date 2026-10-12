@@ -15,17 +15,43 @@ const codes = (template: unknown, capabilities: Capabilities = CAPABILITIES) =>
 const base = (): Template =>
   structuredClone(getTemplate("software_license", 1));
 
-test("the three first-increment templates are registered and valid", () => {
-  expect(TEMPLATES.map((t) => t.categoryId).sort()).toEqual([
-    "CAT-01",
-    "CAT-04",
-    "CAT-07",
-  ]);
+test("D.1: all eleven categories are registered, one template each, and valid", () => {
+  expect(TEMPLATES.map((t) => t.categoryId)).toEqual(
+    Array.from(
+      { length: 11 },
+      (_, i) => `CAT-${String(i + 1).padStart(2, "0")}`,
+    ),
+  );
   for (const template of TEMPLATES) {
     expect(
       validateTemplate(template, CAPABILITIES),
       template.templateId,
     ).toEqual([]);
+  }
+});
+
+test("C14: every category has an item whose proof is not only the seller's word", () => {
+  for (const template of TEMPLATES) {
+    expect(
+      template.items.some(
+        (i) =>
+          i.mandatory && PREDICATES[i.predicate]?.proof !== "seller_statement",
+      ),
+      template.templateId,
+    ).toBe(true);
+  }
+});
+
+test("a predicate bound to a field names a field its templates have", () => {
+  for (const template of TEMPLATES) {
+    for (const item of template.items) {
+      const field = PREDICATES[item.predicate]?.bindsField;
+      if (!field) continue;
+      expect(
+        template.fields.some((f) => f.key === field && f.required),
+        `${template.templateId}.${item.itemId} -> ${field}`,
+      ).toBe(true);
+    }
   }
 });
 
@@ -38,10 +64,22 @@ test("every template has mandatory items and uses only registered predicates", (
   }
 });
 
-test("no shipped template offers objective release while its capability is untested", () => {
-  for (const template of TEMPLATES) {
-    expect(template.objectiveRelease, template.templateId).toBe(false);
+test("INV-08: objective release is offered only where every mandatory item is an independent fact", () => {
+  const objective = TEMPLATES.filter((t) => t.objectiveRelease);
+  expect(objective.map((t) => t.categoryId)).toEqual(["CAT-03", "CAT-10"]);
+  for (const template of objective) {
+    for (const item of template.items.filter((i) => i.mandatory)) {
+      expect(PREDICATES[item.predicate]?.proof, item.itemId).toBe(
+        "independent_fact",
+      );
+      expect(item.subjective).toBe(false);
+    }
   }
+  // Take the capability away and the same template is refused before funding.
+  const topUp = getTemplate("game_topup", 1);
+  expect(
+    codes(topUp, { ...CAPABILITIES, mock_topup_supplier: "UNCONFIGURED" }),
+  ).toContain("CAPABILITY_UNAVAILABLE");
 });
 
 test("an unknown template or version is an error, not a silent default", () => {
@@ -152,5 +190,7 @@ test("objective release is refused when the proving capability is not tested (IN
     item.dataClass = "public_status";
     item.submissionRoles = ["system"];
   }
-  expect(codes(t, CAPABILITIES)).toContain("CAPABILITY_UNAVAILABLE");
+  expect(
+    codes(t, { ...CAPABILITIES, mock_license_issuer: "UNCONFIGURED" }),
+  ).toContain("CAPABILITY_UNAVAILABLE");
 });

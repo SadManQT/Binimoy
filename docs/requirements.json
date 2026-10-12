@@ -6,9 +6,13 @@
     "ownerTask": "LP-004",
     "acceptance": "Buyer control, seller recovery retained, sessions and rotation chronology. Objective release: Disabled unless the registered mock independently proves every mandatory item",
     "status": "IN_PROGRESS",
-    "implementationPaths": ["packages/templates/src/catalog.ts"],
-    "acceptanceTests": ["packages/templates/src/templates.test.ts"],
-    "evidence": []
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-02",
@@ -16,10 +20,14 @@
     "phase": "P0",
     "ownerTask": "LP-021",
     "acceptance": "Player/server/region plus inventory mismatch and recovery risk. Objective release: Same capability restriction as CAT-01; never enabled by screenshots",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-03",
@@ -27,10 +35,17 @@
     "phase": "P0",
     "ownerTask": "LP-021",
     "acceptance": "Exact destination, amount, duplicate fulfillment and irreversible wrong-ID handling. Objective release: Eligible only with destination-bound independent fulfillment and all other required proofs",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts",
+      "tests/e2e/catalog.spec.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-04",
@@ -39,9 +54,13 @@
     "ownerTask": "LP-004",
     "acceptance": "Wrong edition, consumed key, expiry and later revocation. Objective release: Disabled unless rights, correct entitlement and every mandatory item have supported independent proof",
     "status": "IN_PROGRESS",
-    "implementationPaths": ["packages/templates/src/catalog.ts"],
-    "acceptanceTests": ["packages/templates/src/templates.test.ts"],
-    "evidence": []
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-05",
@@ -49,10 +68,14 @@
     "phase": "P0",
     "ownerTask": "LP-021",
     "acceptance": "Role, seat count, duration, billing owner and admin revocation. Objective release: Disabled unless all required entitlement/control facts are independently observable",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-06",
@@ -60,10 +83,14 @@
     "phase": "P0",
     "ownerTask": "LP-021",
     "acceptance": "Already-used, partial-balance and unverifiable-code scenarios. Objective release: Disabled when redemption/source facts cannot be established independently",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-07",
@@ -72,9 +99,13 @@
     "ownerTask": "LP-004",
     "acceptance": "Missing editable source, failed opening, subjective quality and copied-file refund limits. Objective release: Disabled for any mandatory subjective quality or unverified rights requirement",
     "status": "IN_PROGRESS",
-    "implementationPaths": ["packages/templates/src/catalog.ts"],
-    "acceptanceTests": ["packages/templates/src/templates.test.ts"],
-    "evidence": []
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-08",
@@ -82,10 +113,14 @@
     "phase": "P0",
     "ownerTask": "LP-021",
     "acceptance": "Build failure, missing dependencies, secret removal and scoped functional tests. Objective release: Disabled for subjective/unobservable requirements; sandboxed test output has only its stated scope",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-09",
@@ -93,10 +128,14 @@
     "phase": "P0",
     "ownerTask": "LP-021",
     "acceptance": "DNS-only handover, missing DB, transfer lock and incomplete admin revocation. Objective release: Disabled without every agreed transfer and asset proof; DNS success alone is insufficient",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-10",
@@ -104,10 +143,14 @@
     "phase": "P0",
     "ownerTask": "LP-021",
     "acceptance": "Correct entitlement, duration, destination and transfer permission. Objective release: Disabled unless all mandatory facts are supported by the mock enrollment/issuer capability",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "CAT-11",
@@ -115,10 +158,14 @@
     "phase": "P0",
     "ownerTask": "LP-021",
     "acceptance": "Partial acceptance, revisions, change order and independent milestone allocation. Objective release: Per milestone only; disabled for mandatory subjective deliverables",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "FE-01",
@@ -282,10 +329,17 @@
     "phase": "P0",
     "ownerTask": "LP-021",
     "acceptance": "D.1's 99 category/mode/outcome combinations and all specific mandatory items are exercised",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/templates/src/catalog.ts",
+      "packages/db/src/verification.ts",
+      "packages/db/src/delivery.ts"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts",
+      "tests/e2e/catalog.spec.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "FE-12",

@@ -45,6 +45,9 @@ export type Terms = {
   refundRule: string;
   objectiveRelease: boolean;
   residualRisks: Template["residualRisks"];
+  // C14.12: empty unless the template splits the price into milestones.
+  // Agreements made before milestones existed have no such key.
+  milestones?: { title: string; amountMinor: string }[];
 };
 
 const termsInput = z.object({
@@ -54,6 +57,15 @@ const termsInput = z.object({
   mode: z.string(),
   amountMinor: z.string(),
   product: z.record(z.string(), z.string().trim().max(500)),
+  milestones: z
+    .array(
+      z.object({
+        title: z.string().trim().min(1).max(120),
+        amountMinor: z.string(),
+      }),
+    )
+    .max(6)
+    .optional(),
 });
 
 function canonical(value: unknown): string {
@@ -83,8 +95,20 @@ function buildTerms(input: unknown): Terms | null {
   // D.1: capability and template checks run before anything can be funded.
   if (validateTemplate(template, CAPABILITIES).length > 0) return null;
   if (!(template.supportedModes as string[]).includes(data.mode)) return null;
+  const milestones = data.milestones ?? [];
   try {
     if (parseMoney(data.amountMinor) <= 0n) return null;
+    // Each milestone has its own positive price, and together they are
+    // exactly the price of the deal (INV-03).
+    const parts = milestones.map((m) => parseMoney(m.amountMinor));
+    if (parts.some((part) => part <= 0n)) return null;
+    if (
+      template.milestones
+        ? parts.reduce((a, b) => a + b, 0n) !== parseMoney(data.amountMinor)
+        : parts.length > 0
+    ) {
+      return null;
+    }
   } catch {
     return null;
   }
@@ -111,6 +135,7 @@ function buildTerms(input: unknown): Terms | null {
     refundRule: template.refundRule,
     objectiveRelease: template.objectiveRelease,
     residualRisks: template.residualRisks,
+    milestones,
   };
 }
 
