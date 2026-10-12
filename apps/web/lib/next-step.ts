@@ -54,15 +54,15 @@ export function nextStep(deal: DealSnapshot): { text: string; steps: Step[] } {
       ? "সেটেলমেন্ট সম্পন্ন। রসিদে পুরো রেকর্ড আছে।"
       : operations.includes("FAILED_FINAL")
         ? "টাকা পাঠানো ব্যর্থ হয়েছে এবং টাকা আবার আটকে রাখা হয়েছে।"
-        : "সেটেলমেন্টের অ্যাপ্রুভাল হয়েছে, কিন্তু টাকা পাঠানো এখনো চূড়ান্ত নয়।";
+        : "সেটেলমেন্টের অনুমোদন হয়েছে, কিন্তু টাকা পাঠানো এখনো চূড়ান্ত নয়।";
   } else if (deal.parties < 2) {
     text = "অন্য পক্ষকে ইনভাইট লিংক পাঠান।";
   } else if (deal.agreementState === "DRAFT") {
-    text = "শর্ত ঠিক থাকলে কনসেন্টর জন্য পাঠান।";
+    text = "শর্ত ঠিক থাকলে সম্মতির জন্য পাঠান।";
   } else if (deal.agreementState === "AWAITING_ACCEPTANCE") {
     text = deal.acceptedByMe
-      ? "আপনি কনসেন্ট দিয়েছেন। অন্য পক্ষের কনসেন্টর অপেক্ষা।"
-      : "শর্তগুলো পড়ে কনসেন্ট দিন।";
+      ? "আপনি সম্মতি দিয়েছেন। অন্য পক্ষের সম্মতির অপেক্ষা।"
+      : "শর্তগুলো পড়ে সম্মতি দিন।";
   } else if (!finished.agreed) {
     text = "এই ডিল আর চালু নেই।";
   } else if (!finished.funded) {

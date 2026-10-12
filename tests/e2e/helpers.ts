@@ -78,7 +78,7 @@ export async function fundedDeal(
   await buyer.waitForURL(dealUrl);
 
   await seller.goto(dealUrl);
-  await click(seller, "কনসেন্টর জন্য পাঠান");
+  await click(seller, "সম্মতির জন্য পাঠান");
   await buyer.goto(dealUrl);
   await click(buyer, "আমি ঠিক এই শর্তে সম্মত");
   await seller.goto(dealUrl);

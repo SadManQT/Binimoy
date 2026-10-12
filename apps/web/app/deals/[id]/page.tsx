@@ -240,7 +240,7 @@ export default async function DealPage({
                 {terms.timing.correctionAttempts} বার · আপিল:{" "}
                 {terms.timing.appealHours} ঘণ্টা
               </dd>
-              <dt>বায়ারের চূড়ান্ত কনসেন্ট ছাড়া স্বয়ংক্রিয় ছাড়</dt>
+              <dt>বায়ারের চূড়ান্ত সম্মতি ছাড়া স্বয়ংক্রিয় ছাড়</dt>
               <dd>
                 {terms.objectiveRelease
                   ? `চালু: প্রতিটি আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হলে বায়ারকে জানানো হয়, এবং ${terms.timing.objectiveChallengeHours} ঘণ্টার মধ্যে বায়ার আপত্তি না করলে সেলারকে পেমেন্ট হয়। আপত্তি করলে টাকা আটকে থাকে।`
@@ -249,7 +249,7 @@ export default async function DealPage({
               <dt>ডেলিভারি না হলে</dt>
               <dd>
                 সময়সীমার মধ্যে কিছু না দিলে পুরো টাকা ফেরত; অন্য ক্ষেত্রে রিভিউ বা দুই পক্ষের
-                কনসেন্ট।
+                সম্মতি।
               </dd>
             </dl>
 
@@ -273,8 +273,8 @@ export default async function DealPage({
             </ul>
             <p>
               <small>
-                শর্তের ছাপ: <code>{agreement.termsHash.slice(0, 16)}</code>.
-                কনসেন্ট ঠিক এই ছাপের সাথে বাঁধা থাকে।
+                শর্তের ছাপ: <code>{agreement.termsHash.slice(0, 16)}</code>. সম্মতি
+                ঠিক এই ছাপের সাথে বাঁধা থাকে।
               </small>
             </p>
           </section>
@@ -285,21 +285,21 @@ export default async function DealPage({
             {agreement.state === "DRAFT" && (
               <form action={agreementAction}>
                 {hidden("ProposeAgreement")}
-                <p>ড্রাফট ঠিক থাকলে দুই পক্ষের কনসেন্টর জন্য পাঠান।</p>
-                <button type="submit">কনসেন্টর জন্য পাঠান</button>
+                <p>ড্রাফট ঠিক থাকলে দুই পক্ষের সম্মতির জন্য পাঠান।</p>
+                <button type="submit">সম্মতির জন্য পাঠান</button>
               </form>
             )}
 
             {agreement.state === "AWAITING_ACCEPTANCE" && (
               <>
                 <p>
-                  কনসেন্ট দিয়েছেন:{" "}
+                  সম্মতি দিয়েছেন:{" "}
                   {agreement.acceptedBy.length === 0
                     ? "এখনো কেউ না"
                     : agreement.acceptedBy.map((r) => ROLE_TEXT[r]).join(", ")}
                 </p>
                 {agreement.acceptedBy.includes(deal.myRole) ? (
-                  <p>আপনি কনসেন্ট দিয়েছেন। অন্য পক্ষের অপেক্ষা।</p>
+                  <p>আপনি সম্মতি দিয়েছেন। অন্য পক্ষের অপেক্ষা।</p>
                 ) : (
                   <form action={agreementAction}>
                     {hidden("AcceptAgreement")}
@@ -395,7 +395,7 @@ export default async function DealPage({
                 <summary>শর্ত বদলান</summary>
                 <p>
                   বদলালে নতুন সংস্করণ তৈরি হয় এবং ডিল ড্রাফটয় ফিরে যায়। আগের সংস্করণে
-                  দেওয়া কোনো কনসেন্ট নতুন সংস্করণে গণ্য হয় না।
+                  দেওয়া কোনো সম্মতি নতুন সংস্করণে গণ্য হয় না।
                 </p>
                 <form action={agreementAction}>
                   {hidden("ReviseAgreement")}

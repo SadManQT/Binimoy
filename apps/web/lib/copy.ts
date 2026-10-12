@@ -24,7 +24,7 @@ export const ERROR_TEXT: Record<string, string> = {
   REVIEW_UNAVAILABLE:
     "এই ডিলে দুই পক্ষ শুধু-এআই ধরন বেছেছিলেন, তাই হিউম্যান রিভিউ নেই। দুই পক্ষ সম্মত বণ্টন করতে পারেন।",
   APPEAL_WINDOW_CLOSED: "আপিলের সময় শেষ হয়ে গেছে।",
-  MISSING_CONSENT: "লিখতে হলে আগে পর্যবেক্ষণে কনসেন্ট দিতে হবে।",
+  MISSING_CONSENT: "লিখতে হলে আগে পর্যবেক্ষণে সম্মতি দিতে হবে।",
   SECRET_SUSPECTED:
     "বার্তাটি পাসওয়ার্ড, কোড বা পিনের মতো দেখাচ্ছে, তাই সংরক্ষণ করা হয়নি। গোপন তথ্য ভল্টে দিন। এই শনাক্তকরণ নিখুঁত নয়; ভুল হলে বাক্যটি অন্যভাবে লিখুন।",
   BUDGET_EXHAUSTED: "এই ডিলে এআই ব্যবহারের সীমা শেষ হয়েছে।",
@@ -102,7 +102,7 @@ export const DISPUTE_TEXT: Record<string, string> = {
 
 export const STATE_TEXT: Record<string, string> = {
   DRAFT: "ড্রাফট",
-  AWAITING_ACCEPTANCE: "দুই পক্ষের কনসেন্টর অপেক্ষায়",
+  AWAITING_ACCEPTANCE: "দুই পক্ষের সম্মতির অপেক্ষায়",
   ACCEPTED: "দুই পক্ষ সম্মত (শর্ত আর বদলানো যাবে না)",
   SUPERSEDED: "নতুন ডিল দিয়ে প্রতিস্থাপিত",
   CANCELLED: "বাতিল",
@@ -144,7 +144,7 @@ export const NOTICE_TEXT: Record<string, string> = {
   DELIVERY_SUBMITTED: "সেলার ডেলিভারি জমা দিয়েছেন; আপনার চেকের সময় চলছে",
   OBJECTIVE_RELEASE_NOTICE:
     "সব আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হয়েছে। আপনি নির্ধারিত সময়ের মধ্যে আপত্তি না করলে সেলারকে পেমেন্ট হবে। ডিলটি খুলে দেখুন।",
-  SETTLEMENT_AUTHORIZED: "টাকা সেটেলমেন্টের অ্যাপ্রুভাল হয়েছে, এখনো পাঠানো হয়নি",
+  SETTLEMENT_AUTHORIZED: "টাকা সেটেলমেন্টের অনুমোদন হয়েছে, এখনো পাঠানো হয়নি",
   TRANSFER_COMPLETED: "টাকা পাঠানো সম্পন্ন হয়েছে (টেস্ট)",
   TRANSFER_FAILED: "টাকা পাঠানো ব্যর্থ হয়েছে; টাকা আবার আটকে রাখা হয়েছে",
   DISPUTE_OPENED: "অন্য পক্ষ একটি ডিসপিউট খুলেছেন। রিপোর্ট মানেই কেউ দোষী নয়।",
@@ -185,3 +185,31 @@ export const bnDate = (iso: string) =>
     month: "short",
     day: "numeric",
   });
+
+// English for the labels the signed-in pages share. Bangla stays the default.
+export const STATE_TEXT_EN: Record<string, string> = {
+  DRAFT: "Draft",
+  AWAITING_ACCEPTANCE: "Waiting for both sides to agree",
+  ACCEPTED: "Both sides agreed (terms are now fixed)",
+  SUPERSEDED: "Replaced by a newer deal",
+  CANCELLED: "Cancelled",
+  EXPIRED: "Expired",
+};
+export const ROLE_TEXT_EN: Record<string, string> = {
+  buyer: "Buyer",
+  seller: "Seller",
+};
+export const NOTICE_TEXT_EN: Record<string, string> = {
+  AGREEMENT_ACCEPTED: "Both sides agreed to the deal",
+  FUNDING_CONFIRMED: "Funding confirmed (test)",
+  DELIVERY_SUBMITTED:
+    "The seller submitted delivery; your checking time has started",
+  OBJECTIVE_RELEASE_NOTICE:
+    "Every required condition was independently confirmed. Unless you object within the set time, the seller will be paid. Open the deal to see.",
+  SETTLEMENT_AUTHORIZED: "Settlement approved, not yet sent",
+  TRANSFER_COMPLETED: "Transfer completed (test)",
+  TRANSFER_FAILED: "Transfer failed; the money is held again",
+  DISPUTE_OPENED:
+    "The other side opened a dispute. A report does not mean anyone is at fault.",
+  DISPUTE_UPDATED: "The dispute's status changed",
+};

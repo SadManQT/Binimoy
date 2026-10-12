@@ -1,5 +1,6 @@
 import { TEMPLATES } from "@lp/templates";
 import { ERROR_TEXT } from "../../../lib/copy";
+import { getI18n } from "../../../lib/i18n";
 import { requireUser } from "../../../lib/session";
 import { createDealAction } from "../actions";
 import { TermsFields } from "../terms-fields";
@@ -14,15 +15,21 @@ export default async function NewDealPage({
 }) {
   await requireUser();
   const { template: templateId, error } = await searchParams;
+  const { locale } = await getI18n();
+  const L = (bn: string, en: string) => (locale === "en" ? en : bn);
   const template = TEMPLATES.find((t) => t.templateId === templateId);
 
   if (!template) {
     return (
       <main>
-        <h1>নতুন ডিল: কী ধরনের প্রোডাক্ট?</h1>
+        <h1>
+          {L("নতুন ডিল: কী ধরনের প্রোডাক্ট?", "New deal: what kind of product?")}
+        </h1>
         <p>
-          এগারো ধরনের প্রোডাক্ট চালু আছে। “টেস্ট” লেখা ধরনগুলোতে প্রোভাইডারের ভেরিফাই একটি
-          টেস্ট প্রোভাইডার দিয়ে দেখানো হয়, আসল প্রোভাইডার দিয়ে নয়।
+          {L(
+            "এগারো ধরনের প্রোডাক্ট চালু আছে। “টেস্ট” লেখা ধরনগুলোতে প্রোভাইডারের চেক একটা টেস্ট প্রোভাইডার দিয়ে দেখানো হয়, আসল প্রোভাইডার দিয়ে না।",
+            "Eleven kinds of product are open. Where a kind says “test”, the provider check is shown with a test provider, not the real one.",
+          )}
         </p>
         <ul className="index">
           {TEMPLATES.map((t) => (
@@ -31,13 +38,13 @@ export default async function NewDealPage({
                 href={`/deals/new?template=${t.templateId}`}
                 data-no={t.categoryId.slice(4)}
               >
-                {t.name.bn}
+                {t.name[locale]}
               </a>
             </li>
           ))}
         </ul>
         <p>
-          <a href="/deals">ফিরে যান</a>
+          <a href="/deals">{L("ফিরে যান", "Back")}</a>
         </p>
       </main>
     );
@@ -45,11 +52,13 @@ export default async function NewDealPage({
 
   return (
     <main>
-      <h1>নতুন ডিল: {template.name.bn}</h1>
+      <h1>
+        {L("নতুন ডিল", "New deal")}: {template.name[locale]}
+      </h1>
       {error && <p role="alert">{ERROR_TEXT[error] ?? error}</p>}
       <form action={createDealAction}>
         <fieldset>
-          <legend>এই ডিলে আপনি</legend>
+          <legend>{L("এই ডিলে আপনি", "In this deal you are")}</legend>
           <label>
             <input
               type="radio"
@@ -59,7 +68,7 @@ export default async function NewDealPage({
               defaultChecked
               style={{ display: "inline", width: "auto", minHeight: 0 }}
             />{" "}
-            সেলার (প্রোডাক্ট দেবেন)
+            {L("সেলার (প্রোডাক্ট দেবেন)", "The seller (you deliver the product)")}
           </label>
           <label>
             <input
@@ -69,13 +78,20 @@ export default async function NewDealPage({
               required
               style={{ display: "inline", width: "auto", minHeight: 0 }}
             />{" "}
-            বায়ার (টাকা দেবেন)
+            {L("বায়ার (টাকা দেবেন)", "The buyer (you pay)")}
           </label>
         </fieldset>
         <TermsFields template={template} />
-        <button type="submit">ড্রাফট ডিল তৈরি করুন</button>
+        <button type="submit">
+          {L("ড্রাফট ডিল তৈরি করুন", "Create draft deal")}
+        </button>
       </form>
-      <p>এতে কোনো টাকা জমা হয় না। সব লেনদেন টেস্ট।</p>
+      <p>
+        {L(
+          "এতে কোনো টাকা জমা হয় না। সব লেনদেন টেস্ট।",
+          "No money is taken by this. Every transaction here is a test.",
+        )}
+      </p>
     </main>
   );
 }

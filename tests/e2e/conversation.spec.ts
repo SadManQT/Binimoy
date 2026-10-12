@@ -17,7 +17,7 @@ test("the deal room needs consent, keeps edit history and refuses a pasted passw
   await expect(room.locator('input[name="body"]')).toHaveCount(0);
   await expect(room.getByTestId("ai-may-read")).toContainText("না");
 
-  await click(buyer, "কনসেন্ট দিচ্ছি");
+  await click(buyer, "সম্মতি দিচ্ছি");
   await buyer
     .getByTestId("conversation")
     .locator('input[name="body"]')
@@ -33,7 +33,7 @@ test("the deal room needs consent, keeps edit history and refuses a pasted passw
   await expect(
     seller.getByTestId("conversation").locator('input[name="body"]'),
   ).toHaveCount(0);
-  await click(seller, "কনসেন্ট দিচ্ছি");
+  await click(seller, "সম্মতি দিচ্ছি");
   await expect(seller.getByTestId("ai-may-read")).toContainText("হ্যাঁ");
 
   // A password typed into the room is refused and does not appear.
