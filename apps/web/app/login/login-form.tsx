@@ -13,10 +13,13 @@ const PROVIDER_LABEL: Record<string, string> = {
 export function LoginForm({
   providers,
   showDevHint,
+  locale,
 }: {
   providers: string[];
   showDevHint: boolean;
+  locale: "bn" | "en";
 }) {
+  const L = (bn: string, en: string) => (locale === "en" ? en : bn);
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const [emailCodeSent, setEmailCodeSent] = useState(false);
@@ -30,17 +33,24 @@ export function LoginForm({
     then?: () => void,
   ) {
     setBusy(true);
-    setStatus("অপেক্ষা করুন…");
+    setStatus(L("অপেক্ষা করুন…", "Please wait…"));
     try {
       const outcome = await action();
       if (outcome?.error) {
-        setStatus(`হয়নি: ${outcome.error.message ?? "অজানা সমস্যা"}`);
+        setStatus(
+          `${L("হয়নি", "Failed")}: ${outcome.error.message ?? L("অজানা সমস্যা", "unknown problem")}`,
+        );
       } else {
         setStatus(done);
         then?.();
       }
     } catch {
-      setStatus("হয়নি: সার্ভারে পৌঁছানো যায়নি। আবার চেষ্টা করুন।");
+      setStatus(
+        L(
+          "হয়নি: সার্ভারে পৌঁছানো যায়নি। আবার চেষ্টা করুন।",
+          "Failed: could not reach the server. Try again.",
+        ),
+      );
     } finally {
       setBusy(false);
     }
@@ -49,7 +59,12 @@ export function LoginForm({
   const field = (form: FormEvent<HTMLFormElement>, name: string) =>
     String(new FormData(form.currentTarget).get(name) ?? "").trim();
   const toAccount = () => window.location.assign("/account");
-  const devHint = showDevHint ? " (লোকাল মোড: /dev/messages পাতায় দেখুন)" : "";
+  const devHint = showDevHint
+    ? L(
+        " (লোকাল মোড: /dev/messages পাতায় দেখুন)",
+        " (local mode: see /dev/messages)",
+      )
+    : "";
 
   return (
     <div className="auth-grid">
@@ -58,7 +73,7 @@ export function LoginForm({
       </p>
 
       <section aria-labelledby="pw">
-        <h2 id="pw">ইমেইল ও পাসওয়ার্ড</h2>
+        <h2 id="pw">{L("ইমেইল ও পাসওয়ার্ড", "Email and password")}</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -70,28 +85,28 @@ export function LoginForm({
               const name = field(e, "name") || email;
               run(
                 () => authClient.signUp.email({ name, email, password }),
-                "অ্যাকাউন্ট তৈরি হয়েছে।",
+                L("অ্যাকাউন্ট তৈরি হয়েছে।", "Account created."),
                 toAccount,
               );
             } else {
               run(
                 () => authClient.signIn.email({ email, password }),
-                "লগইন হয়েছে।",
+                L("লগইন হয়েছে।", "Logged in."),
                 toAccount,
               );
             }
           }}
         >
           <label>
-            নাম (নতুন অ্যাকাউন্টের জন্য)
+            {L("নাম (নতুন অ্যাকাউন্টের জন্য)", "Name (for a new account)")}
             <input name="name" autoComplete="name" />
           </label>
           <label>
-            ইমেইল
+            {L("ইমেইল", "Email")}
             <input name="email" type="email" required autoComplete="email" />
           </label>
           <label>
-            পাসওয়ার্ড (কমপক্ষে ১০ অক্ষর)
+            {L("পাসওয়ার্ড (কমপক্ষে ১০ অক্ষর)", "Password (at least 10 characters)")}
             <input
               name="password"
               type="password"
@@ -101,16 +116,16 @@ export function LoginForm({
             />
           </label>
           <button type="submit" value="signin" disabled={busy}>
-            লগইন
+            {L("লগইন", "Log in")}
           </button>
           <button type="submit" value="signup" disabled={busy}>
-            নতুন অ্যাকাউন্ট
+            {L("নতুন অ্যাকাউন্ট", "Create account")}
           </button>
         </form>
       </section>
 
       <section aria-labelledby="link">
-        <h2 id="link">ইমেইলে লগইন লিংক</h2>
+        <h2 id="link">{L("ইমেইলে লগইন লিংক", "Login link by email")}</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -118,22 +133,22 @@ export function LoginForm({
             run(
               () =>
                 authClient.signIn.magicLink({ email, callbackURL: "/account" }),
-              `লিংক পাঠানো হয়েছে।${devHint}`,
+              `${L("লিংক পাঠানো হয়েছে।", "Link sent.")}${devHint}`,
             );
           }}
         >
           <label>
-            ইমেইল
+            {L("ইমেইল", "Email")}
             <input name="email" type="email" required autoComplete="email" />
           </label>
           <button type="submit" disabled={busy}>
-            লিংক পাঠান
+            {L("লিংক পাঠান", "Send link")}
           </button>
         </form>
       </section>
 
       <section aria-labelledby="ecode">
-        <h2 id="ecode">ইমেইলে কোড</h2>
+        <h2 id="ecode">{L("ইমেইলে কোড", "Code by email")}</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -146,25 +161,25 @@ export function LoginForm({
                     email,
                     type: "sign-in",
                   }),
-                `কোড পাঠানো হয়েছে।${devHint}`,
+                `${L("কোড পাঠানো হয়েছে।", "Code sent.")}${devHint}`,
                 () => setEmailCodeSent(true),
               );
             } else {
               run(
                 () => authClient.signIn.emailOtp({ email, otp }),
-                "লগইন হয়েছে।",
+                L("লগইন হয়েছে।", "Logged in."),
                 toAccount,
               );
             }
           }}
         >
           <label>
-            ইমেইল
+            {L("ইমেইল", "Email")}
             <input name="email" type="email" required autoComplete="email" />
           </label>
           {emailCodeSent && (
             <label>
-              কোড
+              {L("কোড", "Code")}
               <input
                 name="otp"
                 inputMode="numeric"
@@ -174,13 +189,15 @@ export function LoginForm({
             </label>
           )}
           <button type="submit" disabled={busy}>
-            {emailCodeSent ? "কোড দিয়ে লগইন" : "কোড পাঠান"}
+            {emailCodeSent
+              ? L("কোড দিয়ে লগইন", "Log in with code")
+              : L("কোড পাঠান", "Send code")}
           </button>
         </form>
       </section>
 
       <section aria-labelledby="phone">
-        <h2 id="phone">ফোনে কোড</h2>
+        <h2 id="phone">{L("ফোনে কোড", "Code by phone")}</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -189,25 +206,28 @@ export function LoginForm({
             if (!phoneCodeSent) {
               run(
                 () => authClient.phoneNumber.sendOtp({ phoneNumber }),
-                `কোড পাঠানো হয়েছে।${devHint}`,
+                `${L("কোড পাঠানো হয়েছে।", "Code sent.")}${devHint}`,
                 () => setPhoneCodeSent(true),
               );
             } else {
               run(
                 () => authClient.phoneNumber.verify({ phoneNumber, code }),
-                "লগইন হয়েছে।",
+                L("লগইন হয়েছে।", "Logged in."),
                 toAccount,
               );
             }
           }}
         >
           <label>
-            ফোন নম্বর (যেমন +8801XXXXXXXXX)
+            {L(
+              "ফোন নম্বর (যেমন +8801XXXXXXXXX)",
+              "Phone number (like +8801XXXXXXXXX)",
+            )}
             <input name="phone" type="tel" required autoComplete="tel" />
           </label>
           {phoneCodeSent && (
             <label>
-              কোড
+              {L("কোড", "Code")}
               <input
                 name="code"
                 inputMode="numeric"
@@ -217,15 +237,22 @@ export function LoginForm({
             </label>
           )}
           <button type="submit" disabled={busy}>
-            {phoneCodeSent ? "কোড দিয়ে লগইন" : "কোড পাঠান"}
+            {phoneCodeSent
+              ? L("কোড দিয়ে লগইন", "Log in with code")
+              : L("কোড পাঠান", "Send code")}
           </button>
         </form>
       </section>
 
       <section aria-labelledby="social">
-        <h2 id="social">অন্য অ্যাকাউন্ট দিয়ে</h2>
+        <h2 id="social">{L("অন্য অ্যাকাউন্ট দিয়ে", "With another account")}</h2>
         {providers.length === 0 ? (
-          <p>এই পরিবেশে Google, Facebook বা GitHub লগইন এখনো চালু করা হয়নি।</p>
+          <p>
+            {L(
+              "এই পরিবেশে Google, Facebook বা GitHub লগইন এখনো চালু করা হয়নি।",
+              "Google, Facebook and GitHub login are not set up in this environment yet.",
+            )}
+          </p>
         ) : (
           providers.map((provider) => (
             <button
@@ -239,11 +266,14 @@ export function LoginForm({
                       provider,
                       callbackURL: "/account",
                     }),
-                  "অন্য সাইটে নেওয়া হচ্ছে…",
+                  L("অন্য সাইটে নেওয়া হচ্ছে…", "Taking you to the other site…"),
                 )
               }
             >
-              {PROVIDER_LABEL[provider] ?? provider} দিয়ে লগইন
+              {L(
+                `${PROVIDER_LABEL[provider] ?? provider} দিয়ে লগইন`,
+                `Continue with ${PROVIDER_LABEL[provider] ?? provider}`,
+              )}
             </button>
           ))
         )}
