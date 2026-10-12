@@ -2,11 +2,11 @@
 
 - Product name: Binimoy (ADR-008)
 - Completion level: D0. Nothing at D1 or above is verified.
-- Active branch: `lp-001-bootstrap` · base `b8244aeecdc10efc263b89e5c4e7dcd82c6b7c47`
-- Active task: LP-001 (IN_REVIEW). Handoff: `docs/handoffs/LP-001.md`
+- Active branch: `lp-002-contracts` (on top of `lp-001-bootstrap`; neither merged nor pushed)
+- Active tasks: LP-001 (IN_REVIEW), LP-002 (IN_REVIEW). Handoffs: `docs/handoffs/LP-001.md`, `docs/handoffs/LP-002.md`
 - Verified milestones: none
 - Blockers: none. Supabase project `binimoy` (ref `mhhhpnkkzpjefngcpinh`, ap-southeast-1, PostgreSQL 17) is connected through the session pooler.
-- Next task: LP-002
+- Next task: LP-003
 
 ## Scripts
 

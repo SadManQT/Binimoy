@@ -5,13 +5,17 @@
   "exports": {
     ".": "./src/index.ts",
     "./migrate": "./src/migrate.ts",
-    "./testing": "./src/testing.ts"
+    "./testing": "./src/testing.ts",
+    "./commands": "./src/commands.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "pg": "8.23.1"
+    "@lp/contracts": "workspace:*",
+    "@lp/domain": "workspace:*",
+    "pg": "8.23.1",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@types/pg": "8.23.1"

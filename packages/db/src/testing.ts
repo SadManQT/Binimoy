@@ -12,10 +12,7 @@ export async function testPool(): Promise<Pool> {
       "Set DATABASE_URL (or TEST_DATABASE_URL) in .env to run integration tests.",
     );
   }
-  const pool = createPool(url);
-  pool.on("connect", (client) => {
-    client.query(`set search_path to ${SCHEMA}`);
-  });
+  const pool = createPool(url, SCHEMA);
   await pool.query(`create schema if not exists ${SCHEMA}`);
   return pool;
 }

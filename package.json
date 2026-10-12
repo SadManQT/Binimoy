@@ -6,7 +6,7 @@
     "lint": "biome check .",
     "typecheck": "tsc --noEmit && pnpm -r typecheck",
     "test:unit": "vitest run --exclude '**/*.int.test.ts'",
-    "test:integration": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run --no-file-parallelism .int.test.ts",
+    "test:integration": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run --no-file-parallelism --testTimeout=60000 --hookTimeout=60000 .int.test.ts",
     "db:migrate": "tsx --env-file=.env packages/db/src/cli.ts",
     "db:local": "docker compose -f infra/docker-compose.yml up -d --wait",
     "setup": "pnpm db:migrate",

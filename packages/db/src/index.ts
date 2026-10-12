@@ -2,8 +2,12 @@ import pg from "pg";
 
 export type Pool = pg.Pool;
 
-export function createPool(connectionString: string): Pool {
-  const pool = new pg.Pool({ connectionString });
+// `schema` confines every connection to one schema; integration tests use it.
+export function createPool(connectionString: string, schema?: string): Pool {
+  const pool = new pg.Pool({
+    connectionString,
+    ...(schema ? { options: `-c search_path=${schema}` } : {}),
+  });
   // A server-side drop of an idle connection (restart, pooler timeout) emits
   // 'error' on the pool. Unhandled, it kills the process; the pool reconnects
   // on the next query. Log the message only: the error object holds the password.

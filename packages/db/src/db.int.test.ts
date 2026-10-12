@@ -6,7 +6,8 @@ import { testPool } from "./testing";
 const pool = await testPool();
 
 beforeAll(async () => {
-  await pool.query("drop table if exists worker_heartbeat, schema_migrations");
+  await pool.query("drop schema lp_test cascade");
+  await pool.query("create schema lp_test");
 });
 afterAll(() => pool.end());
 
@@ -30,6 +31,7 @@ test("two concurrent migrators apply each migration exactly once", async () => {
   expect([...a, ...b]).toEqual([
     "0001_worker_heartbeat.sql",
     "0002_enable_rls.sql",
+    "0003_command_kernel.sql",
   ]);
   expect(await migrate(pool)).toEqual([]);
 });
