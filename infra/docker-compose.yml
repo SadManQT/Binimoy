@@ -1,0 +1,18 @@
+name: lenden-prohori
+services:
+  postgres:
+    image: postgres:17-alpine@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+    environment:
+      POSTGRES_USER: lp
+      POSTGRES_PASSWORD: lp_local_only
+      POSTGRES_DB: lp
+    ports: ["127.0.0.1:54329:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lp -d lp"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+volumes:
+  pgdata:
