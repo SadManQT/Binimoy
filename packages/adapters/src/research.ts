@@ -193,19 +193,28 @@ export async function runResearch(
   }
   coverage.candidates = candidates.size;
 
+  // Six pages at a time: each fetch is bounded, and so is the whole lookup.
+  const entries = [...candidates];
+  const pages: Retrieved[] = [];
+  for (let start = 0; start < entries.length; start += 6) {
+    pages.push(
+      ...(await Promise.all(
+        entries.slice(start, start + 6).map(([url]) =>
+          input.retrieve.fetch(url).catch(
+            (): Retrieved => ({
+              access: "UNAVAILABLE",
+              body: null,
+              publishedAt: null,
+              author: null,
+            }),
+          ),
+        ),
+      )),
+    );
+  }
   const cards = [];
-  for (const [url, found] of candidates) {
-    let page: Retrieved;
-    try {
-      page = await input.retrieve.fetch(url);
-    } catch {
-      page = {
-        access: "UNAVAILABLE",
-        body: null,
-        publishedAt: null,
-        author: null,
-      };
-    }
+  for (const [index, [url, found]] of entries.entries()) {
+    const page = pages[index] as Retrieved;
     const body =
       (page.access === "FULL_TEXT" || page.access === "PARTIAL_TEXT") &&
       page.body

@@ -19,7 +19,8 @@
     "./verification": "./src/verification.ts",
     "./notices": "./src/notices.ts",
     "./ops": "./src/ops.ts",
-    "./receipt": "./src/receipt.ts"
+    "./receipt": "./src/receipt.ts",
+    "./lab": "./src/lab.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

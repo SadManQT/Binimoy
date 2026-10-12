@@ -18,7 +18,7 @@ import {
 import { sweepVerifications } from "@lp/db/verification";
 
 const config = loadConfig(process.env);
-const pool = createPool(config.DATABASE_URL);
+const pool = createPool(config.DATABASE_URL, config.DB_SCHEMA);
 const workerId = `${hostname()}:${process.pid}`;
 // PAYMENT_MODE can only be "mock", so this is the only adapter that exists.
 const transfers = mockTransferAdapter(pool);

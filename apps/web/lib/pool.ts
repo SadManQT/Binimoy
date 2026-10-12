@@ -5,6 +5,7 @@ const cache = globalThis as { lpPool?: Pool };
 
 // Cached on globalThis so dev hot reload does not open a new pool per edit.
 export function pool(): Pool {
-  cache.lpPool ??= createPool(loadConfig(process.env).DATABASE_URL);
+  const config = loadConfig(process.env);
+  cache.lpPool ??= createPool(config.DATABASE_URL, config.DB_SCHEMA);
   return cache.lpPool;
 }

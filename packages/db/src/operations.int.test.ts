@@ -186,14 +186,10 @@ test("notices follow the recorded events, once each, to the right people, with n
     if ((await dealBalances(pool, deal.dealId)).sellerPaid === TEST_AMOUNT)
       break;
   }
-  // The suite shares a schema: drain until this deal's last event is through.
-  for (let attempt = 0; attempt < 50; attempt += 1) {
-    await deliverOutbox(pool, "test-worker");
-    if (
-      (await kinds(deal.seller, deal.dealId)).includes("TRANSFER_COMPLETED")
-    ) {
-      break;
-    }
+  // The suite shares a schema, and earlier files leave thousands of events
+  // behind: drain until the outbox is empty.
+  for (let attempt = 0; attempt < 1000; attempt += 1) {
+    if ((await deliverOutbox(pool, "test-worker")) === 0) break;
   }
   const buyer = await kinds(deal.buyer, deal.dealId);
   const seller = await kinds(deal.seller, deal.dealId);

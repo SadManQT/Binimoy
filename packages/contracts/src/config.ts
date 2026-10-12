@@ -19,6 +19,11 @@ const schema = z
   .object({
     APP_ENV: z.enum(["local", "test", "staging", "production"]),
     DATABASE_URL: z.string().min(1),
+    // Set to "lp_lab" to run the app on the Scenario Lab schema.
+    DB_SCHEMA: z
+      .string()
+      .regex(/^[a-z][a-z0-9_]*$/)
+      .optional(),
     APP_URL: z.string().regex(/^https?:\/\/[^/]+$/),
     AUTH_SECRET: z.string().min(32),
     GOOGLE_CLIENT_ID: z.string().optional(),

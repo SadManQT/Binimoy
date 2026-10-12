@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx --env-file=../../.env src/main.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "start": "tsx src/main.ts"
   },
   "dependencies": {
     "@lp/contracts": "workspace:*",

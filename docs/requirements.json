@@ -302,7 +302,7 @@
       "packages/adapters/src/auth.int.test.ts",
       "packages/db/src/access.int.test.ts"
     ],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-003.md"]
   },
   {
     "id": "FE-10",
@@ -321,7 +321,7 @@
       "packages/db/src/agreements.int.test.ts",
       "packages/templates/src/templates.test.ts"
     ],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-004.md"]
   },
   {
     "id": "FE-11",
@@ -353,7 +353,7 @@
       "packages/db/src/ledger.ts"
     ],
     "acceptanceTests": ["packages/db/src/review.int.test.ts"],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-010.md"]
   },
   {
     "id": "FE-13",
@@ -372,7 +372,7 @@
       "packages/domain/src/secrets.test.ts",
       "tests/e2e/conversation.spec.ts"
     ],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-006.md"]
   },
   {
     "id": "FE-14",
@@ -392,7 +392,7 @@
       "packages/adapters/src/assessments.int.test.ts",
       "tests/e2e/conversation.spec.ts"
     ],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-011.md"]
   },
   {
     "id": "FE-15",
@@ -414,7 +414,7 @@
       "packages/adapters/src/vault-rooms.int.test.ts",
       "tests/e2e/vault.spec.ts"
     ],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-007-part-2.md"]
   },
   {
     "id": "FE-16",
@@ -431,7 +431,7 @@
       "packages/db/src/settlement.int.test.ts",
       "tests/e2e/vault.spec.ts"
     ],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-008-009.md"]
   },
   {
     "id": "FE-17",
@@ -439,10 +439,13 @@
     "phase": "P0",
     "ownerTask": "LP-008",
     "acceptance": "Wrong account, retained recovery, buyer rotation, suspension, provider outage and actor uncertainty differ",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/verification.ts",
+      "apps/web/app/deals/delivery-section.tsx"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "FE-18",
@@ -457,7 +460,7 @@
       "apps/web/app/deals/funding-section.tsx"
     ],
     "acceptanceTests": ["packages/db/src/ledger.int.test.ts"],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-005.md"]
   },
   {
     "id": "FE-19",
@@ -474,7 +477,7 @@
       "packages/db/src/settlement.int.test.ts",
       "packages/db/src/review.int.test.ts"
     ],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-008-009.md"]
   },
   {
     "id": "FE-20",
@@ -482,10 +485,13 @@
     "phase": "P0",
     "ownerTask": "LP-018",
     "acceptance": "Per-milestone funds and dependency checks; no copied-file erasure or unfunded clawback promise",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/delivery.ts",
+      "packages/db/src/agreements.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
+    "evidence": ["docs/handoffs/LP-021.md"]
   },
   {
     "id": "FE-21",
@@ -504,7 +510,7 @@
       "packages/db/src/review.int.test.ts",
       "tests/e2e/review.spec.ts"
     ],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-010.md"]
   },
   {
     "id": "FE-22",
@@ -522,7 +528,7 @@
       "packages/db/src/review.int.test.ts",
       "tests/e2e/review.spec.ts"
     ],
-    "evidence": []
+    "evidence": ["docs/handoffs/LP-010.md"]
   },
   {
     "id": "FE-23",
@@ -530,10 +536,16 @@
     "phase": "P0",
     "ownerTask": "LP-018",
     "acceptance": "Failed delivery/changed proof/outage cannot silently start or shorten a challenge period",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/notices.ts",
+      "apps/web/app/notifications/page.tsx"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/operations.int.test.ts",
+      "tests/e2e/catalog.spec.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-018-022.md"]
   },
   {
     "id": "FE-24",
@@ -541,10 +553,16 @@
     "phase": "P0",
     "ownerTask": "LP-014",
     "acceptance": "Reconstruct agreement, evidence and allocation at the bound versions without secrets",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/db/src/receipt.ts",
+      "apps/web/app/deals/[id]/receipt/page.tsx"
+    ],
+    "acceptanceTests": [
+      "packages/db/src/operations.int.test.ts",
+      "tests/e2e/catalog.spec.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-018-022.md"]
   },
   {
     "id": "FE-25",
@@ -552,10 +570,13 @@
     "phase": "P0",
     "ownerTask": "LP-014",
     "acceptance": "Synthetic namespace reset, hidden ground truth, independent actors and no public credibility leakage",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "packages/adapters/src/demo-cli.ts",
+      "packages/db/src/lab.ts"
+    ],
+    "acceptanceTests": ["packages/db/src/lab.test.ts"],
+    "evidence": ["docs/handoffs/LP-018-022.md"]
   },
   {
     "id": "FE-26",
@@ -563,10 +584,13 @@
     "phase": "P0",
     "ownerTask": "LP-022",
     "acceptance": "Held-out attribution/identity/negation/citation/abstention metrics and cost are recorded",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "scripts/eval-ai.ts",
+      "evals/research-heldout.json"
+    ],
+    "acceptanceTests": ["scripts/repo.test.ts"],
+    "evidence": ["docs/handoffs/LP-018-022.md"]
   },
   {
     "id": "FE-27",
@@ -585,10 +609,13 @@
     "phase": "P0",
     "ownerTask": "LP-015",
     "acceptance": "Exact artifact, environment isolation, restored tombstones, money reconciliation and exercised alerts",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": ["packages/db/src/ops.ts", "apps/web/lib/health.ts"],
+    "acceptanceTests": [
+      "packages/db/src/operations.int.test.ts",
+      "apps/web/lib/health.int.test.ts"
+    ],
+    "evidence": ["docs/handoffs/LP-018-022.md"]
   },
   {
     "id": "FE-29",

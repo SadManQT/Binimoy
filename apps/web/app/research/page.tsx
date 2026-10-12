@@ -1,4 +1,5 @@
 import { listCollections } from "@lp/adapters";
+import { loadConfig } from "@lp/contracts";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
 import { runResearchAction } from "./actions";
@@ -27,6 +28,7 @@ export default async function ResearchPage({
   const user = await requireUser();
   const { error } = await searchParams;
   const collections = await listCollections(pool(), user.id);
+  const live = loadConfig(process.env).RESEARCH_MODE === "live";
   return (
     <main>
       <h1>বিক্রেতা খোঁজ</h1>
@@ -34,10 +36,18 @@ export default async function ResearchPage({
         একটি পেজ বা দোকানের নাম লিখুন। আমরা ওয়েবে তার সম্পর্কে লেখা পোস্ট খুঁজে, কে কী বলেছে
         তা উৎসসহ দেখাই। আমরা কাউকে ভালো বা খারাপ বলি না, কোনো স্কোর দিই না।
       </p>
-      <p data-testid="fixture-label">
-        <strong>পরীক্ষামূলক তথ্য:</strong> এখন শুধু বানানো নমুনা পোস্ট থেকে ফল আসে, আসল
-        ওয়েব সার্চ থেকে নয়।
-      </p>
+      {live ? (
+        <p data-testid="live-label">
+          <strong>আসল ওয়েব সার্চ চালু:</strong> ফল একটি সার্চ সেবা থেকে আসে এবং পাতাগুলো
+          সরাসরি পড়ার চেষ্টা করা হয়। কে লিখেছেন তা স্বয়ংক্রিয়ভাবে জানা যায় না, তাই পোস্টের ধরন
+          ঠিক করা হয় না।
+        </p>
+      ) : (
+        <p data-testid="fixture-label">
+          <strong>পরীক্ষামূলক তথ্য:</strong> এখন শুধু বানানো নমুনা পোস্ট থেকে ফল আসে, আসল
+          ওয়েব সার্চ থেকে নয়।
+        </p>
+      )}
       {error ? <p role="alert">{ERRORS[error] ?? "খোঁজ শুরু করা যায়নি।"}</p> : null}
       <form action={runResearchAction}>
         <label>
