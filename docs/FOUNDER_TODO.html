@@ -93,7 +93,9 @@ You asked for every feature to be finished. A lot more is built and tested than 
 <tr><td>Seller lookup</td><td>Works</td><td><strong>Sample data only:</strong> 12 invented posts about one invented shop. Real search code exists but has never run.</td></tr>
 <tr><td>Shop directory, shop pages, reviews with star ratings</td><td>Works</td><td>Real. Pages at <code>/shops</code> are readable without signing in. A shop appears once someone's experience of it is published. Text only (no screenshots).</td></tr>
 <tr><td>Scam reports and the alerts page</td><td>Works</td><td>Real. Complaints are shown as the writer's allegation, after a moderator checks the publication rules. Moderators can post general warnings. See the decision in section 8.</td></tr>
-<tr><td>Design and 3D front page</td><td>First pass done</td><td>One dark theme, Bangla fonts, a 3D strongbox on the front page. I reviewed it from screenshots only; no person has looked at it and it was not opened on a real phone.</td></tr>
+<tr><td>Design, artwork and 3D</td><td>Second pass done</td><td>New navy and aqua look, generated 3D-style illustrations for each feature, and a 3D scene of a shop being inspected (the chest is gone). I reviewed it from screenshots only.</td></tr>
+<tr><td>Bangla and English</td><td>Partly done</td><td>The front page, shops, shop pages, alerts, header and footer are fully in both languages, with a switch in the header. The review-writing pages are mostly in both. Deal pages, login and staff pages are Bangla only. All Bangla now uses everyday words (সেলার, রিভিউ, রিফান্ড, ডেলিভারি).</td></tr>
+<tr><td>Trust signal, review highlights, copy detection</td><td>Works</td><td>Counting, not a model: a trust level per shop, the words reviewers use most, and a hint to moderators when a review looks copied.</td></tr>
 <tr><td>Notices</td><td>Works</td><td>Inside the app only. No email, no SMS.</td></tr>
 <tr><td>Online / staging</td><td>Does not exist</td><td>Everything runs only on your computer. A container image builds, but was never deployed.</td></tr>
 </table>
@@ -136,7 +138,7 @@ You asked for every feature to be finished. A lot more is built and tested than 
 <tr><td>F</td><td>Give staff roles to real people</td><td>No reviewers or moderators exist</td><td>5 min</td><td>Free</td></tr>
 <tr><td>G</td><td>Get someone else to check the work</td><td>Rule of the spec: the builder cannot verify itself</td><td>Depends</td><td>Depends</td></tr>
 <tr><td>H</td><td>Free disk space on your Mac</td><td><strong>The disk is full.</strong> Builds and tests stop when it runs out</td><td>15 min</td><td>Free</td></tr>
-<tr><td>I</td><td>Decide about trust labels</td><td>I did not build "trusted" or "scammer" badges; see why</td><td>10 min</td><td>Free</td></tr>
+<tr><td>I</td><td>Trust signal</td><td>Built on your decision; nothing for you to do</td><td>0</td><td>Free</td></tr>
 </table>
 </div>
 <p>A, B and C are independent; do them in any order. D needs C if you want password reset to work online. For each one, when you have the key, <strong>do not paste it into chat.</strong> Put it in the <code>.env</code> file as shown, then tell me "done".</p>
@@ -329,26 +331,16 @@ pnpm ops resume funding "reason"</code></pre>
 </div>
 
 <div class="task">
-<span class="tag soon">I</span><span class="tag">10 minutes</span>
-<h3>Decide about trust labels</h3>
-<p>You asked for trust indicators so people can quickly see whether a shop appears trustworthy. I built these:</p>
+<span class="tag">I</span><span class="tag">done on your decision</span>
+<h3>Trust signal: built</h3>
+<p>You told me this is a student research project and to go ahead, so each shop with three or more published reviews now shows a <strong>trust signal</strong>: a level (good signals, mixed signals, be careful) and a number out of 100. Below three reviews it says "not enough data".</p>
 <ul>
-  <li>Star ratings given by reviewers, and their average with the number of ratings.</li>
-  <li>Counts: how many experiences, how many complaints, how many complaints the shop answered, how many the writer says were resolved.</li>
-  <li>Complaints marked "the writer's allegation, not verified", with the shop's right to reply.</li>
+  <li>It is plain arithmetic on published reviews, ratings, and whether scam reports were answered or resolved. The reasons are listed next to it.</li>
+  <li>Shops can be sorted by it.</li>
+  <li>Binimoy still does not write "scammer" about anyone; a report stays labelled as the writer's claim.</li>
 </ul>
-<p>I did <strong>not</strong> build a badge where Binimoy itself says "trusted", "safe" or "scammer", and shops are not sorted by rating. Two reasons:</p>
-<ol>
-  <li>The specification you made the rule for this project forbids it (it says the platform must not issue verdicts, trust scores, or rank one seller as safer).</li>
-  <li>If Binimoy calls a named business a scammer on unverified reports and is wrong, that harms them and can bring legal claims against you.</li>
-</ol>
-<p>The ways forward:</p>
-<ul>
-  <li><strong>Keep it as it is</strong> (my recommendation). People read the counts and decide.</li>
-  <li><strong>Add a rule-based label</strong>, for example "3 or more unanswered complaints in 90 days". Possible, but talk to a lawyer first, and tell me the exact rule you want.</li>
-</ul>
-<p>The reasoning is written down in <code>docs/adr/ADR-009-shop-directory-ratings-and-alerts.md</code>.</p>
-<p><small>Also: I used your Tripo account once to make the 3D strongbox on the front page. It cost 30 credits (445 → 415).</small></p>
+<p>If this ever goes beyond a research project with invented data, get legal advice first: this part departs from the specification, and that is recorded in <code>docs/adr/ADR-009-shop-directory-ratings-and-alerts.md</code>.</p>
+<p><small>Tripo credits used so far: 190 (445 → 255). Two 3D models at 30 each, seven illustrations at about 20 each. One early illustration attempt failed without charge.</small></p>
 </div>
 
 <h2 id="missing">9. What is still not built</h2>

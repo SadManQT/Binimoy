@@ -4,6 +4,7 @@ import {
   SHOP_CATEGORY_KEYS,
 } from "@lp/db/community";
 import { SHOP_CATEGORIES } from "@lp/db/shops";
+import { getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
 import { saveDraftAction } from "./actions";
@@ -19,15 +20,22 @@ export const metadata = { title: "এক্সপেরিয়েন্স জ
 export default async function CommunityPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; q?: string; subject?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    q?: string;
+    subject?: string;
+    type?: string;
+  }>;
 }) {
   const user = await requireUser();
-  const { error, q, subject } = await searchParams;
+  const { locale, t } = await getI18n();
+  const L = (bn: string, en: string) => (locale === "en" ? en : bn);
+  const { error, q, subject, type } = await searchParams;
   const mine = await listMyReports(pool(), user.id);
   const found = q ? await listPublished(pool(), q) : null;
   return (
     <main>
-      <h1>এক্সপেরিয়েন্স জানান</h1>
+      <h1>{L("এক্সপেরিয়েন্স জানান", "Write a review")}</h1>
       <p>
         কোনো পেজ বা শপ থেকে কেনার এক্সপেরিয়েন্স, ভালো বা খারাপ, এখানে লিখতে পারেন। ড্রাফট শুধু
         আপনি দেখেন। আপনি অ্যাপ্রুভাল দিলে এবং একজন মডারেটর নিয়ম মিলিয়ে দেখলে তবেই
@@ -38,10 +46,10 @@ export default async function CommunityPage({
       ) : null}
 
       <section aria-labelledby="new">
-        <h2 id="new">নতুন ড্রাফট</h2>
+        <h2 id="new">{L("নতুন ড্রাফট", "New draft")}</h2>
         <form action={saveDraftAction}>
           <label>
-            পেজ বা শপের নাম
+            {L("পেজ বা শপের নাম", "Page or shop name")}
             <input
               name="subject"
               required
@@ -51,9 +59,12 @@ export default async function CommunityPage({
             />
           </label>
           <label>
-            এক্সপেরিয়েন্সের ধরন
-            <select name="experienceType" defaultValue="negative">
-              {Object.entries(EXPERIENCE_TEXT).map(([value, label]) => (
+            {L("এক্সপেরিয়েন্সের ধরন", "Type of experience")}
+            <select
+              name="experienceType"
+              defaultValue={type === "negative" ? "negative" : "positive"}
+            >
+              {Object.entries(t.types).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
                 </option>
@@ -61,23 +72,23 @@ export default async function CommunityPage({
             </select>
           </label>
           <label>
-            শপের ধরন
+            {L("শপের ধরন", "Kind of shop")}
             <select name="shopCategory" defaultValue="other">
               {SHOP_CATEGORY_KEYS.map((key) => (
                 <option key={key} value={key}>
-                  {SHOP_CATEGORIES[key].bn}
+                  {t.categories[key]}
                 </option>
               ))}
             </select>
           </label>
-          <button type="submit">ড্রাফট শুরু করুন</button>
+          <button type="submit">{L("ড্রাফট শুরু করুন", "Start a draft")}</button>
         </form>
       </section>
 
       <section aria-labelledby="mine">
-        <h2 id="mine">আমার লেখা</h2>
+        <h2 id="mine">{L("আমার লেখা", "My posts")}</h2>
         {mine.length === 0 ? (
-          <p>এখনো কিছু লেখেননি।</p>
+          <p>{L("এখনো কিছু লেখেননি।", "You have not written anything yet.")}</p>
         ) : (
           <ul>
             {mine.map((report) => (
@@ -91,13 +102,15 @@ export default async function CommunityPage({
       </section>
 
       <section aria-labelledby="find">
-        <h2 id="find">পাবলিশড এক্সপেরিয়েন্স খুঁজুন</h2>
+        <h2 id="find">
+          {L("পাবলিশড এক্সপেরিয়েন্স খুঁজুন", "Find published reviews")}
+        </h2>
         <form method="get">
           <label>
-            হুবহু নাম
+            {L("হুবহু নাম", "Exact name")}
             <input name="q" defaultValue={q ?? ""} maxLength={120} />
           </label>
-          <button type="submit">দেখুন</button>
+          <button type="submit">{L("দেখুন", "Show")}</button>
         </form>
         {found === null ? null : found.length === 0 ? (
           <p>

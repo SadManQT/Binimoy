@@ -2,6 +2,7 @@ import { formatBdt } from "@lp/contracts";
 import { getReport } from "@lp/db/community";
 import { notFound } from "next/navigation";
 import { ISSUE_TEXT } from "../../../lib/copy";
+import { getI18n } from "../../../lib/i18n";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
 import {
@@ -34,6 +35,8 @@ export default async function ReportPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   const user = await requireUser();
+  const { locale, t } = await getI18n();
+  const L = (bn: string, en: string) => (locale === "en" ? en : bn);
   const { id } = await params;
   const { error } = await searchParams;
   // A draft, an unpublished report and a missing one all look the same.
@@ -49,19 +52,25 @@ export default async function ReportPage({
   return (
     <main>
       <p>
-        <a href="/community">← এক্সপেরিয়েন্সের পাতা</a>
+        <a href="/community">← {t.nav.write}</a>
       </p>
-      <h1>“{report.subject}” সম্পর্কে একজন ব্যবহারকারীর লেখা</h1>
+      <h1>{report.subject}</h1>
       <p data-testid="report-state">
-        <strong>{EXPERIENCE_TEXT[report.experienceType]}</strong> ·{" "}
+        <strong>{t.types[report.experienceType]}</strong> ·{" "}
         {REPORT_STATE_TEXT[report.state]}
         {report.eventDate ? ` · ঘটনার তারিখ: ${report.eventDate}` : ""}
         {report.rating ? ` · লেখকের রেটিং: ${report.rating} / ৫` : ""}
       </p>
       {report.issue && (
         <p data-testid="report-issue">
-          <strong>লেখকের রিপোর্ট:</strong> {ISSUE_TEXT[report.issue]}{" "}
-          <small>(লেখকের দাবি, ভেরিফাই করা হয়নি)</small>
+          <strong>{L("লেখকের রিপোর্ট:", "Reported:")}</strong>{" "}
+          {t.issues[report.issue]}{" "}
+          <small>
+            {L(
+              "(লেখকের দাবি, ভেরিফাই করা হয়নি)",
+              "(the writer's claim, not verified)",
+            )}
+          </small>
         </p>
       )}
       {error ? (
@@ -101,7 +110,12 @@ export default async function ReportPage({
 
       {report.narrative !== undefined && !editable ? (
         <section aria-labelledby="private" data-testid="private-original">
-          <h2 id="private">ব্যক্তিগত মূল লেখা (প্রকাশ হয় না)</h2>
+          <h2 id="private">
+            {L(
+              "ব্যক্তিগত মূল লেখা (প্রকাশ হয় না)",
+              "Private original (never published)",
+            )}
+          </h2>
           <blockquote>{report.narrative}</blockquote>
           {report.amountMinor ? (
             <p>দাবি করা টাকা: {formatBdt(report.amountMinor)}</p>
@@ -112,17 +126,17 @@ export default async function ReportPage({
       {editable ? (
         <>
           <section aria-labelledby="edit">
-            <h2 id="edit">ড্রাফট</h2>
+            <h2 id="edit">{L("ড্রাফট", "Draft")}</h2>
             <form action={saveDraftAction}>
               <input type="hidden" name="reportId" value={report.id} />
               <input type="hidden" name="subject" value={report.subject} />
               <label>
-                এক্সপেরিয়েন্সের ধরন
+                {L("এক্সপেরিয়েন্সের ধরন", "Type of experience")}
                 <select
                   name="experienceType"
                   defaultValue={report.experienceType}
                 >
-                  {Object.entries(EXPERIENCE_TEXT).map(([value, label]) => (
+                  {Object.entries(t.types).map(([value, label]) => (
                     <option key={value} value={value}>
                       {label}
                     </option>
@@ -130,21 +144,27 @@ export default async function ReportPage({
                 </select>
               </label>
               <label>
-                আপনার রেটিং (ঐচ্ছিক; এটি আপনার নিজের মূল্যায়ন)
+                {L(
+                  "আপনার রেটিং (ঐচ্ছিক; এটি আপনার নিজের মূল্যায়ন)",
+                  "Your rating (optional; it is your own)",
+                )}
                 <select name="rating" defaultValue={report.rating ?? ""}>
-                  <option value="">রেটিং দিচ্ছি না</option>
-                  <option value="5">৫ · খুব ভালো</option>
-                  <option value="4">৪ · ভালো</option>
-                  <option value="3">৩ · মোটামুটি</option>
-                  <option value="2">২ · খারাপ</option>
-                  <option value="1">১ · খুব খারাপ</option>
+                  <option value="">{L("রেটিং দিচ্ছি না", "No rating")}</option>
+                  <option value="5">{L("৫ · খুব ভালো", "5 · Very good")}</option>
+                  <option value="4">{L("৪ · ভালো", "4 · Good")}</option>
+                  <option value="3">{L("৩ · মোটামুটি", "3 · Okay")}</option>
+                  <option value="2">{L("২ · খারাপ", "2 · Bad")}</option>
+                  <option value="1">{L("১ · খুব খারাপ", "1 · Very bad")}</option>
                 </select>
               </label>
               <label>
-                রিপোর্ট হলে: কী ঘটেছে (শুধু “রিপোর্ট” বা “মিশ্র” ধরনের জন্য)
+                {L(
+                  "রিপোর্ট হলে: কী ঘটেছে (শুধু “রিপোর্ট” বা “মিশ্র” ধরনের জন্য)",
+                  "If it is a report: what happened (only for “Report” or “Mixed”)",
+                )}
                 <select name="issue" defaultValue={report.issue ?? ""}>
-                  <option value="">প্রযোজ্য নয়</option>
-                  {Object.entries(ISSUE_TEXT).map(([value, label]) => (
+                  <option value="">{L("প্রযোজ্য নয়", "Does not apply")}</option>
+                  {Object.entries(t.issues).map(([value, label]) => (
                     <option key={value} value={value}>
                       {label}
                     </option>
@@ -152,7 +172,7 @@ export default async function ReportPage({
                 </select>
               </label>
               <label>
-                কী কিনেছিলেন
+                {L("কী কিনেছিলেন", "What you bought")}
                 <input
                   name="category"
                   defaultValue={report.category}
@@ -160,7 +180,7 @@ export default async function ReportPage({
                 />
               </label>
               <label>
-                ঘটনার তারিখ (ঐচ্ছিক)
+                {L("ঘটনার তারিখ (ঐচ্ছিক)", "Date it happened (optional)")}
                 <input
                   type="date"
                   name="eventDate"
@@ -168,7 +188,10 @@ export default async function ReportPage({
                 />
               </label>
               <label>
-                টাকার পরিমাণ, যদি দাবি থাকে (ঐচ্ছিক)
+                {L(
+                  "টাকার পরিমাণ, যদি দাবি থাকে (ঐচ্ছিক)",
+                  "Amount, if you are claiming one (optional)",
+                )}
                 <input
                   name="amountTaka"
                   inputMode="decimal"
@@ -180,7 +203,10 @@ export default async function ReportPage({
                 />
               </label>
               <label>
-                আপনার পুরো বিবরণ (ব্যক্তিগত; শুধু আপনি ও দায়িত্বপ্রাপ্ত মডারেটর দেখবেন)
+                {L(
+                  "আপনার পুরো বিবরণ (ব্যক্তিগত; শুধু আপনি ও দায়িত্বপ্রাপ্ত মডারেটর দেখবেন)",
+                  "Your full account (private; only you and the assigned moderator see it)",
+                )}
                 <textarea
                   name="narrative"
                   rows={6}
@@ -200,12 +226,16 @@ export default async function ReportPage({
                   style={{ display: "block", width: "100%", font: "inherit" }}
                 />
               </label>
-              <button type="submit">ড্রাফট সংরক্ষণ করুন</button>
+              <button type="submit">
+                {L("ড্রাফট সংরক্ষণ করুন", "Save draft")}
+              </button>
             </form>
           </section>
 
           <section aria-labelledby="preview" data-testid="preview">
-            <h2 id="preview">প্রকাশ হলে যেভাবে দেখাবে</h2>
+            <h2 id="preview">
+              {L("প্রকাশ হলে যেভাবে দেখাবে", "How it will look when published")}
+            </h2>
             {ready ? (
               <>
                 <blockquote data-testid="preview-text">
@@ -229,7 +259,9 @@ export default async function ReportPage({
                     উপরের লেখাটি আমার নিজের এক্সপেরিয়েন্স, এবং ঠিক এই লেখাটিই প্রকাশের
                     জন্য আমি অ্যাপ্রুভাল করছি।
                   </label>
-                  <button type="submit">মডারেটরের কাছে জমা দিন</button>
+                  <button type="submit">
+                    {L("মডারেটরের কাছে জমা দিন", "Submit to a moderator")}
+                  </button>
                 </form>
               </>
             ) : (
@@ -252,7 +284,7 @@ export default async function ReportPage({
 
       {report.assignedToMe && report.state === "UNDER_REVIEW" ? (
         <section aria-labelledby="decide" data-testid="moderate">
-          <h2 id="decide">মডারেটরের সিদ্ধান্ত</h2>
+          <h2 id="decide">{L("মডারেটরের সিদ্ধান্ত", "Moderator's decision")}</h2>
           <p>
             সিদ্ধান্তটি শুধু এই নিয়ে: লেখাটি প্রকাশের নিয়ম মানে কি না। ঘটনা সত্য কি না বা শপটি
             কেমন, তা নিয়ে নয়।
@@ -260,27 +292,36 @@ export default async function ReportPage({
           <form action={decideReportAction}>
             <input type="hidden" name="reportId" value={report.id} />
             <label>
-              সিদ্ধান্ত
+              {L("সিদ্ধান্ত", "Decision")}
               <select name="decision" defaultValue="NEEDS_INFORMATION">
-                <option value="PUBLISHED">প্রকাশ করুন</option>
-                <option value="NEEDS_INFORMATION">আরও তথ্য চান</option>
-                <option value="NOT_PUBLISHED">প্রকাশ নয়</option>
+                <option value="PUBLISHED">{L("প্রকাশ করুন", "Publish")}</option>
+                <option value="NEEDS_INFORMATION">
+                  {L("আরও তথ্য চান", "Ask for more")}
+                </option>
+                <option value="NOT_PUBLISHED">
+                  {L("প্রকাশ নয়", "Do not publish")}
+                </option>
               </select>
             </label>
             <label>
-              কারণ (লেখক দেখবেন)
+              {L("কারণ (লেখক দেখবেন)", "Reason (the writer will see it)")}
               <input name="reason" required minLength={10} maxLength={1000} />
             </label>
-            <button type="submit">সিদ্ধান্ত দিন</button>
+            <button type="submit">{L("সিদ্ধান্ত দিন", "Decide")}</button>
           </form>
         </section>
       ) : null}
 
       {report.state === "PUBLISHED" || report.followups.length > 0 ? (
         <section aria-labelledby="followups" data-testid="followups">
-          <h2 id="followups">উত্তর ও পরের খবর</h2>
+          <h2 id="followups">{L("উত্তর ও পরের খবর", "Replies and updates")}</h2>
           {report.followups.length === 0 ? (
-            <p>এখনো কোনো উত্তর নেই। উত্তর না থাকা মানে স্বীকার করা নয়।</p>
+            <p>
+              {L(
+                "এখনো কোনো উত্তর নেই। উত্তর না থাকা মানে স্বীকার করা নয়।",
+                "No reply yet. No reply is not an admission.",
+              )}
+            </p>
           ) : (
             <ul>
               {report.followups.map((f) => (
@@ -310,10 +351,14 @@ export default async function ReportPage({
               <input type="hidden" name="reportId" value={report.id} />
               {author ? (
                 <label>
-                  কী যোগ করছেন
+                  {L("কী যোগ করছেন", "What you are adding")}
                   <select name="kind" defaultValue="RESOLUTION">
-                    <option value="RESOLUTION">সমাধান হয়েছে</option>
-                    <option value="CORRECTION">সংশোধন</option>
+                    <option value="RESOLUTION">
+                      {L("সমাধান হয়েছে", "It was resolved")}
+                    </option>
+                    <option value="CORRECTION">
+                      {L("সংশোধন", "Correction")}
+                    </option>
                   </select>
                 </label>
               ) : (
@@ -323,7 +368,9 @@ export default async function ReportPage({
                 {author ? "আপনার লেখা" : "এই লেখার উত্তর দিন"}
                 <input name="body" required minLength={10} maxLength={2000} />
               </label>
-              <button type="submit">মডারেটরের কাছে পাঠান</button>
+              <button type="submit">
+                {L("মডারেটরের কাছে পাঠান", "Send to a moderator")}
+              </button>
             </form>
           ) : null}
         </section>
@@ -331,36 +378,43 @@ export default async function ReportPage({
 
       {author && report.canAppeal ? (
         <section aria-labelledby="appeal">
-          <h2 id="appeal">আপিল</h2>
-          <p>সিদ্ধান্তের সাত দিনের মধ্যে আপিল করা যায়। অন্য একজন মডারেটর দেখবেন।</p>
+          <h2 id="appeal">{L("আপিল", "Appeal")}</h2>
+          <p>
+            {L(
+              "সিদ্ধান্তের সাত দিনের মধ্যে আপিল করা যায়। অন্য একজন মডারেটর দেখবেন।",
+              "You can appeal within seven days. A different moderator will look at it.",
+            )}
+          </p>
           <form action={appealReportAction}>
             <input type="hidden" name="reportId" value={report.id} />
             <label>
-              কেন সিদ্ধান্তটি ঠিক নয়
+              {L("কেন সিদ্ধান্তটি ঠিক নয়", "Why the decision is wrong")}
               <input name="reason" required minLength={10} maxLength={1000} />
             </label>
-            <button type="submit">আপিল করুন</button>
+            <button type="submit">{L("আপিল করুন", "Appeal")}</button>
           </form>
         </section>
       ) : null}
 
       {author && report.state !== "DRAFT" && report.state !== "WITHDRAWN" ? (
         <section aria-labelledby="withdraw">
-          <h2 id="withdraw">তুলে নিন</h2>
+          <h2 id="withdraw">{L("তুলে নিন", "Withdraw")}</h2>
           <p>
             তুলে নিলে লেখাটি আর কেউ দেখবে না। লেখাটি যে একসময় ছিল এবং তুলে নেওয়া
             হয়েছে, সেই তথ্য থাকবে।
           </p>
           <form action={withdrawReportAction}>
             <input type="hidden" name="reportId" value={report.id} />
-            <button type="submit">লেখাটি তুলে নিন</button>
+            <button type="submit">
+              {L("লেখাটি তুলে নিন", "Withdraw this post")}
+            </button>
           </form>
         </section>
       ) : null}
 
       {report.history.length > 0 ? (
         <section aria-labelledby="history" data-testid="history">
-          <h2 id="history">যা যা হয়েছে</h2>
+          <h2 id="history">{L("যা যা হয়েছে", "History")}</h2>
           <ol>
             {report.history.map((event) => (
               <li key={`${event.kind}-${event.at}`}>
