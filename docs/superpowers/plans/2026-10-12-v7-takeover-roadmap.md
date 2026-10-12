@@ -1,3 +1,5 @@
+> **Superseded in part (12 October 2026).** After this was written the founder decided: delete the prototype outright (no `legacy/`), use Supabase as the database with Docker optional, and name the product Binimoy. `docs/handoffs/LP-001.md`, ADR-001 and ADR-008 record what was actually built.
+
 # Lenden Prohori v7 Takeover Roadmap
 
 **Spec:** `Lenden_Prohori_Master_Build_Specification_v7.md` (moves to `docs/MASTER_SPEC.md` in LP-001)
