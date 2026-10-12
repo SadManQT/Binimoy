@@ -11,6 +11,7 @@ import {
   submitReport,
   withdrawReport,
 } from "@lp/db/community";
+import { createSafetyAlert, retractSafetyAlert } from "@lp/db/shops";
 import { redirect } from "next/navigation";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
@@ -44,6 +45,9 @@ export async function saveDraftAction(form: FormData) {
           amountMinor,
           narrative: text(form, "narrative"),
           publicText: text(form, "publicText"),
+          rating: text(form, "rating") ? Number(text(form, "rating")) : null,
+          issue: text(form, "issue") || null,
+          shopCategory: text(form, "shopCategory") || undefined,
         });
   if (result.ok) redirect(`/community/${result.reportId}`);
   if (reportId) back(reportId, result);
@@ -127,6 +131,25 @@ export async function decideFollowupAction(form: FormData) {
     followupId: text(form, "followupId"),
     publish: text(form, "publish") === "yes",
     reason: text(form, "reason"),
+  });
+  redirect(result.ok ? "/moderation" : `/moderation?error=${result.error}`);
+}
+
+export async function createSafetyAlertAction(form: FormData) {
+  const user = await requireUser();
+  const result = await createSafetyAlert(pool(), {
+    userId: user.id,
+    title: text(form, "title"),
+    body: text(form, "body"),
+  });
+  redirect(result.ok ? "/moderation" : `/moderation?error=${result.error}`);
+}
+
+export async function retractSafetyAlertAction(form: FormData) {
+  const user = await requireUser();
+  const result = await retractSafetyAlert(pool(), {
+    userId: user.id,
+    alertId: text(form, "alertId"),
   });
   redirect(result.ok ? "/moderation" : `/moderation?error=${result.error}`);
 }

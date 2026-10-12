@@ -150,3 +150,38 @@ export const NOTICE_TEXT: Record<string, string> = {
   DISPUTE_OPENED: "অন্য পক্ষ একটি বিরোধ খুলেছেন। অভিযোগ মানেই কেউ দোষী নয়।",
   DISPUTE_UPDATED: "বিরোধের অবস্থা বদলেছে",
 };
+
+// What a complaint alleges. Always shown as the author's claim.
+export const ISSUE_TEXT: Record<string, string> = {
+  not_delivered: "টাকা নিয়ে পণ্য দেয়নি",
+  wrong_item: "ভুল বা ভিন্ন পণ্য দিয়েছে",
+  access_revoked: "পরে অ্যাক্সেস কেড়ে নিয়েছে",
+  no_refund: "টাকা ফেরত দেয়নি",
+  blocked_after_payment: "টাকা নেওয়ার পর ব্লক করেছে",
+  impersonation: "অন্য কারও নাম ব্যবহার করেছে",
+  other: "অন্য সমস্যা",
+};
+
+export const REVIEW_TYPE_TEXT: Record<string, string> = {
+  positive: "ভালো অভিজ্ঞতা",
+  negative: "অভিযোগ",
+  mixed: "মিশ্র অভিজ্ঞতা",
+  neutral: "সাধারণ অভিজ্ঞতা",
+};
+// Amber, not red: red is kept for failed operations and disputed checklist
+// items (C36.1). A complaint is an allegation, not a finding.
+export const REVIEW_TONE: Record<string, string> = {
+  positive: "ok",
+  negative: "wait",
+  mixed: "plain",
+  neutral: "plain",
+};
+
+export const bn = (value: number) => value.toLocaleString("bn-BD");
+export const bnDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("bn-BD", {
+    timeZone: "Asia/Dhaka",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });

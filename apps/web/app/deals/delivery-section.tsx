@@ -173,7 +173,7 @@ export function DeliverySection({
       )}
 
       {pkg && (
-        <ol>
+        <ol className="rows">
           {pkg.inspections.map((inspection) => {
             const definition = item(inspection.itemId);
             const buyerCheck =
@@ -185,7 +185,19 @@ export function DeliverySection({
               <li key={inspection.inspectionId}>
                 {definition?.title.bn ?? inspection.itemId} ·{" "}
                 {inspection.mandatory ? "আবশ্যক" : "ঐচ্ছিক"} ·{" "}
-                <strong data-testid={`inspection-${inspection.itemId}`}>
+                <strong
+                  className="chip"
+                  data-tone={
+                    inspection.state === "PASSED"
+                      ? "ok"
+                      : inspection.state === "FAILED"
+                        ? "bad"
+                        : inspection.state === "STALE"
+                          ? undefined
+                          : "wait"
+                  }
+                  data-testid={`inspection-${inspection.itemId}`}
+                >
                   {INSPECTION_TEXT[inspection.state] ?? inspection.state}
                 </strong>
                 {inspection.proofType && (

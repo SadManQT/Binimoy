@@ -1,6 +1,7 @@
 import { formatBdt } from "@lp/contracts";
 import { getReport } from "@lp/db/community";
 import { notFound } from "next/navigation";
+import { ISSUE_TEXT } from "../../../lib/copy";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
 import {
@@ -55,7 +56,14 @@ export default async function ReportPage({
         <strong>{EXPERIENCE_TEXT[report.experienceType]}</strong> ·{" "}
         {REPORT_STATE_TEXT[report.state]}
         {report.eventDate ? ` · ঘটনার তারিখ: ${report.eventDate}` : ""}
+        {report.rating ? ` · লেখকের রেটিং: ${report.rating} / ৫` : ""}
       </p>
+      {report.issue && (
+        <p data-testid="report-issue">
+          <strong>লেখকের অভিযোগ:</strong> {ISSUE_TEXT[report.issue]}{" "}
+          <small>(লেখকের দাবি, যাচাই করা হয়নি)</small>
+        </p>
+      )}
       {error ? (
         <p role="alert">{COMMUNITY_ERROR_TEXT[error] ?? "কাজটি করা যায়নি।"}</p>
       ) : null}
@@ -115,6 +123,28 @@ export default async function ReportPage({
                   defaultValue={report.experienceType}
                 >
                   {Object.entries(EXPERIENCE_TEXT).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                আপনার রেটিং (ঐচ্ছিক; এটি আপনার নিজের মূল্যায়ন)
+                <select name="rating" defaultValue={report.rating ?? ""}>
+                  <option value="">রেটিং দিচ্ছি না</option>
+                  <option value="5">৫ · খুব ভালো</option>
+                  <option value="4">৪ · ভালো</option>
+                  <option value="3">৩ · মোটামুটি</option>
+                  <option value="2">২ · খারাপ</option>
+                  <option value="1">১ · খুব খারাপ</option>
+                </select>
+              </label>
+              <label>
+                অভিযোগ হলে: কী ঘটেছে (শুধু “অভিযোগ” বা “মিশ্র” ধরনের জন্য)
+                <select name="issue" defaultValue={report.issue ?? ""}>
+                  <option value="">প্রযোজ্য নয়</option>
+                  {Object.entries(ISSUE_TEXT).map(([value, label]) => (
                     <option key={value} value={value}>
                       {label}
                     </option>

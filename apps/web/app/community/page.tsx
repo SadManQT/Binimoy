@@ -1,4 +1,9 @@
-import { listMyReports, listPublished } from "@lp/db/community";
+import {
+  listMyReports,
+  listPublished,
+  SHOP_CATEGORY_KEYS,
+} from "@lp/db/community";
+import { SHOP_CATEGORIES } from "@lp/db/shops";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
 import { saveDraftAction } from "./actions";
@@ -14,10 +19,10 @@ export const metadata = { title: "অভিজ্ঞতা জানান · �
 export default async function CommunityPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; q?: string }>;
+  searchParams: Promise<{ error?: string; q?: string; subject?: string }>;
 }) {
   const user = await requireUser();
-  const { error, q } = await searchParams;
+  const { error, q, subject } = await searchParams;
   const mine = await listMyReports(pool(), user.id);
   const found = q ? await listPublished(pool(), q) : null;
   return (
@@ -37,7 +42,13 @@ export default async function CommunityPage({
         <form action={saveDraftAction}>
           <label>
             পেজ বা দোকানের নাম
-            <input name="subject" required minLength={2} maxLength={120} />
+            <input
+              name="subject"
+              required
+              minLength={2}
+              maxLength={120}
+              defaultValue={subject}
+            />
           </label>
           <label>
             অভিজ্ঞতার ধরন
@@ -45,6 +56,16 @@ export default async function CommunityPage({
               {Object.entries(EXPERIENCE_TEXT).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            দোকানের ধরন
+            <select name="shopCategory" defaultValue="other">
+              {SHOP_CATEGORY_KEYS.map((key) => (
+                <option key={key} value={key}>
+                  {SHOP_CATEGORIES[key].bn}
                 </option>
               ))}
             </select>

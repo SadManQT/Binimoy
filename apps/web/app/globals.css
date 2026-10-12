@@ -38,7 +38,9 @@
   --radius-control: 10px;
   --shadow-panel: 0 1px 0 #ffffff08 inset, 0 18px 40px -28px #000000cc;
 
-  --font-body: var(--font-hind), "Hind Siliguri", "Noto Sans Bengali", system-ui, sans-serif;
+  --font-body:
+    var(--font-hind), "Hind Siliguri", "Noto Sans Bengali", system-ui,
+    sans-serif;
   --font-display: var(--font-anek), "Anek Bangla", var(--font-body);
   --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
 
@@ -268,6 +270,22 @@ hr {
   line-height: 1;
 }
 
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.testbar {
+  max-width: none;
+}
 main {
   flex: 1;
   width: 100%;
@@ -318,6 +336,7 @@ main > p:first-child a:hover,
 /* ---------- panels ---------- */
 
 main > section,
+.auth-grid > section,
 .panel {
   background: linear-gradient(180deg, var(--ink-900), #0d1519);
   border: 1px solid var(--line);
@@ -336,6 +355,11 @@ main.bleed > section {
   box-shadow: none;
   padding: 0;
   display: block;
+}
+main.bleed > section.stage {
+  display: grid;
+  padding: 0 1rem;
+  width: 100%;
 }
 section section,
 .panel section {
@@ -507,7 +531,8 @@ li::marker {
   background: var(--red-wash);
   color: #f9c6bf;
 }
-[role="alert"]:empty {
+[role="alert"]:empty,
+[role="status"]:empty {
   display: none;
 }
 .notice.calm {
@@ -580,7 +605,8 @@ textarea {
 select {
   appearance: none;
   padding-right: 2.2rem;
-  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
     linear-gradient(135deg, var(--muted) 50%, transparent 50%);
   background-position:
     calc(100% - 1.05rem) 50%,
@@ -990,9 +1016,10 @@ details > :not(summary) {
 }
 .stage-visual {
   position: relative;
-  height: min(52svh, 26rem);
+  /* On a phone the words and the search come first; the box follows. */
+  height: min(40svh, 20rem);
   margin: 0 -1rem;
-  order: -1;
+  order: 1;
 }
 .stage-visual > div {
   position: absolute;
@@ -1029,7 +1056,7 @@ details > :not(summary) {
   align-items: flex-start;
 }
 .hero h1 {
-  font-size: clamp(2.3rem, 1.3rem + 4.6vw, 4.1rem);
+  font-size: clamp(2.2rem, 1.4rem + 3.2vw, 3.5rem);
   font-weight: 700;
   line-height: 1.12;
   letter-spacing: -0.02em;
@@ -1102,9 +1129,9 @@ details > :not(summary) {
     padding: 2rem 0 5rem;
   }
   .story > li {
-    min-height: 62svh;
+    min-height: 46svh;
     justify-content: center;
-    padding: 3rem 0;
+    padding: 2.5rem 0;
     opacity: 0.45;
     transition: opacity 0.4s var(--ease);
   }
@@ -1117,6 +1144,7 @@ details > :not(summary) {
   border-top: 1px solid var(--line);
 }
 .band > div {
+  width: 100%;
   max-width: var(--shell);
   margin: 0 auto;
   padding: clamp(3rem, 2rem + 5vw, 6rem) 1rem;
@@ -1222,7 +1250,8 @@ details > :not(summary) {
 }
 .closing {
   background:
-    radial-gradient(40rem 18rem at 20% 0%, #1b4a4488, transparent 70%), var(--ink-900);
+    radial-gradient(40rem 18rem at 20% 0%, #1b4a4488, transparent 70%),
+    var(--ink-900);
 }
 
 /* ---------- motion and print ---------- */
@@ -1282,4 +1311,238 @@ main:not(.bleed) > :nth-child(n + 4) {
     background: none;
     box-shadow: none;
   }
+}
+
+/* ---------- shops, reviews and alerts ---------- */
+
+.search {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+.search label {
+  flex: 1 1 16rem;
+  width: auto;
+}
+.search input {
+  min-height: 52px;
+  font-size: 1.05rem;
+}
+.search button {
+  min-height: 52px;
+}
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.filters a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0.3rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition:
+    color 0.15s var(--ease),
+    border-color 0.15s var(--ease),
+    background 0.15s var(--ease);
+}
+.filters a:hover {
+  color: var(--text);
+  border-color: var(--teal-strong);
+}
+.filters a[aria-current="true"] {
+  color: var(--teal-ink);
+  background: var(--teal);
+  border-color: var(--teal);
+  font-weight: 600;
+}
+.filters a span {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+.rating {
+  white-space: nowrap;
+  color: var(--text);
+  font-weight: 500;
+}
+.rating > span {
+  color: var(--amber);
+  letter-spacing: 0.05em;
+}
+.rating .off {
+  color: var(--ink-700);
+}
+.evidence {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.75rem 2rem;
+}
+.evidence > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.figure {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text);
+}
+.typebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.typebar > div {
+  display: flex;
+  gap: 3px;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--ink-800);
+}
+.typebar > div span {
+  min-width: 6px;
+}
+.typebar [data-type="positive"] {
+  --tone: var(--teal);
+}
+.typebar [data-type="mixed"] {
+  --tone: var(--faint);
+}
+.typebar [data-type="negative"] {
+  --tone: var(--amber);
+}
+.typebar > div span {
+  background: var(--tone);
+}
+.typebar ul {
+  list-style: none;
+  padding: 0;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+.typebar li::before {
+  content: "";
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 2px;
+  margin-right: 0.45rem;
+  background: var(--tone);
+}
+.cards > li[data-type="positive"] {
+  border-left-color: var(--teal-strong);
+}
+.cards > li[data-type="negative"] {
+  border-left-color: var(--amber);
+}
+.cards a.title {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+}
+.cards a.title:hover {
+  color: var(--teal);
+}
+.reply {
+  margin-left: 1rem;
+  padding: 0.6rem 0 0.2rem 1rem;
+  border-left: 1px solid var(--line-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.notes {
+  list-style: none;
+  padding: 0;
+  gap: 1rem;
+}
+.notes li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-left: 1rem;
+  border-left: 3px solid var(--amber);
+}
+
+/* ---------- landing: bands that hold a layout of their own ---------- */
+
+.band > div.split,
+.band > div.stage {
+  display: grid;
+}
+.band-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+}
+.alert-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  align-items: start;
+}
+.hero .search {
+  width: 100%;
+  max-width: 34rem;
+}
+.hero .meta {
+  gap: 0.4rem 1.5rem;
+  font-size: 0.98rem;
+}
+.stage > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+/* On a phone the story's scene stays pinned above the steps as they pass. */
+.stage[data-pinned] .stage-visual {
+  order: -1;
+  position: sticky;
+  top: var(--header-h);
+  z-index: 2;
+  height: 34svh;
+  background: linear-gradient(var(--ink-950) 82%, transparent);
+}
+@media (min-width: 60rem) {
+  .stage[data-pinned] .stage-visual {
+    height: calc(100svh - var(--header-h));
+    background: none;
+  }
+  .stage[data-pinned] {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  }
+}
+
+.auth-grid > p {
+  grid-column: 1 / -1;
+}
+/* One primary action per screen (C36.2): signing in with a password. The
+   other ways in are offered quietly. */
+.auth-grid > section ~ section button {
+  color: var(--text);
+  background: var(--ink-800);
+  border-color: var(--line-strong);
+}
+.auth-grid > section ~ section button:hover {
+  background: var(--ink-700);
 }

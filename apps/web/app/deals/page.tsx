@@ -12,22 +12,40 @@ export default async function DealsPage() {
   const deals = await listDeals(pool(), user.id);
   const unseen = await unseenNotices(pool(), user.id);
   return (
-    <main>
-      <h1>আমার ডিল</h1>
-      <p>
-        <a href="/deals/new">নতুন ডিল শুরু করুন</a> ·{" "}
-        <a href="/notifications" data-testid="notices-link">
+    <main className="wide">
+      <div className="page-head">
+        <h1>আমার ডিল</h1>
+        <p>ধাপে ধাপে যাচাই করে লেনদেন। সব টাকা পরীক্ষামূলক (নকল)।</p>
+      </div>
+      <div className="actions">
+        <a className="button" href="/deals/new">
+          নতুন ডিল শুরু করুন
+        </a>
+        <a
+          className="button quiet"
+          href="/notifications"
+          data-testid="notices-link"
+        >
           নোটিশ{unseen > 0 ? ` (${unseen.toLocaleString("bn-BD")}টি নতুন)` : ""}
         </a>
-      </p>
+      </div>
       {deals.length === 0 ? (
-        <p>এখনো কোনো ডিল নেই। উপরের লিংক থেকে প্রথম ডিল তৈরি করুন।</p>
+        <p className="empty">
+          এখনো কোনো ডিল নেই। উপরের বোতাম থেকে প্রথম ডিল তৈরি করুন।
+        </p>
       ) : (
-        <ul>
+        <ul className="rows">
           {deals.map((deal) => (
             <li key={deal.dealId}>
-              <a href={`/deals/${deal.dealId}`}>{deal.title}</a> ·{" "}
-              {ROLE_TEXT[deal.role]} · {STATE_TEXT[deal.state] ?? deal.state}
+              <a className="title" href={`/deals/${deal.dealId}`}>
+                {deal.title}
+              </a>
+              <div className="meta">
+                <span>{ROLE_TEXT[deal.role]}</span>
+                <span className="chip plain">
+                  {STATE_TEXT[deal.state] ?? deal.state}
+                </span>
+              </div>
             </li>
           ))}
         </ul>

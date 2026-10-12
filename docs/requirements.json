@@ -11,8 +11,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-02",
@@ -26,8 +30,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-03",
@@ -45,7 +53,9 @@
       "packages/db/src/catalog.int.test.ts",
       "tests/e2e/catalog.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-04",
@@ -59,8 +69,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-05",
@@ -74,8 +88,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-06",
@@ -89,8 +107,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-07",
@@ -104,8 +126,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-08",
@@ -119,8 +145,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-09",
@@ -134,8 +164,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-10",
@@ -149,8 +183,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "CAT-11",
@@ -164,8 +202,12 @@
       "packages/db/src/verification.ts",
       "packages/db/src/delivery.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "FE-01",
@@ -182,7 +224,9 @@
       "packages/adapters/src/research.int.test.ts",
       "packages/domain/src/research.test.ts"
     ],
-    "evidence": ["docs/handoffs/LP-012.md"]
+    "evidence": [
+      "docs/handoffs/LP-012.md"
+    ]
   },
   {
     "id": "FE-02",
@@ -199,7 +243,9 @@
       "packages/adapters/src/research.int.test.ts",
       "tests/e2e/research.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-012.md"]
+    "evidence": [
+      "docs/handoffs/LP-012.md"
+    ]
   },
   {
     "id": "FE-03",
@@ -208,12 +254,16 @@
     "ownerTask": "LP-012",
     "acceptance": "Bangla/English/Banglish positive, negative, neutral and resolution sources retain attribution without forced balance",
     "status": "IN_PROGRESS",
-    "implementationPaths": ["packages/domain/src/research.ts"],
+    "implementationPaths": [
+      "packages/domain/src/research.ts"
+    ],
     "acceptanceTests": [
       "packages/domain/src/research.test.ts",
       "packages/adapters/src/research.int.test.ts"
     ],
-    "evidence": ["docs/handoffs/LP-012.md"]
+    "evidence": [
+      "docs/handoffs/LP-012.md"
+    ]
   },
   {
     "id": "FE-04",
@@ -222,9 +272,15 @@
     "ownerTask": "LP-012",
     "acceptance": "Every material claim opens the correct permitted passage/snapshot with access limitations",
     "status": "IN_PROGRESS",
-    "implementationPaths": ["apps/web/app/research/[id]/page.tsx"],
-    "acceptanceTests": ["tests/e2e/research.spec.ts"],
-    "evidence": ["docs/handoffs/LP-012.md"]
+    "implementationPaths": [
+      "apps/web/app/research/[id]/page.tsx"
+    ],
+    "acceptanceTests": [
+      "tests/e2e/research.spec.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-012.md"
+    ]
   },
   {
     "id": "FE-05",
@@ -237,8 +293,12 @@
       "packages/adapters/src/research.ts",
       "packages/domain/src/research.ts"
     ],
-    "acceptanceTests": ["packages/adapters/src/research.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-012.md"]
+    "acceptanceTests": [
+      "packages/adapters/src/research.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-012.md"
+    ]
   },
   {
     "id": "FE-06",
@@ -260,13 +320,21 @@
     "status": "IN_PROGRESS",
     "implementationPaths": [
       "packages/db/src/community.ts",
-      "apps/web/app/community/[id]/page.tsx"
+      "apps/web/app/community/[id]/page.tsx",
+      "packages/db/src/shops.ts",
+      "apps/web/app/shops/[id]/page.tsx"
     ],
     "acceptanceTests": [
       "packages/db/src/community.int.test.ts",
-      "tests/e2e/community.spec.ts"
+      "tests/e2e/community.spec.ts",
+      "packages/db/src/shops.int.test.ts",
+      "tests/e2e/shops.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-013.md"]
+    "evidence": [
+      "docs/handoffs/LP-013.md",
+      "docs/handoffs/LP-014.md",
+      "docs/adr/ADR-009-shop-directory-ratings-and-alerts.md"
+    ]
   },
   {
     "id": "FE-08",
@@ -277,13 +345,21 @@
     "status": "IN_PROGRESS",
     "implementationPaths": [
       "packages/db/src/community.ts",
-      "apps/web/app/moderation/page.tsx"
+      "apps/web/app/moderation/page.tsx",
+      "packages/db/src/shops.ts",
+      "apps/web/app/shops/[id]/page.tsx"
     ],
     "acceptanceTests": [
       "packages/db/src/community.int.test.ts",
-      "tests/e2e/community.spec.ts"
+      "tests/e2e/community.spec.ts",
+      "packages/db/src/shops.int.test.ts",
+      "tests/e2e/shops.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-013.md"]
+    "evidence": [
+      "docs/handoffs/LP-013.md",
+      "docs/handoffs/LP-014.md",
+      "docs/adr/ADR-009-shop-directory-ratings-and-alerts.md"
+    ]
   },
   {
     "id": "FE-09",
@@ -302,7 +378,9 @@
       "packages/adapters/src/auth.int.test.ts",
       "packages/db/src/access.int.test.ts"
     ],
-    "evidence": ["docs/handoffs/LP-003.md"]
+    "evidence": [
+      "docs/handoffs/LP-003.md"
+    ]
   },
   {
     "id": "FE-10",
@@ -321,7 +399,9 @@
       "packages/db/src/agreements.int.test.ts",
       "packages/templates/src/templates.test.ts"
     ],
-    "evidence": ["docs/handoffs/LP-004.md"]
+    "evidence": [
+      "docs/handoffs/LP-004.md"
+    ]
   },
   {
     "id": "FE-11",
@@ -339,7 +419,9 @@
       "packages/db/src/catalog.int.test.ts",
       "tests/e2e/catalog.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "FE-12",
@@ -352,8 +434,12 @@
       "packages/db/src/review.ts",
       "packages/db/src/ledger.ts"
     ],
-    "acceptanceTests": ["packages/db/src/review.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-010.md"]
+    "acceptanceTests": [
+      "packages/db/src/review.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-010.md"
+    ]
   },
   {
     "id": "FE-13",
@@ -372,7 +458,9 @@
       "packages/domain/src/secrets.test.ts",
       "tests/e2e/conversation.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-006.md"]
+    "evidence": [
+      "docs/handoffs/LP-006.md"
+    ]
   },
   {
     "id": "FE-14",
@@ -392,7 +480,9 @@
       "packages/adapters/src/assessments.int.test.ts",
       "tests/e2e/conversation.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-011.md"]
+    "evidence": [
+      "docs/handoffs/LP-011.md"
+    ]
   },
   {
     "id": "FE-15",
@@ -414,7 +504,9 @@
       "packages/adapters/src/vault-rooms.int.test.ts",
       "tests/e2e/vault.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-007-part-2.md"]
+    "evidence": [
+      "docs/handoffs/LP-007-part-2.md"
+    ]
   },
   {
     "id": "FE-16",
@@ -431,7 +523,9 @@
       "packages/db/src/settlement.int.test.ts",
       "tests/e2e/vault.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-008-009.md"]
+    "evidence": [
+      "docs/handoffs/LP-008-009.md"
+    ]
   },
   {
     "id": "FE-17",
@@ -444,8 +538,12 @@
       "packages/db/src/verification.ts",
       "apps/web/app/deals/delivery-section.tsx"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "FE-18",
@@ -459,8 +557,12 @@
       "packages/db/migrations/0006_ledger.sql",
       "apps/web/app/deals/funding-section.tsx"
     ],
-    "acceptanceTests": ["packages/db/src/ledger.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-005.md"]
+    "acceptanceTests": [
+      "packages/db/src/ledger.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-005.md"
+    ]
   },
   {
     "id": "FE-19",
@@ -477,7 +579,9 @@
       "packages/db/src/settlement.int.test.ts",
       "packages/db/src/review.int.test.ts"
     ],
-    "evidence": ["docs/handoffs/LP-008-009.md"]
+    "evidence": [
+      "docs/handoffs/LP-008-009.md"
+    ]
   },
   {
     "id": "FE-20",
@@ -490,8 +594,12 @@
       "packages/db/src/delivery.ts",
       "packages/db/src/agreements.ts"
     ],
-    "acceptanceTests": ["packages/db/src/catalog.int.test.ts"],
-    "evidence": ["docs/handoffs/LP-021.md"]
+    "acceptanceTests": [
+      "packages/db/src/catalog.int.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-021.md"
+    ]
   },
   {
     "id": "FE-21",
@@ -510,7 +618,9 @@
       "packages/db/src/review.int.test.ts",
       "tests/e2e/review.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-010.md"]
+    "evidence": [
+      "docs/handoffs/LP-010.md"
+    ]
   },
   {
     "id": "FE-22",
@@ -528,7 +638,9 @@
       "packages/db/src/review.int.test.ts",
       "tests/e2e/review.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-010.md"]
+    "evidence": [
+      "docs/handoffs/LP-010.md"
+    ]
   },
   {
     "id": "FE-23",
@@ -545,7 +657,9 @@
       "packages/db/src/operations.int.test.ts",
       "tests/e2e/catalog.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-018-022.md"]
+    "evidence": [
+      "docs/handoffs/LP-018-022.md"
+    ]
   },
   {
     "id": "FE-24",
@@ -562,7 +676,9 @@
       "packages/db/src/operations.int.test.ts",
       "tests/e2e/catalog.spec.ts"
     ],
-    "evidence": ["docs/handoffs/LP-018-022.md"]
+    "evidence": [
+      "docs/handoffs/LP-018-022.md"
+    ]
   },
   {
     "id": "FE-25",
@@ -575,8 +691,12 @@
       "packages/adapters/src/demo-cli.ts",
       "packages/db/src/lab.ts"
     ],
-    "acceptanceTests": ["packages/db/src/lab.test.ts"],
-    "evidence": ["docs/handoffs/LP-018-022.md"]
+    "acceptanceTests": [
+      "packages/db/src/lab.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-018-022.md"
+    ]
   },
   {
     "id": "FE-26",
@@ -589,8 +709,12 @@
       "scripts/eval-ai.ts",
       "evals/research-heldout.json"
     ],
-    "acceptanceTests": ["scripts/repo.test.ts"],
-    "evidence": ["docs/handoffs/LP-018-022.md"]
+    "acceptanceTests": [
+      "scripts/repo.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-018-022.md"
+    ]
   },
   {
     "id": "FE-27",
@@ -598,10 +722,19 @@
     "phase": "P0",
     "ownerTask": "LP-014",
     "acceptance": "Keyboard, screen reader, reconnect, upload interruption and stale-action denial work",
-    "status": "NOT_STARTED",
-    "implementationPaths": [],
-    "acceptanceTests": [],
-    "evidence": []
+    "status": "IN_PROGRESS",
+    "implementationPaths": [
+      "apps/web/app/globals.css",
+      "apps/web/lib/next-step.ts",
+      "apps/web/app/components/vault-scene.tsx"
+    ],
+    "acceptanceTests": [
+      "tests/e2e/home.spec.ts",
+      "apps/web/lib/next-step.test.ts"
+    ],
+    "evidence": [
+      "docs/handoffs/LP-014.md"
+    ]
   },
   {
     "id": "FE-28",
@@ -610,12 +743,17 @@
     "ownerTask": "LP-015",
     "acceptance": "Exact artifact, environment isolation, restored tombstones, money reconciliation and exercised alerts",
     "status": "IN_PROGRESS",
-    "implementationPaths": ["packages/db/src/ops.ts", "apps/web/lib/health.ts"],
+    "implementationPaths": [
+      "packages/db/src/ops.ts",
+      "apps/web/lib/health.ts"
+    ],
     "acceptanceTests": [
       "packages/db/src/operations.int.test.ts",
       "apps/web/lib/health.int.test.ts"
     ],
-    "evidence": ["docs/handoffs/LP-018-022.md"]
+    "evidence": [
+      "docs/handoffs/LP-018-022.md"
+    ]
   },
   {
     "id": "FE-29",
