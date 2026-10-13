@@ -514,3 +514,40 @@ export async function peekInvite(
   );
   return rows[0] ?? null;
 }
+
+// A short fingerprint of everything a party sees on the deal page. An open
+// page asks for it every few seconds and re-reads the deal when it differs,
+// so one side sees the other side's action without reloading. Null for anyone
+// who is not a party (D.2). It carries no deal content.
+// ponytail: polled, one cheap query per open page every few seconds. Move to
+// LISTEN/NOTIFY or server-sent events if open pages become many.
+export async function dealPulse(
+  pool: Pool,
+  userId: string,
+  dealId: string,
+): Promise<string | null> {
+  if (!z.uuid().safeParse(dealId).success) return null;
+  const { rows } = await pool.query(
+    `select concat_ws('.',
+       (select count(*) from deal_party where deal_id = $1),
+       (select coalesce(sum(version), 0) from aggregate where deal_id = $1),
+       (select count(*) from agreement_acceptance x
+          join aggregate a on a.id = x.agreement_id where a.deal_id = $1),
+       (select coalesce(max(v.seq), 0) from monitored_message_version v
+          join monitored_message m on m.id = v.message_id where m.deal_id = $1),
+       (select count(*) + count(withdrawn_at) from monitoring_consent where deal_id = $1),
+       (select count(*) + count(finished_at) from ai_job where deal_id = $1),
+       (select count(*) + count(closed_at) from resolution_proposal where deal_id = $1),
+       (select count(*) from decision_waiver w
+          join review_decision r on r.id = w.decision_id
+          join dispute d on d.dispute_id = r.dispute_id where d.deal_id = $1),
+       (select coalesce(extract(epoch from max(set_at)), 0) from mock_provider_fact where deal_id = $1),
+       (select count(*) from objective_window o
+          join delivery_package p on p.package_id = o.package_id where p.deal_id = $1),
+       (select count(*) from vault_room where deal_id = $1)
+     ) as pulse
+     where exists (select 1 from deal_party where deal_id = $1 and user_id = $2)`,
+    [dealId, userId],
+  );
+  return rows[0]?.pulse ?? null;
+}

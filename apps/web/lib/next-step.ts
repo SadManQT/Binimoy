@@ -15,6 +15,9 @@ export type DealSnapshot = {
   disputeOpen: boolean;
 };
 
+// Whether the reader has something to do, is waiting, or nothing is left.
+export type Turn = "you" | "wait" | "done";
+
 export type Step = {
   key: "agreed" | "funded" | "delivered" | "inspected" | "settled";
   label: string;
@@ -32,7 +35,7 @@ const LABELS: [Step["key"], string, string][] = [
 export function nextStep(
   deal: DealSnapshot,
   locale: "bn" | "en" = "bn",
-): { text: string; steps: Step[] } {
+): { text: string; turn: Turn; steps: Step[] } {
   const L = (bn: string, en: string) => (locale === "en" ? en : bn);
   const buyer = deal.myRole === "buyer";
   const operations = deal.settlement?.operations ?? [];
@@ -119,6 +122,26 @@ export function nextStep(
         );
   }
 
+  const turn: Turn = deal.disputeOpen
+    ? "you"
+    : deal.settlement
+      ? finished.settled
+        ? "done"
+        : "wait"
+      : deal.parties < 2 || deal.agreementState === "DRAFT"
+        ? "you"
+        : deal.agreementState === "AWAITING_ACCEPTANCE"
+          ? deal.acceptedByMe
+            ? "wait"
+            : "you"
+          : !finished.agreed
+            ? "done"
+            : // Paying in, checking and accepting are the buyer's part;
+              // delivering is the seller's.
+              buyer === (finished.funded && !deal.package)
+              ? "wait"
+              : "you";
+
   let reached = true;
   const steps = LABELS.map(([key, bn, en]): Step => {
     const label = L(bn, en);
@@ -127,5 +150,5 @@ export function nextStep(
     if (!done) reached = false;
     return { key, label, state };
   });
-  return { text, steps };
+  return { text, turn, steps };
 }

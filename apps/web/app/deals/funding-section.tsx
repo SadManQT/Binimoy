@@ -2,6 +2,7 @@ import { formatBdt } from "@lp/contracts";
 import type { Balances, Funding } from "@lp/db/ledger";
 import { copyFor } from "../../lib/copy";
 import { getI18n } from "../../lib/i18n";
+import { More } from "../components/more";
 import {
   createInvoiceAction,
   mockProviderAction,
@@ -108,12 +109,12 @@ export async function FundingSection({
                 "Test payment provider: what should it report?",
               )}
             </legend>
-            <p>
+            <More>
               {L(
                 "বাস্তবে এই উত্তর পেমেন্ট প্রোভাইডার পাঠায়। চেকের জন্য আপনি বেছে নিচ্ছেন। স্ক্রিনশট বা বোতাম চাপা টাকা জমা প্রমাণ করে না; শুধু প্রোভাইডারের স্বাক্ষরিত বার্তা করে।",
                 "In real use the payment provider sends this answer. For testing, you choose it. A screenshot or a button press does not prove payment; only the provider's signed message does.",
               )}
-            </p>
+            </More>
             <button type="submit" name="scenario" value="exact">
               {L("সঠিক পরিমাণ পাওয়া গেছে", "The exact amount was received")}
             </button>

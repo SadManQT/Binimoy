@@ -99,3 +99,28 @@ test("an open dispute comes before everything else, and a failed or unknown chec
     nextStep({ ...base, agreementState: "WITHDRAWN", funded: false }).text,
   ).toMatch(/চালু নেই/);
 });
+
+test("the turn says who has to act, matching the text", () => {
+  const turn = (snapshot: DealSnapshot) => nextStep(snapshot).turn;
+  const unfunded = { ...base, funded: false };
+  expect(turn(unfunded)).toBe("you");
+  expect(turn({ ...unfunded, myRole: "seller" })).toBe("wait");
+  expect(turn(base)).toBe("wait");
+  expect(turn({ ...base, myRole: "seller" })).toBe("you");
+  const checking = { ...base, package: pkg(["PENDING"]) };
+  expect(turn(checking)).toBe("you");
+  expect(turn({ ...checking, myRole: "seller" })).toBe("wait");
+  const waiting = { ...unfunded, agreementState: "AWAITING_ACCEPTANCE" };
+  expect(turn(waiting)).toBe("wait");
+  expect(turn({ ...waiting, acceptedByMe: false })).toBe("you");
+  const accepted = { ...base, package: pkg(["PASSED"], true) };
+  expect(turn({ ...accepted, settlement: { operations: ["PENDING"] } })).toBe(
+    "wait",
+  );
+  expect(turn({ ...accepted, settlement: { operations: ["SUCCEEDED"] } })).toBe(
+    "done",
+  );
+  expect(turn({ ...checking, myRole: "seller", disputeOpen: true })).toBe(
+    "you",
+  );
+});

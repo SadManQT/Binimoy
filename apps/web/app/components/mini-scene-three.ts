@@ -7,12 +7,14 @@ import { clay, roundedTriangle, solid, starShape } from "./hero-scene-three";
 //   alert  - a warning sign with rings going out, for the alerts page
 //   stars  - five review stars in orbit, for the shop directory
 //   lock   - a padlock with a turning key, for safe deals
-// All four are built from primitives: no model file is downloaded.
+//   deal   - buyer, safe and seller acting out the deal's current stage
+// All are built from primitives: no model file is downloaded.
 
-export type MiniKind = "gauge" | "alert" | "stars" | "lock";
+export type MiniKind = "gauge" | "alert" | "stars" | "lock" | "deal";
 export type MiniOptions = {
   kind: MiniKind;
-  // gauge only: 0 to 100, or null when there is not enough data.
+  // gauge: 0 to 100, or null when there is not enough data.
+  // deal: how many of the five stages are finished, 0 to 5.
   value?: number | null;
   reducedMotion: boolean;
   onReady: () => void;
@@ -159,6 +161,123 @@ export function mountMini(
         star.rotation.set(0, angle, Math.sin(t + n) * 0.2);
         star.scale.setScalar(0.75 + (star.position.z + 0.6) * 0.3);
       });
+    };
+  } else if (options.kind === "deal") {
+    // Buyer on the left, seller on the right, the safe between them. What
+    // moves is what the current stage is waiting for: coins into the safe,
+    // the parcel to the buyer, a magnifier over it, coins out to the seller.
+    const stage = options.value ?? 0;
+    const person = (x: number, colour: number) => {
+      const group = new THREE.Group();
+      const head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.2, 24, 16),
+        clay(colour),
+      );
+      head.position.y = 0.38;
+      const body = new THREE.Mesh(
+        new THREE.ConeGeometry(0.3, 0.62, 24),
+        clay(colour),
+      );
+      body.position.y = -0.12;
+      group.add(head, body);
+      group.position.x = x;
+      rig.add(group);
+      return group;
+    };
+    const buyer = person(-1.9, 0xdfe6ff);
+    const seller = person(1.9, AMBER);
+    const safe = new THREE.Mesh(
+      new THREE.BoxGeometry(0.9, 0.9, 0.7),
+      clay(stage >= 2 ? TEAL : NAVY, { roughness: 0.3 }),
+    );
+    safe.position.y = -0.3;
+    const dial = new THREE.Mesh(
+      new THREE.TorusGeometry(0.16, 0.045, 12, 32),
+      clay(0xdfe6ff, { metalness: 0.7, roughness: 0.25 }),
+    );
+    dial.position.set(0, -0.3, 0.37);
+    const gold = clay(GOLD, { metalness: 0.8, roughness: 0.3 });
+    const coins = [0, 1, 2].map(() => {
+      const coin = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.13, 0.13, 0.04, 24),
+        gold,
+      );
+      rig.add(coin);
+      return coin;
+    });
+    const parcel = new THREE.Mesh(
+      new THREE.BoxGeometry(0.34, 0.34, 0.34),
+      clay(0xc9955a, { roughness: 0.8 }),
+    );
+    const glass = new THREE.Group();
+    const lens = new THREE.Mesh(
+      new THREE.TorusGeometry(0.2, 0.035, 12, 32),
+      clay(0xdfe6ff, { metalness: 0.7, roughness: 0.25 }),
+    );
+    const handle = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03, 0.03, 0.3, 12),
+      clay(0xdfe6ff, { metalness: 0.7, roughness: 0.25 }),
+    );
+    handle.position.set(0.24, -0.24, 0);
+    handle.rotation.z = Math.PI / 4;
+    glass.add(lens, handle);
+    const done = new THREE.Group();
+    const green = clay(TEAL, { roughness: 0.3 });
+    const short = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.1), green);
+    short.position.set(-0.17, -0.08, 0);
+    short.rotation.z = -Math.PI / 4;
+    const long = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.1, 0.1), green);
+    long.position.set(0.12, 0.04, 0);
+    long.rotation.z = Math.PI / 4;
+    done.add(short, long);
+    done.position.set(0, 0.75, 0.2);
+    rig.add(safe, dial, parcel, glass, done);
+    parcel.visible = stage >= 2;
+    glass.visible = stage === 3;
+    done.visible = stage >= 5;
+    for (const coin of coins) coin.visible = stage >= 1;
+
+    const fly = (
+      object: THREE.Object3D,
+      from: number,
+      to: number,
+      progress: number,
+    ) => {
+      object.position.set(
+        from + (to - from) * progress,
+        -0.2 + Math.sin(progress * Math.PI) * 0.75,
+        0.25,
+      );
+    };
+    pose = (t) => {
+      const still = options.reducedMotion;
+      const hop = still ? 0 : Math.abs(Math.sin(t * 2.4)) * 0.12;
+      rig.rotation.y = Math.sin(t * 0.5) * 0.1;
+      // Whoever the stage is waiting for hops.
+      buyer.position.y = -0.4 + ([0, 1, 3, 5].includes(stage) ? hop : 0);
+      seller.position.y = -0.4 + ([0, 2, 5].includes(stage) ? hop : 0);
+      dial.rotation.z = stage === 4 ? t * 2 : 0;
+      coins.forEach((coin, n) => {
+        const progress = still ? 0.5 : (t * 0.45 + n / 3) % 1;
+        coin.rotation.set(Math.PI / 2, 0, 0);
+        if (stage === 1) fly(coin, -1.6, 0, progress);
+        else if (stage === 4) fly(coin, 0, 1.6, progress);
+        else {
+          // At rest: stacked on the safe, or beside the seller once paid.
+          coin.rotation.set(0, 0, 0);
+          coin.position.set(stage >= 5 ? 1.35 : 0, 0.17 + n * 0.05, 0.1);
+          if (stage >= 5) coin.position.y = -0.85 + n * 0.05;
+        }
+      });
+      if (stage === 2) fly(parcel, 1.5, -1.35, still ? 0.5 : (t * 0.35) % 1);
+      else parcel.position.set(-1.3, -0.72, 0.3);
+      parcel.rotation.y = stage === 2 ? t : 0.4;
+      glass.position.set(
+        -1.3 + Math.cos(t * 1.8) * 0.16,
+        -0.5 + Math.sin(t * 1.8) * 0.12,
+        0.6,
+      );
+      done.scale.setScalar(1 + (still ? 0 : Math.sin(t * 2) * 0.08));
     };
   } else {
     const body = new THREE.Mesh(

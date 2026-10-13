@@ -931,13 +931,126 @@ details > :not(summary) {
   color: var(--teal);
 }
 
-/* Deal page: content beside a summary that stays in view. On phones the
-   summary becomes a bar pinned to the bottom with the next step (C36.2). */
+/* Deal page: one panel on top says where the deal is and whose turn it is;
+   the sections below hold the action. On phones the next step is also a bar
+   pinned to the bottom (C36.2). */
+.deal-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1.1rem;
+  font-size: 0.9rem;
+}
+.live {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.live::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 0 0 #2fe0c488;
+}
+.live[data-online="false"]::before {
+  background: var(--amber);
+}
+.deal-who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.stage {
+  background: linear-gradient(180deg, var(--teal-wash), #0a1a2c);
+  border: 1px solid #2fe0c444;
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-panel);
+  padding: 1rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.stage[data-turn="you"] {
+  border-color: var(--teal);
+}
+.mini3d.stage-3d {
+  width: 100%;
+  max-width: 30rem;
+  aspect-ratio: 2.2;
+  margin: 0 auto;
+}
+.track {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+.track li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  text-align: center;
+  font-size: 0.74rem;
+  line-height: 1.25;
+  color: var(--faint);
+  padding-top: 0.55rem;
+  border-top: 3px solid var(--line-strong);
+}
+.track li > span[aria-hidden] {
+  font-size: 1.35rem;
+  filter: grayscale(1) opacity(0.55);
+}
+.track li[data-step="done"] {
+  color: var(--text);
+  border-top-color: var(--teal);
+}
+.track li[data-step="now"] {
+  color: var(--text);
+  font-weight: 700;
+  border-top-color: var(--amber);
+}
+.track li[data-step="done"] > span[aria-hidden],
+.track li[data-step="now"] > span[aria-hidden] {
+  filter: none;
+}
+.turn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-align: center;
+}
+.turn h2 {
+  font-size: 0.8rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.stage[data-turn="you"] .turn h2 {
+  color: var(--teal);
+}
+.turn p {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 0.9rem + 1.2vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.35;
+}
 .deal {
   display: grid;
   gap: 1.1rem;
   grid-template-columns: minmax(0, 1fr);
-  align-items: start;
 }
 .deal > .deal-main {
   display: flex;
@@ -956,111 +1069,80 @@ details > :not(summary) {
   gap: 0.9rem;
   min-width: 0;
 }
-.next-step {
+.deal-main button[type="submit"] {
+  min-height: 48px;
+}
+.turn-bar {
   position: sticky;
   bottom: 0.75rem;
   z-index: 30;
-  order: 2;
   background: #0c2f33f2;
   backdrop-filter: blur(10px);
   border: 1px solid #2fe0c466;
   border-radius: var(--radius-panel);
-  padding: 0.8rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+  line-height: 1.4;
   box-shadow: 0 16px 40px -18px #000;
 }
-.next-step h2 {
-  font-size: 0.8rem;
-  font-family: var(--font-body);
-  font-weight: 600;
-  color: var(--teal);
-  letter-spacing: 0.02em;
-}
-.next-step p {
-  font-weight: 500;
-  line-height: 1.5;
-}
-.next-step .steps {
-  display: none;
-}
 @media (min-width: 62rem) {
-  .deal {
-    grid-template-columns: minmax(0, 1fr) 19rem;
+  .turn-bar {
+    display: none;
   }
-  .next-step {
-    position: sticky;
-    top: calc(var(--header-h) + 1.25rem);
-    bottom: auto;
-    order: 0;
-    grid-column: 2;
-    grid-row: 1;
-    background: linear-gradient(180deg, var(--teal-wash), #0a2428);
-  }
-  .next-step .steps {
-    display: flex;
+  .track li {
+    font-size: 0.88rem;
   }
 }
-.steps {
-  list-style: none;
-  padding: 0;
-  margin-top: 0.4rem;
-  gap: 0;
-  counter-reset: step;
+@media (prefers-reduced-motion: no-preference) {
+  .live[data-online="true"]::before {
+    animation: live-pulse 2s infinite;
+  }
+  .stage[data-turn="you"] .turn h2 {
+    animation: turn-nudge 1.6s var(--ease) infinite;
+  }
 }
-.steps li {
-  counter-increment: step;
-  position: relative;
-  padding: 0.35rem 0 0.35rem 2rem;
-  font-size: 0.9rem;
-  color: var(--muted);
+@keyframes live-pulse {
+  70% {
+    box-shadow: 0 0 0 0.45rem #2fe0c400;
+  }
+  100% {
+    box-shadow: 0 0 0 0 #2fe0c400;
+  }
 }
-.steps li::before {
-  content: counter(step);
-  position: absolute;
-  left: 0;
-  top: 0.4rem;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 0.72rem;
-  font-weight: 700;
-  border: 1px solid var(--line-strong);
-  color: var(--muted);
-  background: var(--ink-900);
+@keyframes turn-nudge {
+  50% {
+    transform: translateY(-2px);
+  }
 }
-.steps li::after {
-  content: "";
-  position: absolute;
-  left: 0.66rem;
-  top: 1.85rem;
-  bottom: -0.35rem;
-  width: 1px;
-  background: var(--line-strong);
+/* A longer explanation behind a short line, and sections folded until needed. */
+details.more {
+  border: 0;
+  background: none;
 }
-.steps li:last-child::after {
-  display: none;
-}
-.steps li[data-step="done"] {
-  color: var(--text);
-}
-.steps li[data-step="done"]::before {
-  content: "✓";
-  background: var(--teal);
-  border-color: var(--teal);
-  color: var(--teal-ink);
-}
-.steps li[data-step="now"] {
-  color: var(--text);
-  font-weight: 600;
-}
-.steps li[data-step="now"]::before {
-  border-color: var(--teal);
+details.more > summary {
+  display: inline-flex;
+  min-height: 32px;
+  padding: 0.15rem 0;
+  font-size: 0.85rem;
+  font-weight: 500;
   color: var(--teal);
-  box-shadow: 0 0 0 3px #2fe0c422;
+}
+details.more > :not(summary) {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+details.fold {
+  border: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+}
+details.fold > summary {
+  padding: 0;
+}
+details.fold > :not(summary) {
+  margin: 0.9rem 0 0;
 }
 
 /* Research report cards (C36.2): source, date, type and access before text. */
@@ -1149,7 +1231,9 @@ main:not(.bleed) > :nth-child(n + 4) {
   .site-header,
   .site-footer,
   .skip,
-  .next-step {
+  .turn-bar,
+  .stage-3d,
+  .live {
     display: none;
   }
   main > section,

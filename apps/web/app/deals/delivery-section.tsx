@@ -4,6 +4,7 @@ import type { DeliveryView } from "@lp/db/delivery";
 import { PREDICATES } from "@lp/templates";
 import { copyFor } from "../../lib/copy";
 import { getI18n } from "../../lib/i18n";
+import { More } from "../components/more";
 import {
   acceptDeliveryAction,
   openDisputeAction,
@@ -55,12 +56,12 @@ export async function PlainDeliveryForm({
           {item.mandatory ? "" : L(" (ঐচ্ছিক)", " (optional)")}
         </label>
       ))}
-      <p>
+      <More>
         {L(
           "এই ধরনের প্রোডাক্টে গোপন কিছু হস্তান্তর হয় না। জমা দিলে প্রোভাইডারের রেকর্ড মিলিয়ে দেখা শুরু হয়। জমা দেওয়া মানে টাকা পাওয়া নয়।",
           "Nothing secret is handed over for this kind of product. Submitting starts the check against the provider's record. Submitting does not mean being paid.",
         )}
-      </p>
+      </More>
       <button type="submit">
         {L("ডেলিভারি জমা দিন", "Submit the delivery")}
       </button>
@@ -90,12 +91,12 @@ export async function ProviderLab({
           "Lab: what the test provider will answer",
         )}
       </h3>
-      <p>
+      <More>
         {L(
           "এই ডিলের কোনো ভেরিফাই আসল প্রোভাইডার থেকে আসে না। চেকের জন্য এখানে ঠিক করা যায় টেস্ট প্রোভাইডার কী বলবে। কিছু ঠিক না করলে উত্তর “রেকর্ড নেই”, অর্থাৎ ভেরিফাই করা যায়নি।",
           "No verification in this deal comes from a real provider. For testing, you set here what the test provider says. If nothing is set the answer is “no record”, meaning it could not be verified.",
         )}
-      </p>
+      </More>
       {used.map((item) => {
         const fact = facts.find((f) => f.predicate === item.predicate);
         const field = PREDICATES[item.predicate]?.bindsField;
@@ -304,6 +305,14 @@ export async function DeliverySection({
             "প্রতিটি আবশ্যক শর্ত স্বাধীন উৎস থেকে প্রমাণিত হয়েছে। বায়ারকে নোটিফিকেশন দেওয়া হয়েছে, কিন্তু বায়ার এখনো সেটি দেখেননি। বায়ার না দেখা পর্যন্ত আপত্তির সময় শুরু হয় না, এবং শুধু সময় পার হওয়ার কারণে টাকা ছাড়া হবে না।",
             "Every required condition was proven from an independent source. The buyer was notified but has not seen the notice yet. The objection period does not start until the buyer has seen it, and money is not released just because time passed.",
           )}
+          {myRole === "buyer" && (
+            <>
+              {" "}
+              <a href={`/deals/${dealId}`} data-testid="open-notice">
+                {L("নোটিফিকেশনটি খুলে দেখুন", "Open the notice")}
+              </a>
+            </>
+          )}
         </p>
       )}
 
@@ -400,12 +409,12 @@ export async function DeliverySection({
           <summary>
             {L("সমস্যা জানান (ডিসপিউট খুলুন)", "Report a problem (open a dispute)")}
           </summary>
-          <p>
+          <More>
             {L(
               "ডিসপিউট খুললে এখনো পাঠানো হয়নি এমন টাকা আটকে যায়। রিপোর্ট মানেই কেউ দোষী নয়; এটি শুধু বিষয়টি রেকর্ড করে।",
               "Opening a dispute holds any money that has not been sent yet. A report does not mean anyone is at fault; it only records the matter.",
             )}
-          </p>
+          </More>
           <form action={openDisputeAction}>
             <input type="hidden" name="dealId" value={dealId} />
             <label>

@@ -2,6 +2,7 @@ import type { Conversation } from "@lp/db/conversation";
 import { MONITORING_POLICY } from "@lp/db/conversation";
 import { copyFor } from "../../lib/copy";
 import { getI18n } from "../../lib/i18n";
+import { More } from "../components/more";
 import {
   acceptMonitoringAction,
   postMessageAction,
@@ -47,15 +48,23 @@ export async function ConversationSection({
   return (
     <div data-testid="conversation">
       <h3>{L("ডিলের কথোপকথন (পর্যবেক্ষিত)", "Deal conversation (monitored)")}</h3>
-      <p data-testid="monitoring-label">
-        <strong>
-          {L("এই কথোপকথন গোপন নয়।", "This conversation is not private.")}
-        </strong>{" "}
-        {L(
-          "এখানকার বার্তা বিনিময়ের সার্ভারে পড়া যায়, ডিসপিউট হলে নিযুক্ত রিভিউয়ার দেখতে পারেন, এবং দুই পক্ষ সম্মতি দিলে ডেলিভারিতে সহায়তা ও সমস্যা মীমাংসার জন্য এআই দিয়ে প্রক্রিয়া করা হতে পারে। পাসওয়ার্ড, OTP, পিন বা লাইসেন্স কি এখানে নয়, গোপন ভল্টে দিন। বাইরের (যেমন WhatsApp) কথা এখানে ধরা পড়ে না।",
-          "Messages here can be read on Binimoy's server, can be seen by the assigned reviewer in a dispute, and, if both sides agree, may be processed by AI to help with delivery and settle problems. Put passwords, OTPs, PINs and license keys in the secret vault, not here. Conversations elsewhere (such as WhatsApp) are not captured here.",
-        )}
-      </p>
+      <div data-testid="monitoring-label">
+        <p>
+          <strong>
+            {L("এই কথোপকথন গোপন নয়।", "This conversation is not private.")}
+          </strong>{" "}
+          {L(
+            "পাসওয়ার্ড বা কোড এখানে লিখবেন না; সেগুলো গোপন ভল্টে দিন।",
+            "Do not write passwords or codes here; put them in the secret vault.",
+          )}
+        </p>
+        <More>
+          {L(
+            "এখানকার বার্তা বিনিময়ের সার্ভারে পড়া যায়, ডিসপিউট হলে নিযুক্ত রিভিউয়ার দেখতে পারেন, এবং দুই পক্ষ সম্মতি দিলে ডেলিভারিতে সহায়তা ও সমস্যা মীমাংসার জন্য এআই দিয়ে প্রক্রিয়া করা হতে পারে। পাসওয়ার্ড, OTP, পিন বা লাইসেন্স কি এখানে নয়, গোপন ভল্টে দিন। বাইরের (যেমন WhatsApp) কথা এখানে ধরা পড়ে না।",
+            "Messages here can be read on Binimoy's server, can be seen by the assigned reviewer in a dispute, and, if both sides agree, may be processed by AI to help with delivery and settle problems. Put passwords, OTPs, PINs and license keys in the secret vault, not here. Conversations elsewhere (such as WhatsApp) are not captured here.",
+          )}
+        </More>
+      </div>
       <p>
         {L("এআই পড়তে পারে", "AI may read this")}:{" "}
         <strong data-testid="ai-may-read">

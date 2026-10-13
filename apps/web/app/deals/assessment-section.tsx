@@ -1,5 +1,6 @@
 import type { AssessmentView } from "@lp/adapters";
 import { getI18n } from "../../lib/i18n";
+import { More } from "../components/more";
 import { requestAssessmentAction } from "./actions";
 
 const NEXT_STEP_TEXT = {
@@ -74,12 +75,12 @@ export async function AssessmentSection({
           "AI summary (a suggestion, not a decision)",
         )}
       </h3>
-      <p>
+      <More>
         {L(
           "এটি রেকর্ড পড়ে লেখা একটি সহায়ক সারসংক্ষেপ। এআই টাকা ছাড়তে, ফেরত দিতে বা কোনো সিদ্ধান্ত নিতে পারে না, এবং গোপন ভল্টের কিছু দেখতে পায় না। এতে ভুল থাকতে পারে।",
           "This is a helper summary written from the record. The AI cannot release money, refund it or decide anything, and it sees nothing in the secret vault. It may contain mistakes.",
         )}
-      </p>
+      </More>
 
       {working && (
         <p data-testid="assessment-status">
