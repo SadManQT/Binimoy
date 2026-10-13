@@ -111,7 +111,11 @@ test("a top-up is proven by the provider's record for the agreed player ID, not 
     "Settlement is complete",
   );
   await expect(buyer.getByTestId("operation-payout")).toHaveText("Completed");
-  await expect(buyer.locator("main")).not.toContainText(/[ঀ-৿]/);
+  // Bangla letters only: the taka sign belongs in both languages.
+  await expect(buyer.locator("main")).not.toContainText(/[অ-হ]/);
   await buyer.getByRole("link", { name: "Receipt and full record" }).click();
   await expect(buyer.getByTestId("receipt")).toContainText("Test record");
+  await expect(buyer.getByTestId("receipt")).toContainText(
+    "Supplier is authorized",
+  );
 });
