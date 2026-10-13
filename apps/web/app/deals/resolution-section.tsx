@@ -3,6 +3,7 @@ import type { Balances } from "@lp/db/ledger";
 import type { Decision, DisputeView } from "@lp/db/review";
 import { copyFor } from "../../lib/copy";
 import { getI18n } from "../../lib/i18n";
+import { More } from "../components/more";
 import {
   acceptProposalAction,
   appealAction,
@@ -120,12 +121,12 @@ export async function ResolutionSection({
           ) : (
             <form action={waiveAppealAction}>
               {hidden}
-              <p>
+              <More>
                 {L(
                   "দুই পক্ষই সিদ্ধান্ত মেনে নিলে অপেক্ষা না করে এখনই কার্যকর হবে। মেনে নিলে আপনি আপনার আপিলের বাকি সময় ছেড়ে দিচ্ছেন।",
                   "If both sides accept the decision it takes effect now, without waiting. By accepting, you give up the rest of your time to appeal.",
                 )}
-              </p>
+              </More>
               <button type="submit">
                 {L("সিদ্ধান্ত মেনে নিচ্ছি", "I accept the decision")}
               </button>
@@ -145,12 +146,12 @@ export async function ResolutionSection({
         ) : (
           <form action={requestReviewAction}>
             {hidden}
-            <p>
+            <More>
               {L(
                 "রিভিউয়ার চাইলে বিষয়টি সারিতে যাবে। কখন কেউ দায়িত্ব নেবেন তার নিশ্চয়তা দেওয়া হচ্ছে না; সারিতে থাকা মানে কাউকে দেওয়া হয়ে যাওয়া নয়।",
                 "Asking for a reviewer puts the matter in the queue. There is no promise of when someone will take it; being in the queue does not mean it has been given to anyone.",
               )}
-            </p>
+            </More>
             <button type="submit">
               {L("হিউম্যান রিভিউ চাই", "Ask for a human review")}
             </button>
@@ -173,8 +174,11 @@ export async function ResolutionSection({
       )}
 
       {balances.held > 0n && !decided && (
-        <div>
-          <h4>{L("দুই পক্ষের সম্মত বণ্টন", "A split both sides agree to")}</h4>
+        // Folded away until there is a dispute or a proposal to answer.
+        <details className="fold" open={Boolean(dispute || proposal)}>
+          <summary>
+            <h4>{L("দুই পক্ষের সম্মত বণ্টন", "A split both sides agree to")}</h4>
+          </summary>
           <p>
             {L(
               `আটকে আছে ${formatBdt(balances.held.toString())}. এক পক্ষ প্রস্তাব দেন, অন্য পক্ষ ঠিক সেই প্রস্তাব গ্রহণ করলে তবেই টাকা সেভাবে ভাগ হয়।`,
@@ -234,7 +238,7 @@ export async function ResolutionSection({
                 : L("প্রস্তাব দিন", "Make a proposal")}
             </button>
           </form>
-        </div>
+        </details>
       )}
     </div>
   );

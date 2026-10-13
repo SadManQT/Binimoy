@@ -5,6 +5,7 @@ import {
   agreementCommand,
   createDeal,
   createInvite,
+  dealPulse,
   getDealView,
   listDeals,
 } from "./agreements";
@@ -343,4 +344,31 @@ test("stored terms and acceptances cannot be edited or deleted", async () => {
       /append-only/,
     );
   }
+});
+
+test("the deal pulse changes when either side acts, and tells an outsider nothing", async () => {
+  const deal = await created();
+  const outsider = await newUser();
+  expect(await dealPulse(pool, outsider, deal.dealId)).toBeNull();
+  expect(await dealPulse(pool, deal.seller, "not-a-uuid")).toBeNull();
+
+  const alone = await dealPulse(pool, deal.seller, deal.dealId);
+  expect(alone).toEqual(await dealPulse(pool, deal.seller, deal.dealId));
+  const buyer = await newUser("Buyer");
+  const invite = await createInvite(pool, deal.seller, deal.dealId);
+  if (!invite.ok) throw new Error("invite failed");
+  await acceptInvite(pool, buyer, invite.token);
+  const both = await dealPulse(pool, deal.seller, deal.dealId);
+  expect(both).not.toEqual(alone);
+  // Both sides read the same pulse.
+  expect(await dealPulse(pool, buyer, deal.dealId)).toEqual(both);
+
+  expect((await command(deal.seller, deal, "ProposeAgreement")).ok).toBe(true);
+  const proposed = await dealPulse(pool, buyer, deal.dealId);
+  expect(proposed).not.toEqual(both);
+  const termsHash = await hash(buyer, deal.dealId);
+  expect(
+    (await command(buyer, deal, "AcceptAgreement", { termsHash })).ok,
+  ).toBe(true);
+  expect(await dealPulse(pool, deal.seller, deal.dealId)).not.toEqual(proposed);
 });

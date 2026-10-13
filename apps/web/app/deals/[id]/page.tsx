@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { getAssessment, getVaultRoom, matrixUserId } from "@lp/adapters";
 import { formatBdt, loadConfig } from "@lp/contracts";
-import { getDealView } from "@lp/db/agreements";
+import { dealPulse, getDealView } from "@lp/db/agreements";
 import { getConversation } from "@lp/db/conversation";
 import { getDeliveryView } from "@lp/db/delivery";
 import { dealBalances, getFunding } from "@lp/db/ledger";
@@ -9,12 +9,15 @@ import { renderNotices } from "@lp/db/notices";
 import { getDisputeView } from "@lp/db/review";
 import { getMockFacts } from "@lp/db/verification";
 import { getTemplate } from "@lp/templates";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { copyFor } from "../../../lib/copy";
 import { getI18n } from "../../../lib/i18n";
 import { nextStep } from "../../../lib/next-step";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
+import { Mini3D } from "../../components/mini-3d";
+import { More } from "../../components/more";
 import { agreementAction, createInviteAction } from "../actions";
 import { AssessmentSection } from "../assessment-section";
 import { ConversationSection } from "../conversation-section";
@@ -24,12 +27,21 @@ import {
   ProviderLab,
 } from "../delivery-section";
 import { FundingSection } from "../funding-section";
+import { LiveDeal } from "../live-deal";
 import { ResolutionSection } from "../resolution-section";
 import { TermsFields } from "../terms-fields";
 import { VaultPanel } from "../vault-panel";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "ডিল · বিনিময়" };
+
+const STEP_ICON = {
+  agreed: "🤝",
+  funded: "💰",
+  delivered: "📦",
+  inspected: "🔍",
+  settled: "✅",
+};
 
 export default async function DealPage({
   params,
@@ -65,7 +77,11 @@ export default async function DealPage({
   const vaultRoomId = await getVaultRoom(pool(), deal.dealId);
   // D.6: this signed-in page is where a party is shown the notices of this
   // deal, including the one that starts an objective-release challenge period.
-  await renderNotices(pool(), user.id, deal.dealId);
+  // An automatic re-read of an open page is not the person opening it: it
+  // must not start a period that runs from when they were shown a notice.
+  if (!(await cookies()).has("live")) {
+    await renderNotices(pool(), user.id, deal.dealId);
+  }
   const delivery =
     funding?.state === "CONFIRMED"
       ? await getDeliveryView(pool(), deal.dealId)
@@ -125,6 +141,10 @@ export default async function DealPage({
     locale,
   );
 
+  const doneCount = step.steps.filter((s) => s.state === "done").length;
+  // Read last, so it matches what this page shows.
+  const pulse = (await dealPulse(pool(), user.id, deal.dealId)) ?? "";
+
   // One fresh key per rendered form: a double click replays, a new page load
   // is a new action.
   const hidden = (command: string) => (
@@ -143,23 +163,28 @@ export default async function DealPage({
 
   return (
     <main className="wide">
-      <p>
+      <p className="deal-crumbs">
         <a href="/deals">← {L("আমার ডিল", "My deals")}</a>
-      </p>
-      <h1>{deal.title}</h1>
-      <p>
         <a href={`/deals/${deal.dealId}/receipt`}>
           {L("রসিদ ও পূর্ণ রেকর্ড", "Receipt and full record")}
         </a>
+        <LiveDeal
+          dealId={deal.dealId}
+          pulse={pulse}
+          label={L("লাইভ: নিজে থেকে আপডেট হয়", "Live: updates by itself")}
+          offline={L("সংযোগ নেই, আবার চেষ্টা চলছে", "Offline, retrying")}
+        />
       </p>
+      <h1>{deal.title}</h1>
       {error && <p role="alert">{copy.error[error] ?? error}</p>}
-      <dl>
-        <dt>{L("অবস্থা", "Status")}</dt>
-        <dd>{copy.state[agreement.state] ?? agreement.state}</dd>
-        <dt>{L("আপনার ভূমিকা", "Your role")}</dt>
-        <dd>{copy.role[deal.myRole]}</dd>
-        <dt>{L("পক্ষ", "Parties")}</dt>
-        <dd>
+      <p className="deal-who">
+        <span className="chip plain">
+          {L("আপনি", "You")}: {copy.role[deal.myRole]}
+        </span>
+        <span className="chip plain">
+          {copy.state[agreement.state] ?? agreement.state}
+        </span>
+        <span>
           {deal.parties
             .map((p) => `${copy.role[p.role]}: ${p.name}`)
             .join(" · ")}
@@ -168,24 +193,39 @@ export default async function DealPage({
               " · অন্য পক্ষ এখনো যোগ দেননি",
               " · the other side has not joined yet",
             )}
-        </dd>
-      </dl>
+        </span>
+      </p>
+
+      <section
+        className="stage"
+        aria-labelledby="next-step-title"
+        data-turn={step.turn}
+      >
+        <Mini3D kind="deal" value={doneCount} className="mini3d stage-3d" />
+        <ol className="track">
+          {step.steps.map((item) => (
+            <li key={item.key} data-step={item.state}>
+              <span aria-hidden="true">{STEP_ICON[item.key]}</span>
+              {item.label}
+              {item.state === "done" && (
+                <span className="sr-only">{L(" (সম্পন্ন)", " (done)")}</span>
+              )}
+            </li>
+          ))}
+        </ol>
+        <div className="turn">
+          <h2 id="next-step-title">
+            {step.turn === "you"
+              ? L("আপনার পালা", "Your turn")
+              : step.turn === "wait"
+                ? L("অপেক্ষা করুন", "Please wait")
+                : L("শেষ", "Finished")}
+          </h2>
+          <p data-testid="next-step">{step.text}</p>
+        </div>
+      </section>
 
       <div className="deal">
-        <aside className="next-step" aria-labelledby="next-step-title">
-          <h2 id="next-step-title">{L("এখন যা করার", "What to do now")}</h2>
-          <p data-testid="next-step">{step.text}</p>
-          <ol className="steps">
-            {step.steps.map((item) => (
-              <li key={item.key} data-step={item.state}>
-                {item.label}
-                {item.state === "done" && (
-                  <span className="sr-only">{L(" (সম্পন্ন)", " (done)")}</span>
-                )}
-              </li>
-            ))}
-          </ol>
-        </aside>
         <div className="deal-main">
           {deal.parties.length === 1 && open && (
             <section aria-labelledby="invite">
@@ -236,12 +276,6 @@ export default async function DealPage({
                 {L("ফি", "fee")} {formatBdt(terms.feeMinor)} ·{" "}
                 {L("টেস্ট, কোনো আসল টাকা নয়", "test, no real money")}
               </dd>
-              <dt>{L("সেবার ধরন", "Service mode")}</dt>
-              <dd>
-                {copy.mode[terms.mode]?.name ?? terms.mode}
-                <br />
-                <small>{copy.mode[terms.mode]?.note}</small>
-              </dd>
               {template.fields.map((field) => (
                 <div key={field.key}>
                   <dt>{field.label[locale]}</dt>
@@ -250,94 +284,110 @@ export default async function DealPage({
                   </dd>
                 </div>
               ))}
-              {milestones.map((milestone) => (
-                <div key={milestone.no}>
-                  <dt>
-                    {L("মাইলস্টোন", "Milestone")} {milestone.no}
-                  </dt>
-                  <dd>
-                    {milestone.title} · {formatBdt(milestone.amountMinor)}
-                  </dd>
-                </div>
-              ))}
-              <dt>{L("সময়সীমা", "Time limits")}</dt>
-              <dd>
-                {L(
-                  `ডেলিভারি: টাকা জমার পর ${terms.timing.deliveryHours} ঘণ্টা · চেক: ডেলিভারির পর ${terms.timing.inspectionHours} ঘণ্টা · সংশোধনের সুযোগ: ${terms.timing.correctionAttempts} বার · আপিল: ${terms.timing.appealHours} ঘণ্টা`,
-                  `Delivery: ${terms.timing.deliveryHours} hours after funding · Checking: ${terms.timing.inspectionHours} hours after delivery · Correction attempts: ${terms.timing.correctionAttempts} · Appeal: ${terms.timing.appealHours} hours`,
-                )}
-              </dd>
-              <dt>
-                {L(
-                  "বায়ারের চূড়ান্ত সম্মতি ছাড়া স্বয়ংক্রিয় ছাড়",
-                  "Automatic release without the buyer's final acceptance",
-                )}
-              </dt>
-              <dd>
-                {terms.objectiveRelease
-                  ? L(
-                      `চালু: প্রতিটি আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হলে বায়ারকে জানানো হয়, এবং ${terms.timing.objectiveChallengeHours} ঘণ্টার মধ্যে বায়ার আপত্তি না করলে সেলারকে পেমেন্ট হয়। আপত্তি করলে টাকা আটকে থাকে।`,
-                      `On: when every required condition is independently proven the buyer is told, and the seller is paid unless the buyer objects within ${terms.timing.objectiveChallengeHours} hours. If the buyer objects, the money stays held.`,
-                    )
-                  : L(
-                      "চালু নয়: এই ধরনের প্রোডাক্টে প্রতিটি শর্ত স্বাধীনভাবে ভেরিফাই করার ব্যবস্থা এখনো পরীক্ষিত নয়।",
-                      "Off: for this kind of product, independently verifying every condition has not been tested yet.",
-                    )}
-              </dd>
-              <dt>{L("ডেলিভারি না হলে", "If nothing is delivered")}</dt>
-              <dd>
-                {L(
-                  "সময়সীমার মধ্যে কিছু না দিলে পুরো টাকা ফেরত; অন্য ক্ষেত্রে রিভিউ বা দুই পক্ষের সম্মতি।",
-                  "A full refund if nothing is delivered in time; otherwise a review or an agreement between both sides.",
-                )}
-              </dd>
             </dl>
-
-            <h3>
-              {L(
-                "যা যা দিতে ও চেক করতে হবে",
-                "What must be delivered and checked",
-              )}
-            </h3>
-            <ol>
-              {terms.items.map((item) => (
-                <li key={item.itemId}>
-                  {item.title[locale]} ·{" "}
-                  {item.mandatory
-                    ? L("আবশ্যক", "required")
-                    : L("ঐচ্ছিক", "optional")}{" "}
-                  · {L("প্রমাণ", "proof")}:{" "}
-                  {item.proofTypes.map((p) => copy.proof[p] ?? p).join(", ")}
-                  {item.subjective &&
-                    L(
-                      " · ব্যক্তিগত মত, ভেরিফাইযোগ্য নয়",
-                      " · a personal opinion, cannot be verified",
-                    )}
-                  {item.dataClass === "vault_secret" &&
-                    L(
-                      " · গোপন ভল্টে, চ্যাটে নয়",
-                      " · in the secret vault, not in chat",
-                    )}
-                </li>
-              ))}
-            </ol>
-
-            <h3>{L("যে ঝুঁকি থেকে যায়", "Risks that remain")}</h3>
-            <ul>
-              {terms.residualRisks.map((risk) => (
-                <li key={risk.en}>{risk[locale]}</li>
-              ))}
-            </ul>
-            <p>
-              <small>
-                {L("শর্তের ছাপ", "Terms fingerprint")}:{" "}
-                <code>{agreement.termsHash.slice(0, 16)}</code>.{" "}
+            <details className="fold">
+              <summary>
                 {L(
-                  "সম্মতি ঠিক এই ছাপের সাথে বাঁধা থাকে।",
-                  "Agreement is tied to exactly this fingerprint.",
+                  "সব শর্ত, চেকলিস্ট ও ঝুঁকি দেখুন",
+                  "See all terms, the checklist and the risks",
                 )}
-              </small>
-            </p>
+              </summary>
+              <dl>
+                <dt>{L("সেবার ধরন", "Service mode")}</dt>
+                <dd>
+                  {copy.mode[terms.mode]?.name ?? terms.mode}
+                  <br />
+                  <small>{copy.mode[terms.mode]?.note}</small>
+                </dd>
+                {milestones.map((milestone) => (
+                  <div key={milestone.no}>
+                    <dt>
+                      {L("মাইলস্টোন", "Milestone")} {milestone.no}
+                    </dt>
+                    <dd>
+                      {milestone.title} · {formatBdt(milestone.amountMinor)}
+                    </dd>
+                  </div>
+                ))}
+                <dt>{L("সময়সীমা", "Time limits")}</dt>
+                <dd>
+                  {L(
+                    `ডেলিভারি: টাকা জমার পর ${terms.timing.deliveryHours} ঘণ্টা · চেক: ডেলিভারির পর ${terms.timing.inspectionHours} ঘণ্টা · সংশোধনের সুযোগ: ${terms.timing.correctionAttempts} বার · আপিল: ${terms.timing.appealHours} ঘণ্টা`,
+                    `Delivery: ${terms.timing.deliveryHours} hours after funding · Checking: ${terms.timing.inspectionHours} hours after delivery · Correction attempts: ${terms.timing.correctionAttempts} · Appeal: ${terms.timing.appealHours} hours`,
+                  )}
+                </dd>
+                <dt>
+                  {L(
+                    "বায়ারের চূড়ান্ত সম্মতি ছাড়া স্বয়ংক্রিয় ছাড়",
+                    "Automatic release without the buyer's final acceptance",
+                  )}
+                </dt>
+                <dd>
+                  {terms.objectiveRelease
+                    ? L(
+                        `চালু: প্রতিটি আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হলে বায়ারকে জানানো হয়, এবং ${terms.timing.objectiveChallengeHours} ঘণ্টার মধ্যে বায়ার আপত্তি না করলে সেলারকে পেমেন্ট হয়। আপত্তি করলে টাকা আটকে থাকে।`,
+                        `On: when every required condition is independently proven the buyer is told, and the seller is paid unless the buyer objects within ${terms.timing.objectiveChallengeHours} hours. If the buyer objects, the money stays held.`,
+                      )
+                    : L(
+                        "চালু নয়: এই ধরনের প্রোডাক্টে প্রতিটি শর্ত স্বাধীনভাবে ভেরিফাই করার ব্যবস্থা এখনো পরীক্ষিত নয়।",
+                        "Off: for this kind of product, independently verifying every condition has not been tested yet.",
+                      )}
+                </dd>
+                <dt>{L("ডেলিভারি না হলে", "If nothing is delivered")}</dt>
+                <dd>
+                  {L(
+                    "সময়সীমার মধ্যে কিছু না দিলে পুরো টাকা ফেরত; অন্য ক্ষেত্রে রিভিউ বা দুই পক্ষের সম্মতি।",
+                    "A full refund if nothing is delivered in time; otherwise a review or an agreement between both sides.",
+                  )}
+                </dd>
+              </dl>
+
+              <h3>
+                {L(
+                  "যা যা দিতে ও চেক করতে হবে",
+                  "What must be delivered and checked",
+                )}
+              </h3>
+              <ol>
+                {terms.items.map((item) => (
+                  <li key={item.itemId}>
+                    {item.title[locale]} ·{" "}
+                    {item.mandatory
+                      ? L("আবশ্যক", "required")
+                      : L("ঐচ্ছিক", "optional")}{" "}
+                    · {L("প্রমাণ", "proof")}:{" "}
+                    {item.proofTypes.map((p) => copy.proof[p] ?? p).join(", ")}
+                    {item.subjective &&
+                      L(
+                        " · ব্যক্তিগত মত, ভেরিফাইযোগ্য নয়",
+                        " · a personal opinion, cannot be verified",
+                      )}
+                    {item.dataClass === "vault_secret" &&
+                      L(
+                        " · গোপন ভল্টে, চ্যাটে নয়",
+                        " · in the secret vault, not in chat",
+                      )}
+                  </li>
+                ))}
+              </ol>
+
+              <h3>{L("যে ঝুঁকি থেকে যায়", "Risks that remain")}</h3>
+              <ul>
+                {terms.residualRisks.map((risk) => (
+                  <li key={risk.en}>{risk[locale]}</li>
+                ))}
+              </ul>
+              <p>
+                <small>
+                  {L("শর্তের ছাপ", "Terms fingerprint")}:{" "}
+                  <code>{agreement.termsHash.slice(0, 16)}</code>.{" "}
+                  {L(
+                    "সম্মতি ঠিক এই ছাপের সাথে বাঁধা থাকে।",
+                    "Agreement is tied to exactly this fingerprint.",
+                  )}
+                </small>
+              </p>
+            </details>
           </section>
 
           <section aria-labelledby="next">
@@ -479,12 +529,12 @@ export default async function DealPage({
             {editable && (
               <details>
                 <summary>{L("শর্ত বদলান", "Change the terms")}</summary>
-                <p>
+                <More>
                   {L(
                     "বদলালে নতুন সংস্করণ তৈরি হয় এবং ডিল ড্রাফটে ফিরে যায়। আগের সংস্করণে দেওয়া কোনো সম্মতি নতুন সংস্করণে গণ্য হয় না।",
                     "A change creates a new version and the deal goes back to draft. Agreement given to an earlier version does not count for the new one.",
                   )}
-                </p>
+                </More>
                 <form action={agreementAction}>
                   {hidden("ReviseAgreement")}
                   <input type="hidden" name="role" value={deal.myRole} />
@@ -542,6 +592,9 @@ export default async function DealPage({
           )}
         </div>
       </div>
+      <p className="turn-bar" aria-hidden="true" data-turn={step.turn}>
+        {step.text}
+      </p>
     </main>
   );
 }
