@@ -124,126 +124,6 @@ export function LoginForm({
         </form>
       </section>
 
-      <section aria-labelledby="link">
-        <h2 id="link">{L("ইমেইলে লগইন লিংক", "Login link by email")}</h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const email = field(e, "email");
-            run(
-              () =>
-                authClient.signIn.magicLink({ email, callbackURL: "/account" }),
-              `${L("লিংক পাঠানো হয়েছে।", "Link sent.")}${devHint}`,
-            );
-          }}
-        >
-          <label>
-            {L("ইমেইল", "Email")}
-            <input name="email" type="email" required autoComplete="email" />
-          </label>
-          <button type="submit" disabled={busy}>
-            {L("লিংক পাঠান", "Send link")}
-          </button>
-        </form>
-      </section>
-
-      <section aria-labelledby="ecode">
-        <h2 id="ecode">{L("ইমেইলে কোড", "Code by email")}</h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const email = field(e, "email");
-            const otp = field(e, "otp");
-            if (!emailCodeSent) {
-              run(
-                () =>
-                  authClient.emailOtp.sendVerificationOtp({
-                    email,
-                    type: "sign-in",
-                  }),
-                `${L("কোড পাঠানো হয়েছে।", "Code sent.")}${devHint}`,
-                () => setEmailCodeSent(true),
-              );
-            } else {
-              run(
-                () => authClient.signIn.emailOtp({ email, otp }),
-                L("লগইন হয়েছে।", "Logged in."),
-                toAccount,
-              );
-            }
-          }}
-        >
-          <label>
-            {L("ইমেইল", "Email")}
-            <input name="email" type="email" required autoComplete="email" />
-          </label>
-          {emailCodeSent && (
-            <label>
-              {L("কোড", "Code")}
-              <input
-                name="otp"
-                inputMode="numeric"
-                required
-                autoComplete="one-time-code"
-              />
-            </label>
-          )}
-          <button type="submit" disabled={busy}>
-            {emailCodeSent
-              ? L("কোড দিয়ে লগইন", "Log in with code")
-              : L("কোড পাঠান", "Send code")}
-          </button>
-        </form>
-      </section>
-
-      <section aria-labelledby="phone">
-        <h2 id="phone">{L("ফোনে কোড", "Code by phone")}</h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const phoneNumber = field(e, "phone");
-            const code = field(e, "code");
-            if (!phoneCodeSent) {
-              run(
-                () => authClient.phoneNumber.sendOtp({ phoneNumber }),
-                `${L("কোড পাঠানো হয়েছে।", "Code sent.")}${devHint}`,
-                () => setPhoneCodeSent(true),
-              );
-            } else {
-              run(
-                () => authClient.phoneNumber.verify({ phoneNumber, code }),
-                L("লগইন হয়েছে।", "Logged in."),
-                toAccount,
-              );
-            }
-          }}
-        >
-          <label>
-            {L(
-              "ফোন নম্বর (যেমন +8801XXXXXXXXX)",
-              "Phone number (like +8801XXXXXXXXX)",
-            )}
-            <input name="phone" type="tel" required autoComplete="tel" />
-          </label>
-          {phoneCodeSent && (
-            <label>
-              {L("কোড", "Code")}
-              <input
-                name="code"
-                inputMode="numeric"
-                required
-                autoComplete="one-time-code"
-              />
-            </label>
-          )}
-          <button type="submit" disabled={busy}>
-            {phoneCodeSent
-              ? L("কোড দিয়ে লগইন", "Log in with code")
-              : L("কোড পাঠান", "Send code")}
-          </button>
-        </form>
-      </section>
-
       <section aria-labelledby="social">
         <h2 id="social">{L("অন্য অ্যাকাউন্ট দিয়ে", "With another account")}</h2>
         {providers.length === 0 ? (
@@ -278,6 +158,132 @@ export function LoginForm({
           ))
         )}
       </section>
+
+      <details>
+        <summary>{L("অন্য উপায়ে লগইন", "Other ways to log in")}</summary>
+        <section aria-labelledby="link">
+          <h2 id="link">{L("ইমেইলে লগইন লিংক", "Login link by email")}</h2>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const email = field(e, "email");
+              run(
+                () =>
+                  authClient.signIn.magicLink({
+                    email,
+                    callbackURL: "/account",
+                  }),
+                `${L("লিংক পাঠানো হয়েছে।", "Link sent.")}${devHint}`,
+              );
+            }}
+          >
+            <label>
+              {L("ইমেইল", "Email")}
+              <input name="email" type="email" required autoComplete="email" />
+            </label>
+            <button type="submit" disabled={busy}>
+              {L("লিংক পাঠান", "Send link")}
+            </button>
+          </form>
+        </section>
+
+        <section aria-labelledby="ecode">
+          <h2 id="ecode">{L("ইমেইলে কোড", "Code by email")}</h2>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const email = field(e, "email");
+              const otp = field(e, "otp");
+              if (!emailCodeSent) {
+                run(
+                  () =>
+                    authClient.emailOtp.sendVerificationOtp({
+                      email,
+                      type: "sign-in",
+                    }),
+                  `${L("কোড পাঠানো হয়েছে।", "Code sent.")}${devHint}`,
+                  () => setEmailCodeSent(true),
+                );
+              } else {
+                run(
+                  () => authClient.signIn.emailOtp({ email, otp }),
+                  L("লগইন হয়েছে।", "Logged in."),
+                  toAccount,
+                );
+              }
+            }}
+          >
+            <label>
+              {L("ইমেইল", "Email")}
+              <input name="email" type="email" required autoComplete="email" />
+            </label>
+            {emailCodeSent && (
+              <label>
+                {L("কোড", "Code")}
+                <input
+                  name="otp"
+                  inputMode="numeric"
+                  required
+                  autoComplete="one-time-code"
+                />
+              </label>
+            )}
+            <button type="submit" disabled={busy}>
+              {emailCodeSent
+                ? L("কোড দিয়ে লগইন", "Log in with code")
+                : L("কোড পাঠান", "Send code")}
+            </button>
+          </form>
+        </section>
+
+        <section aria-labelledby="phone">
+          <h2 id="phone">{L("ফোনে কোড", "Code by phone")}</h2>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const phoneNumber = field(e, "phone");
+              const code = field(e, "code");
+              if (!phoneCodeSent) {
+                run(
+                  () => authClient.phoneNumber.sendOtp({ phoneNumber }),
+                  `${L("কোড পাঠানো হয়েছে।", "Code sent.")}${devHint}`,
+                  () => setPhoneCodeSent(true),
+                );
+              } else {
+                run(
+                  () => authClient.phoneNumber.verify({ phoneNumber, code }),
+                  L("লগইন হয়েছে।", "Logged in."),
+                  toAccount,
+                );
+              }
+            }}
+          >
+            <label>
+              {L(
+                "ফোন নম্বর (যেমন +8801XXXXXXXXX)",
+                "Phone number (like +8801XXXXXXXXX)",
+              )}
+              <input name="phone" type="tel" required autoComplete="tel" />
+            </label>
+            {phoneCodeSent && (
+              <label>
+                {L("কোড", "Code")}
+                <input
+                  name="code"
+                  inputMode="numeric"
+                  required
+                  autoComplete="one-time-code"
+                />
+              </label>
+            )}
+            <button type="submit" disabled={busy}>
+              {phoneCodeSent
+                ? L("কোড দিয়ে লগইন", "Log in with code")
+                : L("কোড পাঠান", "Send code")}
+            </button>
+          </form>
+        </section>
+      </details>
     </div>
   );
 }

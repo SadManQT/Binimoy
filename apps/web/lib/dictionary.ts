@@ -137,7 +137,7 @@ const bn = {
   },
   shops: {
     title: "শপ ও সেলার",
-    sub: "নাম লিখে সার্চ করুন, বা ক্যাটাগরি বেছে নিন। প্রতিটা শপের পেজে রিভিউ, রেটিং, রিপোর্ট আর সেলারের রিপ্লাই একসাথে।",
+    sub: "নাম লিখুন বা ক্যাটাগরি বেছে নিন।",
     allCategories: "সব ক্যাটাগরি",
     count: "{n}টি শপ",
     sortRecent: "নতুন রিভিউ আগে",
@@ -192,7 +192,7 @@ const bn = {
   },
   alerts: {
     title: "স্ক্যাম অ্যালার্ট",
-    sub: "সম্প্রতি পাবলিশ হওয়া স্ক্যাম রিপোর্ট আর মডারেটরদের ওয়ার্নিং। পেমেন্টের আগে শপের নামটা এখানে মিলিয়ে নিন।",
+    sub: "পেমেন্টের আগে শপের নামটা এখানে মিলিয়ে নিন।",
     note: "এখানে প্রতিটা রিপোর্ট লেখকের নিজের দাবি। মডারেটর দেখেছেন লেখাটা রুলস মানে কি না; ঘটনা সত্যি কি না, বিনিময় তদন্ত করেনি। সেলার রিপ্লাই দিতে পারেন, আর রিপ্লাই না দেওয়া মানে স্বীকার করা না।",
     notesTitle: "মডারেটরদের ওয়ার্নিং",
     none: "এখন কোনো স্ক্যাম রিপোর্ট পাবলিশ নেই। এর মানে কোনো সমস্যা হয়নি তা না; শুধু এখানে কিছু পাবলিশ হয়নি।",
@@ -205,7 +205,7 @@ const bn = {
   compare: {
     cta: "অন্য শপের সাথে তুলনা করুন",
     title: "দুটো শপ পাশাপাশি",
-    sub: "দুটো শপের পাবলিশড রিভিউ, রেটিং আর রিপোর্ট পাশাপাশি দেখুন। কম রিভিউ থাকা শপ মানেই ভালো শপ না।",
+    sub: "দুটো শপ পাশাপাশি দেখুন। কম রিভিউ মানেই ভালো শপ না।",
     pick: "আরেকটা শপ বেছে নিন",
     show: "তুলনা দেখুন",
     none: "তুলনা করার মতো আর কোনো শপ এখনো নেই।",
@@ -393,7 +393,7 @@ const en: Dictionary = {
   },
   shops: {
     title: "Shops and sellers",
-    sub: "Search by name or pick a category. Each shop page shows reviews, ratings, reports and the seller's replies together.",
+    sub: "Search by name or pick a category.",
     allCategories: "All categories",
     count: "{n} shops",
     sortRecent: "Newest reviews first",
@@ -448,7 +448,7 @@ const en: Dictionary = {
   },
   alerts: {
     title: "Scam alerts",
-    sub: "Recently published scam reports and warnings from moderators. Check the shop's name here before you pay.",
+    sub: "Check the shop's name here before you pay.",
     note: "Every report here is its writer's own claim. A moderator checked that it follows the rules; Binimoy did not investigate what happened. The seller can reply, and not replying is not admitting.",
     notesTitle: "Warnings from moderators",
     none: "No scam report is published right now. That does not mean nothing went wrong; only that nothing is published here.",
@@ -461,7 +461,7 @@ const en: Dictionary = {
   compare: {
     cta: "Compare with another shop",
     title: "Two shops side by side",
-    sub: "See two shops' published reviews, ratings and reports next to each other. A shop with fewer reviews is not thereby the better shop.",
+    sub: "See two shops side by side. Fewer reviews does not mean a better shop.",
     pick: "Pick another shop",
     show: "Compare",
     none: "There is no other shop to compare with yet.",

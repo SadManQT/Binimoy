@@ -21,20 +21,20 @@ export function BrandMark() {
     <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
       <path
         d="M5 14a11 11 0 0 1 21-4.5"
-        stroke="var(--teal)"
+        stroke="var(--blue)"
         strokeWidth="2.8"
         strokeLinecap="round"
       />
       <path
         d="M27 18a11 11 0 0 1-21 4.5"
-        stroke="var(--text)"
+        stroke="currentColor"
         strokeWidth="2.8"
         strokeLinecap="round"
       />
-      <circle cx="16" cy="14.5" r="2.7" fill="var(--teal)" />
+      <circle cx="16" cy="14.5" r="2.7" fill="var(--mint)" />
       <path
         d="M16 16v5"
-        stroke="var(--teal)"
+        stroke="var(--mint)"
         strokeWidth="2.8"
         strokeLinecap="round"
       />
