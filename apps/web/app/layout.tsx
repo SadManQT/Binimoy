@@ -11,10 +11,12 @@ import { getShell } from "../lib/shell";
 import { SiteFooter, SiteHeader } from "./components/site-header";
 import { TiltEffects } from "./components/tilt";
 
-// Bangla: a display face with character for headings, and a body face chosen
-// for long reading at small sizes. English: one clean face for both.
+// One display face for headings in both languages (it carries Bangla and
+// Latin), and a body face per language chosen for reading at small sizes.
 const anek = Anek_Bangla({
   subsets: ["bengali", "latin"],
+  // The width axis gives the wide, chunky headings.
+  axes: ["wdth"],
   variable: "--font-anek",
   display: "swap",
 });
@@ -37,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: `${t.home.title} ${t.home.titleMark}. ${t.home.sub}`,
   };
 }
-export const viewport: Viewport = { themeColor: "#070b18" };
+export const viewport: Viewport = { themeColor: "#cdd5ff" };
 
 export default async function RootLayout({
   children,

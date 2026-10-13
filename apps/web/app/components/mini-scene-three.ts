@@ -188,7 +188,7 @@ export function mountMini(
     const seller = person(1.9, AMBER);
     const safe = new THREE.Mesh(
       new THREE.BoxGeometry(0.9, 0.9, 0.7),
-      clay(stage >= 2 ? TEAL : NAVY, { roughness: 0.3 }),
+      clay(stage >= 2 ? TEAL : 0x7c8cff, { roughness: 0.3 }),
     );
     safe.position.y = -0.3;
     const dial = new THREE.Mesh(

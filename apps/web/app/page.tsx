@@ -124,10 +124,7 @@ export default async function Home() {
           {features.map((feature) => (
             <li key={feature.key} data-tone={feature.tone}>
               <a href={feature.href} data-tilt>
-                <div>
-                  <h3>{feature.copy.title}</h3>
-                  <p>{feature.copy.body}</p>
-                </div>
+                <h3>{feature.copy.title}</h3>
                 {/* biome-ignore lint/performance/noImgElement: small fixed local files */}
                 <img
                   src={`/img/features/${feature.key}.webp`}
@@ -255,7 +252,6 @@ export default async function Home() {
           {t.home.how.map((step) => (
             <li key={step.title}>
               <h3>{step.title}</h3>
-              <p>{step.body}</p>
             </li>
           ))}
         </ol>
@@ -265,7 +261,6 @@ export default async function Home() {
         <div className="deal-band">
           <div>
             <h2 id="deal-title">{t.home.dealTitle}</h2>
-            <p>{t.home.dealBody}</p>
             <ol>
               {t.home.dealSteps.map((step) => (
                 <li key={step}>{step}</li>
@@ -288,15 +283,19 @@ export default async function Home() {
       </section>
 
       <section className="sec" aria-labelledby="limits-title">
-        <h2 id="limits-title">{t.home.limitsTitle}</h2>
-        <ul className="limits">
-          {t.home.limits.map((limit) => (
-            <li key={limit.title}>
-              <strong>{limit.title}</strong>
-              <span>{limit.body}</span>
-            </li>
-          ))}
-        </ul>
+        <details>
+          <summary>
+            <h2 id="limits-title">{t.home.limitsTitle}</h2>
+          </summary>
+          <ul className="limits">
+            {t.home.limits.map((limit) => (
+              <li key={limit.title}>
+                <strong>{limit.title}</strong>
+                <span>{limit.body}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
       </section>
 
       <section className="sec closing" aria-labelledby="closing-title">
