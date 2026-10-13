@@ -9,13 +9,12 @@ import { renderNotices } from "@lp/db/notices";
 import { getDisputeView } from "@lp/db/review";
 import { getMockFacts } from "@lp/db/verification";
 import { getTemplate } from "@lp/templates";
-import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { copyFor } from "../../../lib/copy";
 import { getI18n } from "../../../lib/i18n";
 import { nextStep } from "../../../lib/next-step";
 import { pool } from "../../../lib/pool";
-import { requireUser } from "../../../lib/session";
+import { isLiveReread, requireUser } from "../../../lib/session";
 import { Mini3D } from "../../components/mini-3d";
 import { More } from "../../components/more";
 import { agreementAction, createInviteAction } from "../actions";
@@ -79,7 +78,7 @@ export default async function DealPage({
   // deal, including the one that starts an objective-release challenge period.
   // An automatic re-read of an open page is not the person opening it: it
   // must not start a period that runs from when they were shown a notice.
-  if (!(await cookies()).has("live")) {
+  if (!(await isLiveReread(`/deals/${deal.dealId}`))) {
     await renderNotices(pool(), user.id, deal.dealId);
   }
   const delivery =
@@ -169,7 +168,7 @@ export default async function DealPage({
           {L("রসিদ ও পূর্ণ রেকর্ড", "Receipt and full record")}
         </a>
         <LiveDeal
-          dealId={deal.dealId}
+          href={`/api/deals/${deal.dealId}/pulse`}
           pulse={pulse}
           label={L("লাইভ: নিজে থেকে আপডেট হয়", "Live: updates by itself")}
           offline={L("সংযোগ নেই, আবার চেষ্টা চলছে", "Offline, retrying")}

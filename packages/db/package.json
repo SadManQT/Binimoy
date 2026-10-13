@@ -16,6 +16,7 @@
     "./review": "./src/review.ts",
     "./conversation": "./src/conversation.ts",
     "./community": "./src/community.ts",
+    "./evidence": "./src/evidence.ts",
     "./verification": "./src/verification.ts",
     "./notices": "./src/notices.ts",
     "./ops": "./src/ops.ts",

@@ -6,16 +6,16 @@ import { useEffect, useState } from "react";
 const EVERY_MS = 3000;
 const LIVE_COOKIE = "live";
 
-// Keeps an open deal page current. It asks the server for the deal's pulse
-// and, when the pulse differs from the one this page was drawn with, re-reads
-// the page in place: no reload, typed text and open panels stay.
+// Keeps an open page current. It asks the server for a pulse (`href`) and,
+// when the pulse differs from the one this page was drawn with, re-reads the
+// page in place: no reload, typed text and open panels stay.
 export function LiveDeal({
-  dealId,
+  href,
   pulse,
   label,
   offline,
 }: {
-  dealId: string;
+  href: string;
   pulse: string;
   label: string;
   offline: string;
@@ -25,12 +25,12 @@ export function LiveDeal({
 
   useEffect(() => {
     // The re-read that brought this pulse has finished.
-    document.cookie = `${LIVE_COOKIE}=; max-age=0; path=${location.pathname}`;
+    document.cookie = `${LIVE_COOKIE}=; max-age=0; path=/`;
     let stopped = false;
     const check = async () => {
       if (document.hidden) return;
       try {
-        const response = await fetch(`/api/deals/${dealId}/pulse`, {
+        const response = await fetch(href, {
           cache: "no-store",
         });
         if (stopped) return;
@@ -40,7 +40,9 @@ export function LiveDeal({
         if (!stopped && now !== pulse) {
           // Tells the server this re-read was not the person opening the
           // page, so it must not count as showing them a notice (D.6).
-          document.cookie = `${LIVE_COOKIE}=1; max-age=10; path=${location.pathname}; samesite=lax`;
+          // The value names this page, so a page opened right afterwards is
+          // not mistaken for a re-read.
+          document.cookie = `${LIVE_COOKIE}=${encodeURIComponent(location.pathname)}; max-age=10; path=/; samesite=lax`;
           router.refresh();
         }
       } catch {
@@ -55,7 +57,7 @@ export function LiveDeal({
       clearInterval(timer);
       document.removeEventListener("visibilitychange", check);
     };
-  }, [dealId, pulse, router]);
+  }, [href, pulse, router]);
 
   return (
     <span className="live" data-online={online} data-testid="live">

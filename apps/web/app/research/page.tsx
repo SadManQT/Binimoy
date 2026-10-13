@@ -3,6 +3,7 @@ import { loadConfig } from "@lp/contracts";
 import { getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
+import { More } from "../components/more";
 import { runResearchAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -47,10 +48,16 @@ export default async function ResearchPage({
       <h1>{L("সেলার খোঁজ", "Web lookup")}</h1>
       <p>
         {L(
+          "নাম লিখুন। ওয়েবে কে কী লিখেছে, উৎসসহ দেখাব। কোনো স্কোর না।",
+          "Write a name. We show who wrote what on the web, with sources. No score.",
+        )}
+      </p>
+      <More>
+        {L(
           "একটি পেজ বা শপের নাম লিখুন। আমরা ওয়েবে তার সম্পর্কে লেখা পোস্ট খুঁজে, কে কী বলেছে তা উৎসসহ দেখাই। আমরা কাউকে ভালো বা খারাপ বলি না, কোনো স্কোর দিই না।",
           "Write the name of a page or shop. We look for posts about it on the web and show who said what, with the source. We do not call anyone good or bad, and we give no score.",
         )}
-      </p>
+      </More>
       {live ? (
         <p data-testid="live-label">
           <strong>{L("আসল ওয়েব সার্চ চালু:", "Real web search is on:")}</strong>{" "}

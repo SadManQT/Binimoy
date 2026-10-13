@@ -14,7 +14,7 @@ Specification C36.1 asks for one calm theme and reserves red for failed operatio
 
 ## Decision
 
-1. **One light theme, called "sticker"**, in `apps/web/app/globals.css`, rewritten from 2,293 lines to about 1,300. The colours are taken from the front-page artwork so the pictures and the page belong together: a periwinkle page, ink navy, white cards, mint and gold accents. No dark mode.
+1. **One light theme, called "sticker"**, in `apps/web/app/globals.css`, rewritten. The founder first saw a periwinkle page and rejected the colour; asked to choose, they picked clean white. So: a near-white page, ink navy, white cards, and periwinkle, mint and gold (the colours of the front-page artwork) kept for actions, states and pictures. No dark mode.
 2. **Shape**: cards and controls have a 2px ink outline and a hard shadow; labels are pills; the header and footer float as their own rounded blocks.
 3. **Type**: Anek Bangla at weight 800 and 112% width for headings in both languages; body faces unchanged.
 4. **Fewer words in view**: the front page shows names and pictures, not paragraphs; "what we do not do" and the less-used login methods are folded; explanations on the deal page sit behind "Learn more" (earlier addendum).

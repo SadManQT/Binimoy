@@ -4,6 +4,7 @@ import { copyFor } from "../../lib/copy";
 import { getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
+import { More } from "../components/more";
 import { claimDealAction, claimReviewAction } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -26,12 +27,12 @@ export default async function ReviewQueuePage({
     <main>
       <h1>{L("রিভিউয়ের সারি", "Review queue")}</h1>
       {error && <p role="alert">{copy.error[error] ?? error}</p>}
-      <p>
+      <More>
         {L(
           "আপনি যে ডিলের পক্ষ, তা এখানে দেখানো হয় না। দায়িত্ব নিলে শুধু সেই কেসের তথ্য দেখতে পাবেন, যতক্ষণ দায়িত্ব আপনার।",
           "Deals you are a party to are not shown here. When you take a case you see only that case's information, for as long as it is yours.",
         )}
-      </p>
+      </More>
 
       <h2>{L("ডিসপিউট", "Disputes")}</h2>
       {queue.cases.length === 0 ? (

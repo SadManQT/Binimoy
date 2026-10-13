@@ -11,6 +11,11 @@ import {
   submitReport,
   withdrawReport,
 } from "@lp/db/community";
+import {
+  addEvidence,
+  EVIDENCE_MAX_BYTES,
+  removeEvidence,
+} from "@lp/db/evidence";
 import { createSafetyAlert, retractSafetyAlert } from "@lp/db/shops";
 import { redirect } from "next/navigation";
 import { pool } from "../../lib/pool";
@@ -152,4 +157,40 @@ export async function retractSafetyAlertAction(form: FormData) {
     alertId: text(form, "alertId"),
   });
   redirect(result.ok ? "/moderation" : `/moderation?error=${result.error}`);
+}
+
+// D.9: the file's size is checked before it is read, and its type is decided
+// from its own bytes in the database layer, not from its name.
+export async function addEvidenceAction(form: FormData) {
+  const user = await requireUser();
+  const reportId = text(form, "reportId");
+  const file = form.get("file");
+  if (
+    !(file instanceof File) ||
+    file.size === 0 ||
+    file.size > EVIDENCE_MAX_BYTES
+  ) {
+    back(reportId, { ok: false, error: "EVIDENCE_INVALID" });
+    return;
+  }
+  const result = await addEvidence(pool(), {
+    userId: user.id,
+    reportId,
+    bytes: new Uint8Array(await file.arrayBuffer()),
+  });
+  back(
+    reportId,
+    result.ok || result.error !== "VALIDATION_FAILED"
+      ? result
+      : { ok: false, error: "EVIDENCE_INVALID" },
+  );
+}
+
+export async function removeEvidenceAction(form: FormData) {
+  const user = await requireUser();
+  const result = await removeEvidence(pool(), {
+    userId: user.id,
+    evidenceId: text(form, "evidenceId"),
+  });
+  back(text(form, "reportId"), result);
 }

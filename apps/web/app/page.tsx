@@ -9,6 +9,7 @@ import { ArrowRight, Warning } from "@phosphor-icons/react/dist/ssr";
 import { fill, getI18n } from "../lib/i18n";
 import { pool } from "../lib/pool";
 import { CategoryIcon } from "./components/category-icon";
+import { type ArtKey, FeatureArt } from "./components/feature-art";
 import { HeroScene } from "./components/hero-scene";
 import { ComplaintLine, Rating, TrustBadge } from "./components/shop-ui";
 
@@ -125,15 +126,7 @@ export default async function Home() {
             <li key={feature.key} data-tone={feature.tone}>
               <a href={feature.href} data-tilt>
                 <h3>{feature.copy.title}</h3>
-                {/* biome-ignore lint/performance/noImgElement: small fixed local files */}
-                <img
-                  src={`/img/features/${feature.key}.webp`}
-                  alt=""
-                  width={560}
-                  height={560}
-                  loading="lazy"
-                  decoding="async"
-                />
+                <FeatureArt kind={feature.key as ArtKey} />
               </a>
             </li>
           ))}
@@ -270,15 +263,7 @@ export default async function Home() {
               {t.home.dealCta}
             </a>
           </div>
-          {/* biome-ignore lint/performance/noImgElement: a small fixed local file */}
-          <img
-            src="/img/features/deal.webp"
-            alt=""
-            width={560}
-            height={560}
-            loading="lazy"
-            decoding="async"
-          />
+          <FeatureArt kind="deal" />
         </div>
       </section>
 

@@ -2,6 +2,12 @@ import { execFileSync } from "node:child_process";
 import { expect, test } from "@playwright/test";
 import { click, signUp } from "./helpers";
 
+// The smallest valid PNG: one transparent pixel.
+const PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+  "base64",
+);
+
 test("an experience is private until its author approves it and a moderator publishes it", async ({
   browser,
 }) => {
@@ -46,6 +52,35 @@ test("an experience is private until its author approves it and a moderator publ
   await expect(author.getByTestId("preview-text")).toHaveText(
     "I paid 2500 taka and the license never arrived.",
   );
+
+  // Evidence: a file that only claims to be a picture is refused; a real one
+  // is kept, and shown to its author.
+  const picture = author.locator('input[name="file"]');
+  await picture.setInputFiles({
+    name: "proof.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("<html><script>alert(1)</script></html>"),
+  });
+  await click(author, "ছবি যোগ করুন");
+  await expect(author.locator('main [role="alert"]')).toContainText("PNG");
+  await picture.setInputFiles({
+    name: "proof.png",
+    mimeType: "image/png",
+    buffer: PNG,
+  });
+  await click(author, "ছবি যোগ করুন");
+  const shot = author.getByTestId("evidence").locator("img");
+  await expect(shot).toHaveCount(1);
+  const shotUrl = new URL((await shot.getAttribute("src")) ?? "", author.url())
+    .href;
+  const served = await author.request.get(shotUrl);
+  expect(served.status()).toBe(200);
+  expect(served.headers()["content-type"]).toBe("image/png");
+  expect(served.headers()["x-content-type-options"]).toBe("nosniff");
+  // Nobody else can fetch it, moderator included, before it is assigned.
+  expect((await reader.request.get(shotUrl)).status()).toBe(404);
+  expect((await moderator.request.get(shotUrl)).status()).toBe(404);
+
   await author.locator('input[name="approved"]').check();
   await click(author, "মডারেটরের কাছে জমা দিন");
   await expect(author.getByTestId("report-state")).toContainText("অপেক্ষায়");
@@ -58,6 +93,9 @@ test("an experience is private until its author approves it and a moderator publ
   await expect(moderator.getByTestId("private-original")).toContainText(
     "01712345678",
   );
+  // The assigned moderator sees the picture; it is still not public.
+  await expect(moderator.getByTestId("evidence").locator("img")).toHaveCount(1);
+  expect((await moderator.request.get(shotUrl)).status()).toBe(200);
   await moderator.locator('select[name="decision"]').selectOption("PUBLISHED");
   await moderator
     .locator('input[name="reason"]')
@@ -73,6 +111,8 @@ test("an experience is private until its author approves it and a moderator publ
     "ভেরিফাই করেনি",
   );
   await expect(reader.getByTestId("private-original")).toHaveCount(0);
+  await expect(reader.getByTestId("evidence")).toHaveCount(0);
+  expect((await reader.request.get(shotUrl)).status()).toBe(404);
   await expect(reader.locator("main")).not.toContainText("01712345678");
   await expect(reader.getByTestId("followups")).toContainText(
     "উত্তর না থাকা মানে স্বীকার করা নয়",

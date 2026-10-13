@@ -7,6 +7,7 @@ import { SHOP_CATEGORIES } from "@lp/db/shops";
 import { getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
+import { More } from "../components/more";
 import { saveDraftAction } from "./actions";
 import { communityCopy } from "./copy";
 
@@ -36,10 +37,16 @@ export default async function CommunityPage({
       <h1>{L("এক্সপেরিয়েন্স জানান", "Write a review")}</h1>
       <p>
         {L(
+          "ভালো বা খারাপ, যা হয়েছে লিখুন। আপনার নাম দেখানো হয় না।",
+          "Write what happened, good or bad. Your name is not shown.",
+        )}
+      </p>
+      <More>
+        {L(
           "কোনো পেজ বা শপ থেকে কেনার এক্সপেরিয়েন্স, ভালো বা খারাপ, এখানে লিখতে পারেন। ড্রাফট শুধু আপনি দেখেন। আপনি অ্যাপ্রুভাল দিলে এবং একজন মডারেটর নিয়ম মিলিয়ে দেখলে তবেই লেখাটি প্রকাশ হয়। প্রকাশ মানে আমরা ঘটনাটি সত্য বলে ভেরিফাই করেছি, তা নয়।",
           "You can write here about buying from any page or shop, good or bad. Only you see a draft. A text is published only after you approve it and a moderator checks it against the rules. Published does not mean we verified that the events are true.",
         )}
-      </p>
+      </More>
       {error ? (
         <p role="alert">
           {COMMUNITY_ERROR_TEXT[error] ??

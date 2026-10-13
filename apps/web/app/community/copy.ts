@@ -44,6 +44,8 @@ export const COMMUNITY_ERROR_TEXT: Record<string, string> = {
   VERSION_CONFLICT: "লেখাটি পরে বদলেছে। নিচের বর্তমান লেখা পড়ে আবার অ্যাপ্রুভাল দিন।",
   BUDGET_EXHAUSTED: "আজকের সীমা শেষ। পরে আবার চেষ্টা করুন।",
   APPEAL_WINDOW_CLOSED: "আপিলের সাত দিন পার হয়ে গেছে।",
+  EVIDENCE_INVALID: "ছবিটা নেওয়া যায়নি। PNG, JPG বা WebP ছবি দিন, ২ এমবির মধ্যে।",
+  EVIDENCE_LIMIT: "একটা লেখায় সর্বোচ্চ ৩টা ছবি দেওয়া যায়।",
   DUPLICATE_REPORT:
     "এই শপ নিয়ে আপনার একটি লেখা ইতিমধ্যে জমা বা পাবলিশড আছে। নতুন কিছু জানাতে চাইলে সেই লেখায় সংশোধন বা সমাধান যোগ করুন।",
 };
@@ -94,6 +96,9 @@ const EN = {
       "The text changed afterwards. Read the current text below and approve it again.",
     BUDGET_EXHAUSTED: "Today's limit is used up. Try again later.",
     APPEAL_WINDOW_CLOSED: "The seven days to appeal have passed.",
+    EVIDENCE_INVALID:
+      "That picture could not be accepted. Use a PNG, JPG or WebP image of at most 2 MB.",
+    EVIDENCE_LIMIT: "A text can have at most 3 pictures.",
     DUPLICATE_REPORT:
       "You already have a submitted or published text about this shop. To add something new, add a correction or resolution to that text.",
   },
