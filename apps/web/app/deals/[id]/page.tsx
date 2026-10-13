@@ -10,13 +10,8 @@ import { getDisputeView } from "@lp/db/review";
 import { getMockFacts } from "@lp/db/verification";
 import { getTemplate } from "@lp/templates";
 import { notFound } from "next/navigation";
-import {
-  ERROR_TEXT,
-  MODE_TEXT,
-  PROOF_TEXT,
-  ROLE_TEXT,
-  STATE_TEXT,
-} from "../../../lib/copy";
+import { copyFor } from "../../../lib/copy";
+import { getI18n } from "../../../lib/i18n";
 import { nextStep } from "../../../lib/next-step";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
@@ -49,6 +44,8 @@ export default async function DealPage({
   // Not a party and not found look the same on purpose.
   const deal = await getDealView(pool(), user.id, id);
   if (!deal) notFound();
+  const { locale, L } = await getI18n();
+  const copy = copyFor(locale);
 
   const funding = await getFunding(pool(), deal.dealId);
   const balances = await dealBalances(pool(), deal.dealId);
@@ -64,7 +61,7 @@ export default async function DealPage({
   const vault = loadConfig(process.env).vault;
   const vaultItems = terms.items
     .filter((item) => item.dataClass === "vault_secret")
-    .map((item) => ({ itemId: item.itemId, title: item.title.bn }));
+    .map((item) => ({ itemId: item.itemId, title: item.title[locale] }));
   const vaultRoomId = await getVaultRoom(pool(), deal.dealId);
   // D.6: this signed-in page is where a party is shown the notices of this
   // deal, including the one that starts an objective-release challenge period.
@@ -93,7 +90,7 @@ export default async function DealPage({
     .filter((item) => item.predicate === "seller_declares")
     .map((item) => ({
       itemId: item.itemId,
-      title: item.title.bn,
+      title: item.title[locale],
       mandatory: item.mandatory,
     }));
 
@@ -102,28 +99,31 @@ export default async function DealPage({
     delivery?.settlement && delivery.settlement.state !== "INVALIDATED"
       ? delivery.settlement
       : null;
-  const step = nextStep({
-    myRole: deal.myRole,
-    parties: deal.parties.length,
-    agreementState: agreement.state,
-    acceptedByMe: agreement.acceptedBy.includes(deal.myRole),
-    funded: funding?.state === "CONFIRMED",
-    package:
-      current && current.state === "SUBMITTED"
-        ? {
-            accepted: current.accepted,
-            mandatory: current.inspections
-              .filter((i) => i.mandatory)
-              .map((i) => i.state),
-          }
+  const step = nextStep(
+    {
+      myRole: deal.myRole,
+      parties: deal.parties.length,
+      agreementState: agreement.state,
+      acceptedByMe: agreement.acceptedBy.includes(deal.myRole),
+      funded: funding?.state === "CONFIRMED",
+      package:
+        current && current.state === "SUBMITTED"
+          ? {
+              accepted: current.accepted,
+              mandatory: current.inspections
+                .filter((i) => i.mandatory)
+                .map((i) => i.state),
+            }
+          : null,
+      settlement: settled
+        ? { operations: settled.operations.map((o) => o.state) }
         : null,
-    settlement: settled
-      ? { operations: settled.operations.map((o) => o.state) }
-      : null,
-    disputeOpen:
-      delivery?.dispute != null &&
-      !["RESOLVED", "UNRESOLVED_CLOSED"].includes(delivery.dispute.state),
-  });
+      disputeOpen:
+        delivery?.dispute != null &&
+        !["RESOLVED", "UNRESOLVED_CLOSED"].includes(delivery.dispute.state),
+    },
+    locale,
+  );
 
   // One fresh key per rendered form: a double click replays, a new page load
   // is a new action.
@@ -144,37 +144,43 @@ export default async function DealPage({
   return (
     <main className="wide">
       <p>
-        <a href="/deals">← আমার ডিল</a>
+        <a href="/deals">← {L("আমার ডিল", "My deals")}</a>
       </p>
       <h1>{deal.title}</h1>
       <p>
-        <a href={`/deals/${deal.dealId}/receipt`}>রসিদ ও পূর্ণ রেকর্ড</a>
+        <a href={`/deals/${deal.dealId}/receipt`}>
+          {L("রসিদ ও পূর্ণ রেকর্ড", "Receipt and full record")}
+        </a>
       </p>
-      {error && <p role="alert">{ERROR_TEXT[error] ?? error}</p>}
+      {error && <p role="alert">{copy.error[error] ?? error}</p>}
       <dl>
-        <dt>অবস্থা</dt>
-        <dd>{STATE_TEXT[agreement.state] ?? agreement.state}</dd>
-        <dt>আপনার ভূমিকা</dt>
-        <dd>{ROLE_TEXT[deal.myRole]}</dd>
-        <dt>পক্ষ</dt>
+        <dt>{L("অবস্থা", "Status")}</dt>
+        <dd>{copy.state[agreement.state] ?? agreement.state}</dd>
+        <dt>{L("আপনার ভূমিকা", "Your role")}</dt>
+        <dd>{copy.role[deal.myRole]}</dd>
+        <dt>{L("পক্ষ", "Parties")}</dt>
         <dd>
           {deal.parties
-            .map((p) => `${ROLE_TEXT[p.role]}: ${p.name}`)
+            .map((p) => `${copy.role[p.role]}: ${p.name}`)
             .join(" · ")}
-          {deal.parties.length === 1 && " · অন্য পক্ষ এখনো যোগ দেননি"}
+          {deal.parties.length === 1 &&
+            L(
+              " · অন্য পক্ষ এখনো যোগ দেননি",
+              " · the other side has not joined yet",
+            )}
         </dd>
       </dl>
 
       <div className="deal">
         <aside className="next-step" aria-labelledby="next-step-title">
-          <h2 id="next-step-title">এখন যা করার</h2>
+          <h2 id="next-step-title">{L("এখন যা করার", "What to do now")}</h2>
           <p data-testid="next-step">{step.text}</p>
           <ol className="steps">
             {step.steps.map((item) => (
               <li key={item.key} data-step={item.state}>
                 {item.label}
                 {item.state === "done" && (
-                  <span className="sr-only"> (সম্পন্ন)</span>
+                  <span className="sr-only">{L(" (সম্পন্ন)", " (done)")}</span>
                 )}
               </li>
             ))}
@@ -183,11 +189,15 @@ export default async function DealPage({
         <div className="deal-main">
           {deal.parties.length === 1 && open && (
             <section aria-labelledby="invite">
-              <h2 id="invite">অন্য পক্ষকে ইনভাইট</h2>
+              <h2 id="invite">
+                {L("অন্য পক্ষকে ইনভাইট", "Invite the other side")}
+              </h2>
               {invite ? (
                 <p>
-                  এই লিংকটি শুধু অন্য পক্ষকে পাঠান। এটি ৭২ ঘণ্টা চলবে, একবারই ব্যবহার করা
-                  যাবে, এবং আর দেখানো হবে না:
+                  {L(
+                    "এই লিংকটি শুধু অন্য পক্ষকে পাঠান। এটি ৭২ ঘণ্টা চলবে, একবারই ব্যবহার করা যাবে, এবং আর দেখানো হবে না:",
+                    "Send this link only to the other side. It works for 72 hours, can be used once, and will not be shown again:",
+                  )}
                   <br />
                   <code style={{ wordBreak: "break-all" }}>
                     {loadConfig(process.env).APP_URL}/invite/{invite}
@@ -196,110 +206,173 @@ export default async function DealPage({
               ) : (
                 <form action={createInviteAction}>
                   <input type="hidden" name="dealId" value={deal.dealId} />
-                  <button type="submit">ইনভাইট লিংক তৈরি করুন</button>
-                  <p>নতুন লিংক তৈরি করলে আগের লিংক বাতিল হয়ে যায়।</p>
+                  <button type="submit">
+                    {L("ইনভাইট লিংক তৈরি করুন", "Create an invite link")}
+                  </button>
+                  <p>
+                    {L(
+                      "নতুন লিংক তৈরি করলে আগের লিংক বাতিল হয়ে যায়।",
+                      "Creating a new link cancels the earlier one.",
+                    )}
+                  </p>
                 </form>
               )}
             </section>
           )}
 
           <section aria-labelledby="terms">
-            <h2 id="terms">ডিলের শর্ত (সংস্করণ {agreement.versionNo})</h2>
+            <h2 id="terms">
+              {L(
+                `ডিলের শর্ত (সংস্করণ ${agreement.versionNo})`,
+                `Deal terms (version ${agreement.versionNo})`,
+              )}
+            </h2>
             <dl>
-              <dt>প্রোডাক্টের ধরন</dt>
-              <dd>{template.name.bn}</dd>
-              <dt>মূল্য</dt>
+              <dt>{L("প্রোডাক্টের ধরন", "Product type")}</dt>
+              <dd>{template.name[locale]}</dd>
+              <dt>{L("মূল্য", "Price")}</dt>
               <dd>
-                {formatBdt(terms.amountMinor)} ({terms.currency}) · ফি{" "}
-                {formatBdt(terms.feeMinor)} · টেস্ট, কোনো আসল টাকা নয়
+                {formatBdt(terms.amountMinor)} ({terms.currency}) ·{" "}
+                {L("ফি", "fee")} {formatBdt(terms.feeMinor)} ·{" "}
+                {L("টেস্ট, কোনো আসল টাকা নয়", "test, no real money")}
               </dd>
-              <dt>সেবার ধরন</dt>
+              <dt>{L("সেবার ধরন", "Service mode")}</dt>
               <dd>
-                {MODE_TEXT[terms.mode]?.name ?? terms.mode}
+                {copy.mode[terms.mode]?.name ?? terms.mode}
                 <br />
-                <small>{MODE_TEXT[terms.mode]?.note}</small>
+                <small>{copy.mode[terms.mode]?.note}</small>
               </dd>
               {template.fields.map((field) => (
                 <div key={field.key}>
-                  <dt>{field.label.bn}</dt>
-                  <dd>{terms.product[field.key] || "দেওয়া হয়নি"}</dd>
+                  <dt>{field.label[locale]}</dt>
+                  <dd>
+                    {terms.product[field.key] || L("দেওয়া হয়নি", "Not given")}
+                  </dd>
                 </div>
               ))}
               {milestones.map((milestone) => (
                 <div key={milestone.no}>
-                  <dt>মাইলস্টোন {milestone.no}</dt>
+                  <dt>
+                    {L("মাইলস্টোন", "Milestone")} {milestone.no}
+                  </dt>
                   <dd>
                     {milestone.title} · {formatBdt(milestone.amountMinor)}
                   </dd>
                 </div>
               ))}
-              <dt>সময়সীমা</dt>
+              <dt>{L("সময়সীমা", "Time limits")}</dt>
               <dd>
-                ডেলিভারি: টাকা জমার পর {terms.timing.deliveryHours} ঘণ্টা · চেক:
-                ডেলিভারির পর {terms.timing.inspectionHours} ঘণ্টা · সংশোধনের সুযোগ:{" "}
-                {terms.timing.correctionAttempts} বার · আপিল:{" "}
-                {terms.timing.appealHours} ঘণ্টা
+                {L(
+                  `ডেলিভারি: টাকা জমার পর ${terms.timing.deliveryHours} ঘণ্টা · চেক: ডেলিভারির পর ${terms.timing.inspectionHours} ঘণ্টা · সংশোধনের সুযোগ: ${terms.timing.correctionAttempts} বার · আপিল: ${terms.timing.appealHours} ঘণ্টা`,
+                  `Delivery: ${terms.timing.deliveryHours} hours after funding · Checking: ${terms.timing.inspectionHours} hours after delivery · Correction attempts: ${terms.timing.correctionAttempts} · Appeal: ${terms.timing.appealHours} hours`,
+                )}
               </dd>
-              <dt>বায়ারের চূড়ান্ত সম্মতি ছাড়া স্বয়ংক্রিয় ছাড়</dt>
+              <dt>
+                {L(
+                  "বায়ারের চূড়ান্ত সম্মতি ছাড়া স্বয়ংক্রিয় ছাড়",
+                  "Automatic release without the buyer's final acceptance",
+                )}
+              </dt>
               <dd>
                 {terms.objectiveRelease
-                  ? `চালু: প্রতিটি আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হলে বায়ারকে জানানো হয়, এবং ${terms.timing.objectiveChallengeHours} ঘণ্টার মধ্যে বায়ার আপত্তি না করলে সেলারকে পেমেন্ট হয়। আপত্তি করলে টাকা আটকে থাকে।`
-                  : "চালু নয়: এই ধরনের প্রোডাক্টে প্রতিটি শর্ত স্বাধীনভাবে ভেরিফাই করার ব্যবস্থা এখনো পরীক্ষিত নয়।"}
+                  ? L(
+                      `চালু: প্রতিটি আবশ্যক শর্ত স্বাধীনভাবে প্রমাণিত হলে বায়ারকে জানানো হয়, এবং ${terms.timing.objectiveChallengeHours} ঘণ্টার মধ্যে বায়ার আপত্তি না করলে সেলারকে পেমেন্ট হয়। আপত্তি করলে টাকা আটকে থাকে।`,
+                      `On: when every required condition is independently proven the buyer is told, and the seller is paid unless the buyer objects within ${terms.timing.objectiveChallengeHours} hours. If the buyer objects, the money stays held.`,
+                    )
+                  : L(
+                      "চালু নয়: এই ধরনের প্রোডাক্টে প্রতিটি শর্ত স্বাধীনভাবে ভেরিফাই করার ব্যবস্থা এখনো পরীক্ষিত নয়।",
+                      "Off: for this kind of product, independently verifying every condition has not been tested yet.",
+                    )}
               </dd>
-              <dt>ডেলিভারি না হলে</dt>
+              <dt>{L("ডেলিভারি না হলে", "If nothing is delivered")}</dt>
               <dd>
-                সময়সীমার মধ্যে কিছু না দিলে পুরো টাকা ফেরত; অন্য ক্ষেত্রে রিভিউ বা দুই পক্ষের
-                সম্মতি।
+                {L(
+                  "সময়সীমার মধ্যে কিছু না দিলে পুরো টাকা ফেরত; অন্য ক্ষেত্রে রিভিউ বা দুই পক্ষের সম্মতি।",
+                  "A full refund if nothing is delivered in time; otherwise a review or an agreement between both sides.",
+                )}
               </dd>
             </dl>
 
-            <h3>যা যা দিতে ও চেক করতে হবে</h3>
+            <h3>
+              {L(
+                "যা যা দিতে ও চেক করতে হবে",
+                "What must be delivered and checked",
+              )}
+            </h3>
             <ol>
               {terms.items.map((item) => (
                 <li key={item.itemId}>
-                  {item.title.bn} · {item.mandatory ? "আবশ্যক" : "ঐচ্ছিক"} · প্রমাণ:{" "}
-                  {item.proofTypes.map((p) => PROOF_TEXT[p] ?? p).join(", ")}
-                  {item.subjective && " · ব্যক্তিগত মত, ভেরিফাইযোগ্য নয়"}
-                  {item.dataClass === "vault_secret" && " · গোপন ভল্টে, চ্যাটে নয়"}
+                  {item.title[locale]} ·{" "}
+                  {item.mandatory
+                    ? L("আবশ্যক", "required")
+                    : L("ঐচ্ছিক", "optional")}{" "}
+                  · {L("প্রমাণ", "proof")}:{" "}
+                  {item.proofTypes.map((p) => copy.proof[p] ?? p).join(", ")}
+                  {item.subjective &&
+                    L(
+                      " · ব্যক্তিগত মত, ভেরিফাইযোগ্য নয়",
+                      " · a personal opinion, cannot be verified",
+                    )}
+                  {item.dataClass === "vault_secret" &&
+                    L(
+                      " · গোপন ভল্টে, চ্যাটে নয়",
+                      " · in the secret vault, not in chat",
+                    )}
                 </li>
               ))}
             </ol>
 
-            <h3>যে ঝুঁকি থেকে যায়</h3>
+            <h3>{L("যে ঝুঁকি থেকে যায়", "Risks that remain")}</h3>
             <ul>
               {terms.residualRisks.map((risk) => (
-                <li key={risk.en}>{risk.bn}</li>
+                <li key={risk.en}>{risk[locale]}</li>
               ))}
             </ul>
             <p>
               <small>
-                শর্তের ছাপ: <code>{agreement.termsHash.slice(0, 16)}</code>. সম্মতি
-                ঠিক এই ছাপের সাথে বাঁধা থাকে।
+                {L("শর্তের ছাপ", "Terms fingerprint")}:{" "}
+                <code>{agreement.termsHash.slice(0, 16)}</code>.{" "}
+                {L(
+                  "সম্মতি ঠিক এই ছাপের সাথে বাঁধা থাকে।",
+                  "Agreement is tied to exactly this fingerprint.",
+                )}
               </small>
             </p>
           </section>
 
           <section aria-labelledby="next">
-            <h2 id="next">পরের ধাপ</h2>
+            <h2 id="next">{L("পরের ধাপ", "Next step")}</h2>
 
             {agreement.state === "DRAFT" && (
               <form action={agreementAction}>
                 {hidden("ProposeAgreement")}
-                <p>ড্রাফট ঠিক থাকলে দুই পক্ষের সম্মতির জন্য পাঠান।</p>
-                <button type="submit">সম্মতির জন্য পাঠান</button>
+                <p>
+                  {L(
+                    "ড্রাফট ঠিক থাকলে দুই পক্ষের সম্মতির জন্য পাঠান।",
+                    "If the draft is right, send it for both sides to agree.",
+                  )}
+                </p>
+                <button type="submit">
+                  {L("সম্মতির জন্য পাঠান", "Send for agreement")}
+                </button>
               </form>
             )}
 
             {agreement.state === "AWAITING_ACCEPTANCE" && (
               <>
                 <p>
-                  সম্মতি দিয়েছেন:{" "}
+                  {L("সম্মতি দিয়েছেন", "Agreed so far")}:{" "}
                   {agreement.acceptedBy.length === 0
-                    ? "এখনো কেউ না"
-                    : agreement.acceptedBy.map((r) => ROLE_TEXT[r]).join(", ")}
+                    ? L("এখনো কেউ না", "nobody yet")
+                    : agreement.acceptedBy.map((r) => copy.role[r]).join(", ")}
                 </p>
                 {agreement.acceptedBy.includes(deal.myRole) ? (
-                  <p>আপনি সম্মতি দিয়েছেন। অন্য পক্ষের অপেক্ষা।</p>
+                  <p>
+                    {L(
+                      "আপনি সম্মতি দিয়েছেন। অন্য পক্ষের অপেক্ষা।",
+                      "You have agreed. Waiting for the other side.",
+                    )}
+                  </p>
                 ) : (
                   <form action={agreementAction}>
                     {hidden("AcceptAgreement")}
@@ -309,12 +382,17 @@ export default async function DealPage({
                       value={agreement.termsHash}
                     />
                     <p>
-                      আপনি সম্মত হচ্ছেন: {formatBdt(terms.amountMinor)} (
-                      {terms.currency}), প্রাপক{" "}
-                      {seller ? `সেলার ${seller.name}` : "সেলার"}, ডিলের সংস্করণ{" "}
-                      {agreement.versionNo}. দুই পক্ষ সম্মত হলে শর্ত আর বদলানো যাবে না।
+                      {L(
+                        `আপনি সম্মত হচ্ছেন: ${formatBdt(terms.amountMinor)} (${terms.currency}), প্রাপক ${seller ? `সেলার ${seller.name}` : "সেলার"}, ডিলের সংস্করণ ${agreement.versionNo}. দুই পক্ষ সম্মত হলে শর্ত আর বদলানো যাবে না।`,
+                        `You are agreeing to: ${formatBdt(terms.amountMinor)} (${terms.currency}), paid to ${seller ? `the seller ${seller.name}` : "the seller"}, deal version ${agreement.versionNo}. Once both sides agree, the terms can no longer be changed.`,
+                      )}
                     </p>
-                    <button type="submit">আমি ঠিক এই শর্তে সম্মত</button>
+                    <button type="submit">
+                      {L(
+                        "আমি ঠিক এই শর্তে সম্মত",
+                        "I agree to exactly these terms",
+                      )}
+                    </button>
                   </form>
                 )}
               </>
@@ -342,6 +420,7 @@ export default async function DealPage({
                 )
               ) : vault ? (
                 <VaultPanel
+                  locale={locale}
                   dealId={deal.dealId}
                   myRole={deal.myRole}
                   myMxid={matrixUserId(user.id, vault.serverName)}
@@ -356,7 +435,12 @@ export default async function DealPage({
                   items={vaultItems}
                 />
               ) : (
-                <p>এই পরিবেশে গোপন ভল্ট চালু নেই, তাই ডেলিভারি এখন সম্ভব নয়।</p>
+                <p>
+                  {L(
+                    "এই পরিবেশে গোপন ভল্ট চালু নেই, তাই ডেলিভারি এখন সম্ভব নয়।",
+                    "The secret vault is not running in this environment, so delivery is not possible right now.",
+                  )}
+                </p>
               ))}
 
             {delivery && (
@@ -387,15 +471,19 @@ export default async function DealPage({
             )}
 
             {!open && agreement.state !== "ACCEPTED" && (
-              <p>এই ডিল আর সক্রিয় নয়।</p>
+              <p>
+                {L("এই ডিল আর সক্রিয় নয়।", "This deal is no longer active.")}
+              </p>
             )}
 
             {editable && (
               <details>
-                <summary>শর্ত বদলান</summary>
+                <summary>{L("শর্ত বদলান", "Change the terms")}</summary>
                 <p>
-                  বদলালে নতুন সংস্করণ তৈরি হয় এবং ডিল ড্রাফটয় ফিরে যায়। আগের সংস্করণে
-                  দেওয়া কোনো সম্মতি নতুন সংস্করণে গণ্য হয় না।
+                  {L(
+                    "বদলালে নতুন সংস্করণ তৈরি হয় এবং ডিল ড্রাফটে ফিরে যায়। আগের সংস্করণে দেওয়া কোনো সম্মতি নতুন সংস্করণে গণ্য হয় না।",
+                    "A change creates a new version and the deal goes back to draft. Agreement given to an earlier version does not count for the new one.",
+                  )}
                 </p>
                 <form action={agreementAction}>
                   {hidden("ReviseAgreement")}
@@ -413,7 +501,9 @@ export default async function DealPage({
                       })),
                     }}
                   />
-                  <button type="submit">নতুন সংস্করণ সংরক্ষণ করুন</button>
+                  <button type="submit">
+                    {L("নতুন সংস্করণ সংরক্ষণ করুন", "Save the new version")}
+                  </button>
                 </form>
               </details>
             )}
@@ -422,21 +512,25 @@ export default async function DealPage({
               (agreement.state === "ACCEPTED" &&
                 (!funding || funding.state === "CREATED"))) && (
               <details>
-                <summary>ডিল বাতিল করুন</summary>
+                <summary>{L("ডিল বাতিল করুন", "Cancel the deal")}</summary>
                 <p>
-                  বাতিল করলে এই ডিল স্থায়ীভাবে বন্ধ হয় এবং খোলা ইনভাইট লিংক অকার্যকর হয়।
-                  এটি ফেরানো যায় না; নতুন ডিল শুরু করতে হবে।
+                  {L(
+                    "বাতিল করলে এই ডিল স্থায়ীভাবে বন্ধ হয় এবং খোলা ইনভাইট লিংক অকার্যকর হয়। এটি ফেরানো যায় না; নতুন ডিল শুরু করতে হবে।",
+                    "Cancelling closes this deal for good and any open invite link stops working. It cannot be undone; you would have to start a new deal.",
+                  )}
                 </p>
                 <form action={agreementAction}>
                   {hidden("WithdrawAgreement")}
-                  <button type="submit">হ্যাঁ, বাতিল করুন</button>
+                  <button type="submit">
+                    {L("হ্যাঁ, বাতিল করুন", "Yes, cancel it")}
+                  </button>
                 </form>
               </details>
             )}
           </section>
 
           {conversation && (
-            <section aria-label="কথোপকথন">
+            <section aria-label={L("কথোপকথন", "Conversation")}>
               <ConversationSection
                 dealId={deal.dealId}
                 conversation={conversation}

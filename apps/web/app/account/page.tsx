@@ -55,7 +55,7 @@ export default async function AccountPage() {
           </li>
         ))}
       </ul>
-      <AccountActions />
+      <AccountActions locale={locale} />
     </main>
   );
 }

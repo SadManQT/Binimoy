@@ -69,7 +69,7 @@ export type Receipt = {
 
 export async function getReceipt(
   pool: Pool,
-  input: { userId: string; dealId: string },
+  input: { userId: string; dealId: string; locale?: "bn" | "en" },
 ): Promise<Receipt | null> {
   if (!z.uuid().safeParse(input.dealId).success) return null;
   const parties = await pool.query(
@@ -133,7 +133,8 @@ export async function getReceipt(
   const balances = await dealBalances(pool, input.dealId);
 
   const title = (itemId: string) =>
-    terms.items.find((i) => i.itemId === itemId)?.title.bn ?? itemId;
+    terms.items.find((i) => i.itemId === itemId)?.title[input.locale ?? "bn"] ??
+    itemId;
   const packageList = packages.rows.map((p) => ({
     packageId: p.package_id as string,
     versionNo: p.version_no as number,

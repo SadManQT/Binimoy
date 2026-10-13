@@ -213,3 +213,166 @@ export const NOTICE_TEXT_EN: Record<string, string> = {
     "The other side opened a dispute. A report does not mean anyone is at fault.",
   DISPUTE_UPDATED: "The dispute's status changed",
 };
+
+const ERROR_TEXT_EN: Record<string, string> = {
+  VALIDATION_FAILED:
+    "Something is not filled in correctly. Check every field and the amount again.",
+  NOT_AUTHORIZED: "You are not allowed to do this.",
+  VERSION_CONFLICT:
+    "This deal has already changed. Read the current terms below and decide again.",
+  IDEMPOTENCY_CONFLICT:
+    "This request was sent earlier with different details. Refresh the page.",
+  ILLEGAL_TRANSITION: "This cannot be done at the deal's current stage.",
+  COUNTERPARTY_MISSING:
+    "The other side has not joined yet. Send the invite link first.",
+  ALREADY_FUNDED:
+    "Payment has already started, so the deal can no longer be cancelled.",
+  REVIEWER_NOT_ASSIGNED:
+    "This deal needs a human reviewer from the start, and nobody has been assigned yet. Money cannot be paid in until then.",
+  INVOICE_EXPIRED: "The invoice has expired. Create a new one.",
+  TEST_MODE_REQUIRED: "This version only runs test payments.",
+  INCOMPLETE_DELIVERY:
+    "Not every required part is complete or passed yet. Finish the earlier steps first.",
+  VAULT_INVALID:
+    "The vault message could not be verified as an encrypted message from this deal's seller.",
+  VAULT_UNAVAILABLE: "The vault is not running in this environment.",
+  DISPUTE_OPEN:
+    "A dispute is open. Money cannot be released until it is settled.",
+  INSUFFICIENT_HELD_FUNDS: "The held amount does not match the deal.",
+  REVIEW_UNAVAILABLE:
+    "Both sides chose the AI-only mode for this deal, so there is no human review. The two sides can agree on a split.",
+  APPEAL_WINDOW_CLOSED: "The time to appeal has passed.",
+  MISSING_CONSENT: "To write here, first agree to the room being monitored.",
+  SECRET_SUSPECTED:
+    "The message looks like a password, code or PIN, so it was not saved. Put secrets in the vault. This detection is not perfect; if it is wrong, word the sentence differently.",
+  BUDGET_EXHAUSTED: "The AI limit for this deal has been used up.",
+  PAUSED:
+    "The operator has paused this action for now. Your earlier information and money are unchanged; reporting a dispute and viewing status still work.",
+  INVITE_INVALID: "The invite no longer works: expired, used or cancelled.",
+};
+const FUNDING_TEXT_EN: Record<string, string> = {
+  CREATED: "Invoice created, payment not started",
+  PENDING: "Payment started, waiting for the provider to confirm",
+  CONFIRMED: "Funding confirmed, held in the safe account",
+  EXPIRED: "Invoice expired",
+  CANCELLED: "Invoice cancelled",
+  RECONCILIATION_REQUIRED:
+    "Amount did not match: not counted as funded, needs reconciliation",
+};
+const INSPECTION_TEXT_EN: Record<string, string> = {
+  NOT_STARTED: "Not started",
+  PENDING: "Waiting to be checked",
+  PASSED: "Passed",
+  FAILED: "Failed",
+  UNKNOWN: "Could not be verified (neither a fault nor a success)",
+  STALE: "From an older version, no longer counted",
+};
+const AUTHORIZATION_TEXT_EN: Record<string, string> = {
+  CREATED: "Approval created",
+  RESERVED: "Approved, money reserved, not yet sent",
+  INVALIDATED: "Approval cancelled, money held again",
+  EXPIRED: "Approval expired",
+  DISPATCH_COMMITTED: "Sending has started",
+  CONSUMED: "Handed to the sending process",
+};
+const OPERATION_TEXT_EN: Record<string, string> = {
+  NOT_SENT: "Not yet sent",
+  DISPATCH_COMMITTED: "Being sent, result not yet known",
+  PENDING: "Pending at the provider",
+  SUCCEEDED: "Completed",
+  FAILED_FINAL: "Failed for good, the money is held again",
+  UNKNOWN: "Result unknown, being reconciled; the money is reserved",
+  CANCELLED_CONFIRMED: "Cancellation confirmed",
+};
+const PATH_TEXT_EN: Record<string, string> = {
+  ACCEPTED_RELEASE: "Payment to the seller because the buyer accepted",
+  NO_DELIVERY_REFUND:
+    "Refund to the buyer because nothing was delivered in time",
+  OBJECTIVE_RELEASE: "Payment based on independent proof",
+  MUTUAL_RESOLUTION: "A split both sides agreed to",
+  REVIEWED_RESOLUTION: "The reviewer's decision",
+};
+const CLAIM_TEXT_EN: Record<string, string> = {
+  NOT_RECEIVED: "I received nothing",
+  CANNOT_ACCESS: "I cannot log in or get access",
+  WRONG_PRODUCT: "Wrong product or wrong account",
+  INCOMPLETE: "Some parts are missing",
+  LOST_ACCESS_LATER: "I lost access later",
+  COMPROMISED: "I suspect the account was compromised",
+  OTHER: "Something else",
+};
+const DISPUTE_TEXT_EN: Record<string, string> = {
+  OPEN: "Open; the money is held",
+  QUEUED: "Waiting for a reviewer (not given to anyone yet)",
+  ASSIGNED: "Given to a reviewer",
+  REVIEWING: "Under review",
+  DECIDED_AWAITING_APPEAL:
+    "Decided; the appeal period is running, money not yet sent",
+  APPEALED: "Appealed; waiting for a different reviewer, the money is held",
+  RESOLVED: "Settled",
+  UNRESOLVED_CLOSED:
+    "Closed unresolved; nobody was declared the winner, the money is held",
+};
+const MODE_TEXT_EN: Record<string, { name: string; note: string }> = {
+  ai_first: {
+    name: "AI first, a person if needed",
+    note: "In a dispute you can ask for a human reviewer, but there is no promise of when someone will take it. AI help is not built yet.",
+  },
+  human_from_start: {
+    name: "Human help from the start",
+    note: "Money cannot be paid in until a reviewer takes this deal. There is no promise of when someone will.",
+  },
+  ai_only: {
+    name: "AI only (self-check)",
+    note: "No staff member will be involved. An unresolved dispute stays unresolved.",
+  },
+};
+const PROOF_TEXT_EN: Record<string, string> = {
+  seller_statement: "Seller's statement",
+  buyer_observation: "Buyer's own check",
+  independent_fact: "Independent verification",
+};
+const ISSUE_TEXT_EN: Record<string, string> = {
+  not_delivered: "Took the money and did not deliver",
+  wrong_item: "Sent a wrong or different product",
+  access_revoked: "Took the access away later",
+  no_refund: "Did not refund",
+  blocked_after_payment: "Blocked me after taking payment",
+  impersonation: "Used someone else's name",
+  other: "Another problem",
+};
+
+const COPY = {
+  bn: {
+    error: ERROR_TEXT,
+    funding: FUNDING_TEXT,
+    inspection: INSPECTION_TEXT,
+    authorization: AUTHORIZATION_TEXT,
+    operation: OPERATION_TEXT,
+    path: PATH_TEXT,
+    claim: CLAIM_TEXT,
+    dispute: DISPUTE_TEXT,
+    state: STATE_TEXT,
+    role: ROLE_TEXT,
+    mode: MODE_TEXT,
+    proof: PROOF_TEXT,
+    issue: ISSUE_TEXT,
+  },
+  en: {
+    error: ERROR_TEXT_EN,
+    funding: FUNDING_TEXT_EN,
+    inspection: INSPECTION_TEXT_EN,
+    authorization: AUTHORIZATION_TEXT_EN,
+    operation: OPERATION_TEXT_EN,
+    path: PATH_TEXT_EN,
+    claim: CLAIM_TEXT_EN,
+    dispute: DISPUTE_TEXT_EN,
+    state: STATE_TEXT_EN,
+    role: ROLE_TEXT_EN,
+    mode: MODE_TEXT_EN,
+    proof: PROOF_TEXT_EN,
+    issue: ISSUE_TEXT_EN,
+  },
+};
+// The code-to-words maps in the reader's language.
+export const copyFor = (locale: "bn" | "en") => COPY[locale];

@@ -3,23 +3,31 @@
 import { useState } from "react";
 import { authClient } from "../../lib/auth-client";
 
-export function AccountActions() {
+export function AccountActions({ locale }: { locale: "bn" | "en" }) {
+  const L = (bn: string, en: string) => (locale === "en" ? en : bn);
   const [status, setStatus] = useState("");
 
   async function run(
     action: () => Promise<{ error?: { message?: string } | null } | undefined>,
     after: () => void,
   ) {
-    setStatus("অপেক্ষা করুন…");
+    setStatus(L("অপেক্ষা করুন…", "Please wait…"));
     try {
       const outcome = await action();
       if (outcome?.error) {
-        setStatus(`হয়নি: ${outcome.error.message ?? "অজানা সমস্যা"}`);
+        setStatus(
+          `${L("হয়নি", "It did not work")}: ${outcome.error.message ?? L("অজানা সমস্যা", "unknown problem")}`,
+        );
         return;
       }
       after();
     } catch {
-      setStatus("হয়নি: সার্ভারে পৌঁছানো যায়নি।");
+      setStatus(
+        L(
+          "হয়নি: সার্ভারে পৌঁছানো যায়নি।",
+          "It did not work: the server could not be reached.",
+        ),
+      );
     }
   }
 
@@ -37,7 +45,7 @@ export function AccountActions() {
           )
         }
       >
-        অন্য সব ডিভাইস থেকে লগআউট
+        {L("অন্য সব ডিভাইস থেকে লগআউট", "Log out of all other devices")}
       </button>
       <button
         type="button"
@@ -48,7 +56,7 @@ export function AccountActions() {
           )
         }
       >
-        লগআউট
+        {L("লগআউট", "Log out")}
       </button>
     </div>
   );

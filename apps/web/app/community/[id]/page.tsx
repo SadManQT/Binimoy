@@ -1,7 +1,7 @@
 import { formatBdt } from "@lp/contracts";
 import { getReport } from "@lp/db/community";
 import { notFound } from "next/navigation";
-import { ISSUE_TEXT } from "../../../lib/copy";
+import { copyFor } from "../../../lib/copy";
 import { getI18n } from "../../../lib/i18n";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
@@ -13,19 +13,10 @@ import {
   submitReportAction,
   withdrawReportAction,
 } from "../actions";
-import {
-  COMMUNITY_ERROR_TEXT,
-  EVENT_TEXT,
-  EXPERIENCE_TEXT,
-  FOLLOWUP_STATUS_TEXT,
-  FOLLOWUP_TEXT,
-  REPORT_STATE_TEXT,
-} from "../copy";
+import { communityCopy } from "../copy";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "এক্সপেরিয়েন্স · বিনিময়" };
-
-const when = (iso: string) => new Date(iso).toLocaleString("bn-BD");
 
 export default async function ReportPage({
   params,
@@ -37,6 +28,17 @@ export default async function ReportPage({
   const user = await requireUser();
   const { locale, t } = await getI18n();
   const L = (bn: string, en: string) => (locale === "en" ? en : bn);
+  const ISSUE_TEXT = copyFor(locale).issue;
+  const when = (iso: string) =>
+    new Date(iso).toLocaleString(locale === "en" ? "en-GB" : "bn-BD");
+  const {
+    COMMUNITY_ERROR_TEXT,
+    EVENT_TEXT,
+    EXPERIENCE_TEXT,
+    FOLLOWUP_STATUS_TEXT,
+    FOLLOWUP_TEXT,
+    REPORT_STATE_TEXT,
+  } = communityCopy(locale);
   const { id } = await params;
   const { error } = await searchParams;
   // A draft, an unpublished report and a missing one all look the same.
@@ -58,8 +60,15 @@ export default async function ReportPage({
       <p data-testid="report-state">
         <strong>{t.types[report.experienceType]}</strong> ·{" "}
         {REPORT_STATE_TEXT[report.state]}
-        {report.eventDate ? ` · ঘটনার তারিখ: ${report.eventDate}` : ""}
-        {report.rating ? ` · লেখকের রেটিং: ${report.rating} / ৫` : ""}
+        {report.eventDate
+          ? ` · ${L("ঘটনার তারিখ", "date it happened")}: ${report.eventDate}`
+          : ""}
+        {report.rating
+          ? L(
+              ` · লেখকের রেটিং: ${report.rating} / ৫`,
+              ` · the writer's rating: ${report.rating} / 5`,
+            )
+          : ""}
       </p>
       {report.issue && (
         <p data-testid="report-issue">
@@ -74,34 +83,44 @@ export default async function ReportPage({
         </p>
       )}
       {error ? (
-        <p role="alert">{COMMUNITY_ERROR_TEXT[error] ?? "কাজটি করা যায়নি।"}</p>
+        <p role="alert">
+          {COMMUNITY_ERROR_TEXT[error] ??
+            L("কাজটি করা যায়নি।", "That could not be done.")}
+        </p>
       ) : null}
 
       {report.state === "WITHDRAWN" && report.role === "public" ? (
         <p data-testid="withdrawn">
-          লেখক এই লেখাটি তুলে নিয়েছেন। তুলে নেওয়া মানে লেখাটি মিথ্যা ছিল, তা নয়; সত্য ছিল,
-          তাও নয়।
+          {L(
+            "লেখক এই লেখাটি তুলে নিয়েছেন। তুলে নেওয়া মানে লেখাটি মিথ্যা ছিল, তা নয়; সত্য ছিল, তাও নয়।",
+            "The writer withdrew this text. Withdrawing does not mean it was false; nor that it was true.",
+          )}
         </p>
       ) : null}
 
       {report.publicText && !editable ? (
         <section aria-labelledby="text">
           <h2 id="text">
-            {report.state === "PUBLISHED" ? "পাবলিশড লেখা" : "প্রকাশের জন্য লেখা"}
+            {report.state === "PUBLISHED"
+              ? L("পাবলিশড লেখা", "Published text")
+              : L("প্রকাশের জন্য লেখা", "Text for publication")}
           </h2>
           <blockquote data-testid="public-text">{report.publicText}</blockquote>
           <p>
             <small data-testid="unverified-label">
-              এটি লেখকের নিজের বক্তব্য। বিনিময় ঘটনাটি ভেরিফাই করেনি। মডারেটর শুধু
-              দেখেছেন লেখাটি প্রকাশের নিয়ম মানে কি না। এটি “{report.subject}” সম্পর্কে
-              আমাদের কোনো রায় নয়।
+              {L(
+                `এটি লেখকের নিজের বক্তব্য। বিনিময় ঘটনাটি ভেরিফাই করেনি। মডারেটর শুধু দেখেছেন লেখাটি প্রকাশের নিয়ম মানে কি না। এটি “${report.subject}” সম্পর্কে আমাদের কোনো রায় নয়।`,
+                `This is the writer's own statement. Binimoy has not verified what happened. A moderator only checked that the text follows the publishing rules. It is not our verdict on “${report.subject}”.`,
+              )}
             </small>
           </p>
           {report.responseDueAt ? (
             <p>
               <small>
-                উত্তর দেওয়ার প্রস্তাবিত সময় {when(report.responseDueAt)} পর্যন্ত; পরেও
-                উত্তর দেওয়া যায়। উত্তর না দেওয়া মানে স্বীকার করা নয়।
+                {L(
+                  `উত্তর দেওয়ার প্রস্তাবিত সময় ${when(report.responseDueAt)} পর্যন্ত; পরেও উত্তর দেওয়া যায়। উত্তর না দেওয়া মানে স্বীকার করা নয়।`,
+                  `The suggested time to reply runs until ${when(report.responseDueAt)}; a reply can still be made later. Not replying is not an admission.`,
+                )}
               </small>
             </p>
           ) : null}
@@ -118,7 +137,10 @@ export default async function ReportPage({
           </h2>
           <blockquote>{report.narrative}</blockquote>
           {report.amountMinor ? (
-            <p>দাবি করা টাকা: {formatBdt(report.amountMinor)}</p>
+            <p>
+              {L("দাবি করা টাকা", "Amount claimed")}:{" "}
+              {formatBdt(report.amountMinor)}
+            </p>
           ) : null}
         </section>
       ) : null}
@@ -216,8 +238,10 @@ export default async function ReportPage({
                 />
               </label>
               <label>
-                প্রকাশের জন্য লেখা (ফোন নম্বর, অ্যাকাউন্ট বা লেনদেন নম্বর, ঠিকানা, অন্যের নাম
-                বাদ দিন)
+                {L(
+                  "প্রকাশের জন্য লেখা (ফোন নম্বর, অ্যাকাউন্ট বা লেনদেন নম্বর, ঠিকানা, অন্যের নাম বাদ দিন)",
+                  "Text for publication (leave out phone numbers, account or transaction numbers, addresses and other people's names)",
+                )}
                 <textarea
                   name="publicText"
                   rows={4}
@@ -256,8 +280,10 @@ export default async function ReportPage({
                         minHeight: 0,
                       }}
                     />{" "}
-                    উপরের লেখাটা আমার নিজের এক্সপেরিয়েন্স, আর ঠিক এই লেখাটাই পাবলিশ করার
-                    অনুমতি দিচ্ছি।
+                    {L(
+                      "উপরের লেখাটা আমার নিজের এক্সপেরিয়েন্স, আর ঠিক এই লেখাটাই পাবলিশ করার অনুমতি দিচ্ছি।",
+                      "The text above is my own experience, and I give permission to publish exactly this text.",
+                    )}
                   </label>
                   <button type="submit">
                     {L("মডারেটরের কাছে জমা দিন", "Submit to a moderator")}
@@ -266,8 +292,10 @@ export default async function ReportPage({
               </>
             ) : (
               <p>
-                জমা দিতে হলে পুরো বিবরণ এবং প্রকাশের লেখা, দুটোই লিখে সংরক্ষণ করুন।
-                ততক্ষণ এটি আপনার ব্যক্তিগত ড্রাফট।
+                {L(
+                  "জমা দিতে হলে পুরো বিবরণ এবং প্রকাশের লেখা, দুটোই লিখে সংরক্ষণ করুন। ততক্ষণ এটি আপনার ব্যক্তিগত ড্রাফট।",
+                  "To submit, write and save both the full account and the text for publication. Until then this is your private draft.",
+                )}
               </p>
             )}
           </section>
@@ -276,9 +304,10 @@ export default async function ReportPage({
 
       {report.similarity !== undefined && report.similarity >= 0.6 ? (
         <p className="notice" data-testid="similarity-hint">
-          এই লেখাটা একই শপ নিয়ে আরেকটা লেখার সাথে{" "}
-          {Math.round(report.similarity * 100)}% মিলে যায়। কপি করা হতে পারে; এটা শুধু
-          একটা ইঙ্গিত, প্রমাণ না। সিদ্ধান্ত আপনার।
+          {L(
+            `এই লেখাটা একই শপ নিয়ে আরেকটা লেখার সাথে ${Math.round(report.similarity * 100)}% মিলে যায়। কপি করা হতে পারে; এটা শুধু একটা ইঙ্গিত, প্রমাণ না। সিদ্ধান্ত আপনার।`,
+            `This text matches another text about the same shop by ${Math.round(report.similarity * 100)}%. It may have been copied; this is only a hint, not proof. The decision is yours.`,
+          )}
         </p>
       ) : null}
 
@@ -286,8 +315,10 @@ export default async function ReportPage({
         <section aria-labelledby="decide" data-testid="moderate">
           <h2 id="decide">{L("মডারেটরের সিদ্ধান্ত", "Moderator's decision")}</h2>
           <p>
-            সিদ্ধান্তটি শুধু এই নিয়ে: লেখাটি প্রকাশের নিয়ম মানে কি না। ঘটনা সত্য কি না বা শপটি
-            কেমন, তা নিয়ে নয়।
+            {L(
+              "সিদ্ধান্তটি শুধু এই নিয়ে: লেখাটি প্রকাশের নিয়ম মানে কি না। ঘটনা সত্য কি না বা শপটি কেমন, তা নিয়ে নয়।",
+              "The decision is only about this: whether the text follows the publishing rules. Not about whether the events are true or what the shop is like.",
+            )}
           </p>
           <form action={decideReportAction}>
             <input type="hidden" name="reportId" value={report.id} />
@@ -333,13 +364,17 @@ export default async function ReportPage({
                   <blockquote>{f.body}</blockquote>
                   {f.kind === "RESPONSE" ? (
                     <small>
-                      যিনি লিখেছেন তিনি এই পেজ বা শপের পক্ষের কি না, তা ভেরিফাই করা
-                      হয়নি।
+                      {L(
+                        "যিনি লিখেছেন তিনি এই পেজ বা শপের পক্ষের কি না, তা ভেরিফাই করা হয়নি।",
+                        "Whether the person who wrote this speaks for this page or shop has not been verified.",
+                      )}
                     </small>
                   ) : (
                     <small>
-                      এটি লেখকের নিজের কথা; ভেরিফাই করা হয়নি। আগের লেখাটি বদলানো
-                      হয়নি।
+                      {L(
+                        "এটি লেখকের নিজের কথা; ভেরিফাই করা হয়নি। আগের লেখাটি বদলানো হয়নি।",
+                        "This is the writer's own account; it has not been verified. The earlier text was not changed.",
+                      )}
                     </small>
                   )}
                 </li>
@@ -365,7 +400,9 @@ export default async function ReportPage({
                 <input type="hidden" name="kind" value="RESPONSE" />
               )}
               <label>
-                {author ? "আপনার লেখা" : "এই লেখার উত্তর দিন"}
+                {author
+                  ? L("আপনার লেখা", "Your text")
+                  : L("এই লেখার উত্তর দিন", "Reply to this text")}
                 <input name="body" required minLength={10} maxLength={2000} />
               </label>
               <button type="submit">
@@ -400,8 +437,10 @@ export default async function ReportPage({
         <section aria-labelledby="withdraw">
           <h2 id="withdraw">{L("তুলে নিন", "Withdraw")}</h2>
           <p>
-            তুলে নিলে লেখাটি আর কেউ দেখবে না। লেখাটি যে একসময় ছিল এবং তুলে নেওয়া
-            হয়েছে, সেই তথ্য থাকবে।
+            {L(
+              "তুলে নিলে লেখাটি আর কেউ দেখবে না। লেখাটি যে একসময় ছিল এবং তুলে নেওয়া হয়েছে, সেই তথ্য থাকবে।",
+              "If you withdraw it, nobody will see the text any more. The fact that it once existed and was withdrawn stays on record.",
+            )}
           </p>
           <form action={withdrawReportAction}>
             <input type="hidden" name="reportId" value={report.id} />

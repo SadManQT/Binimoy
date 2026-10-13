@@ -1,6 +1,7 @@
 import { reviewQueue } from "@lp/db/review";
 import { notFound } from "next/navigation";
-import { CLAIM_TEXT, DISPUTE_TEXT, ERROR_TEXT } from "../../lib/copy";
+import { copyFor } from "../../lib/copy";
+import { getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
 import { claimDealAction, claimReviewAction } from "./actions";
@@ -18,29 +19,38 @@ export default async function ReviewQueuePage({
   // Not staff and "no such page" look the same on purpose.
   const queue = await reviewQueue(pool(), user.id);
   if (!queue) notFound();
+  const { locale, L } = await getI18n();
+  const copy = copyFor(locale);
 
   return (
     <main>
-      <h1>রিভিউয়ের সারি</h1>
-      {error && <p role="alert">{ERROR_TEXT[error] ?? error}</p>}
+      <h1>{L("রিভিউয়ের সারি", "Review queue")}</h1>
+      {error && <p role="alert">{copy.error[error] ?? error}</p>}
       <p>
-        আপনি যে ডিলের পক্ষ, তা এখানে দেখানো হয় না। দায়িত্ব নিলে শুধু সেই কেসের তথ্য দেখতে
-        পাবেন, যতক্ষণ দায়িত্ব আপনার।
+        {L(
+          "আপনি যে ডিলের পক্ষ, তা এখানে দেখানো হয় না। দায়িত্ব নিলে শুধু সেই কেসের তথ্য দেখতে পাবেন, যতক্ষণ দায়িত্ব আপনার।",
+          "Deals you are a party to are not shown here. When you take a case you see only that case's information, for as long as it is yours.",
+        )}
       </p>
 
-      <h2>ডিসপিউট</h2>
+      <h2>{L("ডিসপিউট", "Disputes")}</h2>
       {queue.cases.length === 0 ? (
-        <p>এখন কোনো কেস অপেক্ষায় নেই।</p>
+        <p>
+          {L("এখন কোনো কেস অপেক্ষায় নেই।", "No cases are waiting right now.")}
+        </p>
       ) : (
         <ul>
           {queue.cases.map((entry) => (
             <li key={entry.disputeId}>
-              {entry.title} · {CLAIM_TEXT[entry.claim] ?? entry.claim} ·{" "}
-              {DISPUTE_TEXT[entry.state] ?? entry.state}
+              {entry.title} · {copy.claim[entry.claim] ?? entry.claim} ·{" "}
+              {copy.dispute[entry.state] ?? entry.state}
               {entry.mine ? (
                 <>
                   {" "}
-                  · <a href={`/review/${entry.disputeId}`}>আমার কেস খুলুন</a>
+                  ·{" "}
+                  <a href={`/review/${entry.disputeId}`}>
+                    {L("আমার কেস খুলুন", "Open my case")}
+                  </a>
                 </>
               ) : (
                 <form action={claimReviewAction}>
@@ -51,8 +61,8 @@ export default async function ReviewQueuePage({
                   />
                   <button type="submit">
                     {entry.state === "APPEALED"
-                      ? "আপিলের দায়িত্ব নিন"
-                      : "দায়িত্ব নিন"}
+                      ? L("আপিলের দায়িত্ব নিন", "Take the appeal")
+                      : L("দায়িত্ব নিন", "Take this case")}
                   </button>
                 </form>
               )}
@@ -61,9 +71,19 @@ export default async function ReviewQueuePage({
         </ul>
       )}
 
-      <h2>শুরু থেকেই মানুষের সহায়তা চাওয়া ডিল</h2>
+      <h2>
+        {L(
+          "শুরু থেকেই মানুষের সহায়তা চাওয়া ডিল",
+          "Deals that asked for human help from the start",
+        )}
+      </h2>
       {queue.deals.length === 0 ? (
-        <p>রিভিউয়ারের অপেক্ষায় কোনো ডিল নেই।</p>
+        <p>
+          {L(
+            "রিভিউয়ারের অপেক্ষায় কোনো ডিল নেই।",
+            "No deals are waiting for a reviewer.",
+          )}
+        </p>
       ) : (
         <ul>
           {queue.deals.map((deal) => (
@@ -71,7 +91,9 @@ export default async function ReviewQueuePage({
               {deal.title}
               <form action={claimDealAction}>
                 <input type="hidden" name="dealId" value={deal.dealId} />
-                <button type="submit">এই ডিলের রিভিউয়ার হোন</button>
+                <button type="submit">
+                  {L("এই ডিলের রিভিউয়ার হোন", "Become this deal's reviewer")}
+                </button>
               </form>
             </li>
           ))}

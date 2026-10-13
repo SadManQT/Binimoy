@@ -60,6 +60,12 @@ test("C36.3: a transfer that is not final is never described as complete", () =>
   ]) {
     const step = nextStep({ ...accepted, settlement: { operations: [state] } });
     expect(step.text, state).toMatch(/চূড়ান্ত নয়/);
+    const english = nextStep(
+      { ...accepted, settlement: { operations: [state] } },
+      "en",
+    );
+    expect(english.text, state).toMatch(/not final/);
+    expect(english.text, state).not.toMatch(/complete/i);
     expect(
       done(accepted && { ...accepted, settlement: { operations: [state] } }),
     ).not.toContain("settled");
