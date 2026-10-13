@@ -39,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
     description: `${t.home.title} ${t.home.titleMark}. ${t.home.sub}`,
   };
 }
-export const viewport: Viewport = { themeColor: "#cdd5ff" };
+export const viewport: Viewport = { themeColor: "#fbfbfe" };
 
 export default async function RootLayout({
   children,

@@ -1,12 +1,13 @@
 /* Binimoy design system: "sticker".
-   One bright page colour, deep ink, white cards with an ink outline and a
-   hard shadow, pills for labels, chunky headings, very few words. The
-   colours come from the front-page artwork: periwinkle, mint and gold.
+   A clean white page, deep ink, white cards with an ink outline and a hard
+   shadow, pills for labels, chunky headings, very few words. Colour is kept
+   for what matters: actions, states and pictures. The accents come from the
+   front-page artwork: periwinkle, mint and gold.
    Light only; one theme for every page. */
 
 :root {
-  --page: #cdd5ff;
-  --page-deep: #b9c3fb;
+  --page: #fbfbfe;
+  --page-deep: #e8ecff;
   --card: #ffffff;
   --soft: #f1f3ff;
   --ink: #101747;
@@ -73,7 +74,7 @@ body {
   color: var(--ink);
   background-color: var(--page);
   /* A quiet dot grid, so the flat colour reads as a surface. */
-  background-image: radial-gradient(#10174714 1.2px, transparent 1.2px);
+  background-image: radial-gradient(#1017470f 1.2px, transparent 1.2px);
   background-size: 22px 22px;
   -webkit-font-smoothing: antialiased;
 }
@@ -1176,6 +1177,38 @@ details.fold > :not(summary) {
   }
 }
 
+/* Evidence pictures on a review: private thumbnails. */
+.shots {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.75rem;
+}
+.shots li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.shots img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--soft);
+  border: var(--edge);
+  border-radius: 14px;
+}
+.shots button {
+  width: 100%;
+  min-height: 40px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.82rem;
+}
+input[type="file"] {
+  padding: 0.55rem 0.7rem;
+}
+
 /* Compare: two columns of the same facts. */
 .versus {
   display: grid;
@@ -1400,6 +1433,11 @@ main > section.stage {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  padding: clamp(1.25rem, 0.75rem + 2.5vw, 3rem);
+  background: var(--page-deep);
+  border: var(--edge);
+  border-radius: 28px;
+  box-shadow: var(--pop);
 }
 .hero {
   display: grid;
@@ -1628,7 +1666,7 @@ main > section.stage {
   font-size: clamp(1.6rem, 1.1rem + 2.2vw, 2.6rem);
 }
 
-/* Features: six doors into the product. A picture and a name each: two
+/* Features: six doors into the product. A flat picture and a name each: two
    large, four small. */
 .features {
   list-style: none;
@@ -1638,12 +1676,11 @@ main > section.stage {
   gap: 1rem;
 }
 .features a {
-  position: relative;
   height: 100%;
   display: flex;
   flex-direction: column-reverse;
   overflow: hidden;
-  background: #060a18;
+  background: var(--card);
   border: var(--edge);
   border-radius: var(--radius-panel);
   box-shadow: var(--pop);
@@ -1659,20 +1696,80 @@ main > section.stage {
 }
 .features h3 {
   padding: 0.7rem 1rem;
-  background: var(--card);
   border-top: var(--edge);
   font-size: 1rem;
 }
-.features li[data-tone="alert"] h3 {
-  background: var(--sun);
+/* The flat picture: one big icon, one small badge, on the tile's colour. */
+.art {
+  --tile: var(--page-deep);
+  position: relative;
+  flex: 1;
+  min-height: 8.5rem;
+  display: grid;
+  place-items: center;
+  background: var(--tile);
+  color: var(--ink);
 }
-/* The pictures were rendered on near-black: they sit in a dark window. */
-.features img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+.art > svg {
+  width: 5.5rem;
+  height: 5.5rem;
+  transition: transform 0.25s var(--ease);
+}
+.art > span {
+  position: absolute;
+  left: calc(50% + 1.5rem);
+  top: calc(50% - 3.6rem);
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  background: var(--card);
+  border: var(--edge);
+  border-radius: 50%;
+  box-shadow: 2px 2px 0 var(--ink);
+  transform: rotate(8deg);
+  transition: transform 0.25s var(--ease);
+}
+.art > span svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+a:hover .art > svg {
+  transform: scale(1.08) rotate(-3deg);
+}
+a:hover .art > span {
+  transform: rotate(-8deg) scale(1.1);
+}
+.art[data-art="alerts"] {
+  --tile: var(--sun);
+}
+.art[data-art="alerts"] > span {
+  color: var(--red);
+}
+.art[data-art="reviews"] {
+  --tile: var(--mint-wash);
+}
+.art[data-art="reviews"] > span {
+  color: #e6a700;
+}
+.art[data-art="report"] {
+  --tile: var(--red-wash);
+}
+.art[data-art="report"] > span {
+  color: var(--red);
+}
+.art[data-art="deal"] {
+  --tile: var(--mint);
+}
+.art[data-art="deal"] > span {
+  color: #b27a00;
+}
+.art[data-art="lookup"] {
+  --tile: var(--sun-wash);
+}
+.art[data-art="check"] > span,
+.art[data-art="lookup"] > span {
+  color: var(--blue);
 }
 @media (min-width: 56rem) {
   .features {
@@ -1682,9 +1779,26 @@ main > section.stage {
   .features li:nth-child(2) {
     grid-column: span 2;
   }
-  .features li:nth-child(1) img,
-  .features li:nth-child(2) img {
-    aspect-ratio: 16 / 8;
+  .features li:nth-child(1) .art,
+  .features li:nth-child(2) .art {
+    min-height: 13rem;
+  }
+  .features li:nth-child(1) .art > svg,
+  .features li:nth-child(2) .art > svg {
+    width: 9rem;
+    height: 9rem;
+  }
+  .features li:nth-child(1) .art > span,
+  .features li:nth-child(2) .art > span {
+    left: calc(50% + 2.6rem);
+    top: calc(50% - 5.6rem);
+    width: 3.2rem;
+    height: 3.2rem;
+  }
+  .features li:nth-child(1) .art > span svg,
+  .features li:nth-child(2) .art > span svg {
+    width: 1.7rem;
+    height: 1.7rem;
   }
   .features li:nth-child(1) h3,
   .features li:nth-child(2) h3 {
@@ -1838,13 +1952,17 @@ html[lang="bn"] .flow li::before {
   font-size: 0.88rem;
   font-weight: 600;
 }
-.deal-band img {
+.deal-band .art {
   width: 100%;
-  max-width: 20rem;
-  height: auto;
+  max-width: 16rem;
+  aspect-ratio: 1;
   margin: 0 auto;
-  border-radius: 20px;
-  mix-blend-mode: lighten;
+  border: 2px solid #fff;
+  border-radius: 28px;
+}
+.deal-band .art > svg {
+  width: 7rem;
+  height: 7rem;
 }
 @media (min-width: 56rem) {
   .deal-band {

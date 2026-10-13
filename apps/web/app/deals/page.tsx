@@ -1,4 +1,4 @@
-import { listDeals } from "@lp/db/agreements";
+import { listDeals, userPulse } from "@lp/db/agreements";
 import { unseenNotices } from "@lp/db/notices";
 import {
   ROLE_TEXT,
@@ -10,6 +10,7 @@ import { getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
 import { Mini3D } from "../components/mini-3d";
+import { LiveDeal } from "./live-deal";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "আমার ডিল · বিনিময়" };
@@ -19,6 +20,7 @@ export default async function DealsPage() {
   const deals = await listDeals(pool(), user.id);
   const unseen = await unseenNotices(pool(), user.id);
   const { locale, num } = await getI18n();
+  const pulse = await userPulse(pool(), user.id);
   const L = (bn: string, en: string) => (locale === "en" ? en : bn);
   const roles = locale === "en" ? ROLE_TEXT_EN : ROLE_TEXT;
   const states = locale === "en" ? STATE_TEXT_EN : STATE_TEXT;
@@ -33,6 +35,12 @@ export default async function DealsPage() {
               "Trades checked step by step. All money here is test money.",
             )}
           </p>
+          <LiveDeal
+            href="/api/pulse"
+            pulse={pulse}
+            label={L("লাইভ: নিজে থেকে আপডেট হয়", "Live: updates by itself")}
+            offline={L("সংযোগ নেই, আবার চেষ্টা চলছে", "Offline, retrying")}
+          />
         </div>
         <Mini3D kind="lock" />
       </div>

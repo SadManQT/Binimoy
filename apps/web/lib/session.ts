@@ -1,4 +1,4 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { auth } from "./auth";
@@ -13,4 +13,11 @@ export async function requireUser() {
   const session = await getSession();
   if (!session) redirect("/login");
   return session.user;
+}
+
+// True when this render is an open page re-reading itself (see LiveDeal), not
+// a person opening `path`. Such a render must not count as showing a notice.
+export async function isLiveReread(path: string) {
+  const value = (await cookies()).get("live")?.value;
+  return value !== undefined && decodeURIComponent(value) === path;
 }

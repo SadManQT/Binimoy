@@ -1,14 +1,17 @@
 import { formatBdt } from "@lp/contracts";
 import { getReport } from "@lp/db/community";
+import { EVIDENCE_MAX_FILES, listEvidence } from "@lp/db/evidence";
 import { notFound } from "next/navigation";
 import { copyFor } from "../../../lib/copy";
 import { getI18n } from "../../../lib/i18n";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
 import {
+  addEvidenceAction,
   addFollowupAction,
   appealReportAction,
   decideReportAction,
+  removeEvidenceAction,
   saveDraftAction,
   submitReportAction,
   withdrawReportAction,
@@ -50,6 +53,75 @@ export default async function ReportPage({
     author &&
     (report.state === "DRAFT" || report.state === "NEEDS_INFORMATION");
   const ready = Boolean(report.narrative && report.publicText);
+  // Pictures are private: the list is empty for everyone but the author and
+  // the moderator this report is assigned to.
+  const evidence = await listEvidence(pool(), {
+    userId: user.id,
+    reportId: report.id,
+  });
+  const evidencePanel =
+    editable || evidence.length > 0 ? (
+      <section aria-labelledby="evidence" data-testid="evidence">
+        <h2 id="evidence">{L("প্রমাণের ছবি", "Evidence pictures")}</h2>
+        <p>
+          <small>
+            {L(
+              "শুধু আপনি আর দায়িত্বে থাকা মডারেটর দেখবেন। পাবলিশ হয় না। ফাইলগুলো ভাইরাস স্ক্যান করা হয়নি।",
+              "Only you and the assigned moderator see these. They are never published. The files have not been virus-scanned.",
+            )}
+          </small>
+        </p>
+        {evidence.length > 0 && (
+          <ul className="shots">
+            {evidence.map((item, n) => (
+              <li key={item.id}>
+                <a
+                  href={`/api/evidence/${item.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {/* biome-ignore lint/performance/noImgElement: a private, access-checked file that must not pass through an image optimiser */}
+                  <img
+                    src={`/api/evidence/${item.id}`}
+                    alt={L(`প্রমাণের ছবি ${n + 1}`, `Evidence picture ${n + 1}`)}
+                    loading="lazy"
+                  />
+                </a>
+                {editable && (
+                  <form action={removeEvidenceAction}>
+                    <input type="hidden" name="reportId" value={report.id} />
+                    <input type="hidden" name="evidenceId" value={item.id} />
+                    <button type="submit" className="quiet">
+                      {L(`ছবি ${n + 1} সরান`, `Remove picture ${n + 1}`)}
+                    </button>
+                  </form>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {editable && evidence.length < EVIDENCE_MAX_FILES && (
+          <form action={addEvidenceAction}>
+            <input type="hidden" name="reportId" value={report.id} />
+            <label>
+              {L(
+                "স্ক্রিনশট বা ছবি (PNG, JPG, WebP; সর্বোচ্চ ২ এমবি)",
+                "Screenshot or photo (PNG, JPG, WebP; at most 2 MB)",
+              )}
+              <input
+                type="file"
+                name="file"
+                required
+                accept="image/png,image/jpeg,image/webp"
+              />
+            </label>
+            <button type="submit" className="quiet">
+              {L("ছবি যোগ করুন", "Add picture")}
+            </button>
+          </form>
+        )}
+      </section>
+    ) : null;
 
   return (
     <main>
@@ -256,6 +328,8 @@ export default async function ReportPage({
             </form>
           </section>
 
+          {evidencePanel}
+
           <section aria-labelledby="preview" data-testid="preview">
             <h2 id="preview">
               {L("প্রকাশ হলে যেভাবে দেখাবে", "How it will look when published")}
@@ -310,6 +384,8 @@ export default async function ReportPage({
           )}
         </p>
       ) : null}
+
+      {!editable && evidencePanel}
 
       {report.assignedToMe && report.state === "UNDER_REVIEW" ? (
         <section aria-labelledby="decide" data-testid="moderate">

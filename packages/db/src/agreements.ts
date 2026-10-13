@@ -551,3 +551,15 @@ export async function dealPulse(
   );
   return rows[0]?.pulse ?? null;
 }
+
+// The same idea for a person's own lists (deals, notifications): it changes
+// when anything changes on any deal they are a party to.
+export async function userPulse(pool: Pool, userId: string): Promise<string> {
+  const { rows } = await pool.query(
+    `select concat_ws('.', count(distinct p.deal_id), coalesce(sum(a.version), 0)) as pulse
+     from deal_party p left join aggregate a on a.deal_id = p.deal_id
+     where p.user_id = $1`,
+    [userId],
+  );
+  return rows[0].pulse;
+}

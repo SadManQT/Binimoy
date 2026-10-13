@@ -46,6 +46,7 @@ test("two concurrent migrators apply each migration exactly once", async () => {
     "0015_verification.sql",
     "0016_operations.sql",
     "0017_shops.sql",
+    "0018_report_evidence.sql",
   ]);
   expect(await migrate(pool)).toEqual([]);
 });

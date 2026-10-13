@@ -11,6 +11,7 @@ import {
   retractSafetyAlertAction,
 } from "../community/actions";
 import { communityCopy } from "../community/copy";
+import { More } from "../components/more";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "মডারেশন · বিনিময়" };
@@ -42,10 +43,16 @@ export default async function ModerationPage({
       ) : null}
       <p>
         {L(
+          "আপনি দেখেন লেখাটা নিয়ম মানে কি না। ঘটনা সত্য কি না, সে রায় আপনার না।",
+          "You check that a text follows the rules. Whether the events are true is not your ruling.",
+        )}
+      </p>
+      <More>
+        {L(
           "আপনার নিজের লেখা এখানে আসে না। আপনি দেখেন লেখাটি প্রকাশের নিয়ম মানে কি না; ঘটনা সত্য কি না, সে রায় আপনি দেন না। কোনো ডিল বা ভল্টের তথ্য এখান থেকে দেখা যায় না।",
           "Your own writing does not come here. You check whether a text follows the publishing rules; you do not rule on whether the events are true. No deal or vault information can be seen from here.",
         )}
-      </p>
+      </More>
 
       <h2>{L("জমা পড়া লেখা", "Submitted texts")}</h2>
       {queue.reports.length === 0 ? (
@@ -116,12 +123,12 @@ export default async function ModerationPage({
 
       <section aria-labelledby="alerts">
         <h2 id="alerts">{L("সাধারণ ওয়ার্নিং", "General warnings")}</h2>
-        <p>
+        <More>
           {L(
             "একটি ধরনের প্রতারণার কৌশল নিয়ে সাধারণ অ্যালার্ট, যা “অ্যালার্ট” পাতায় সবার উপরে দেখায়। এটি আপনার নামে রেকর্ড হয়। নির্দিষ্ট কাউকে দোষী বলবেন না; ফোন নম্বর বা অ্যাকাউন্ট নম্বর লিখবেন না। বদলানো যায় না, শুধু তুলে নেওয়া যায়।",
             "A general alert about one kind of scam method, shown at the top of the “Alerts” page. It is recorded under your name. Do not call any specific person guilty; do not write phone or account numbers. It cannot be edited, only withdrawn.",
           )}
-        </p>
+        </More>
         <form action={createSafetyAlertAction}>
           <label>
             {L("শিরোনাম", "Title")}

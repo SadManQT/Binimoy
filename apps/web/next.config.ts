@@ -9,6 +9,9 @@ if (existsSync("../../.env")) process.loadEnvFile("../../.env");
 // with `next start`, which does not use it, and it cost several hundred
 // megabytes of copied dependencies on every build.
 const config: NextConfig = {
+  // Evidence pictures are posted through a form action: up to 2 MB each,
+  // plus the form's own overhead. The database layer enforces the real limit.
+  experimental: { serverActions: { bodySizeLimit: "3mb" } },
   transpilePackages: [
     "@lp/adapters",
     "@lp/contracts",

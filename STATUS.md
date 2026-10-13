@@ -2,7 +2,7 @@
 
 - Product name: Binimoy (ADR-008)
 - Completion level: D1. All eleven categories run on a synthetic provider and all five authorization paths exist, exercised by 99 database-level category cases (LP-021 handoff). D2 is not claimed: ten categories have no browser test, nothing has been independently reviewed, and the remaining gates are open.
-- Active branch: `chunk-fresh-look`.
+- Active branch: `chunk-white-and-live`.
 - Active tasks: LP-007, LP-008, LP-009, LP-011, LP-012, LP-013, LP-014, LP-017, LP-018, LP-020, LP-021, LP-022 are IN_PROGRESS (see handoffs for what is not built). LP-001 to LP-006 and LP-010 are MERGED.
 - Verified milestones: D1 vertical slice (one category, accepted release and no-delivery refund)
 - Blockers: none for local work. A real model has never been called (no API key). Seller research runs on synthetic pages only: no live search provider is chosen or keyed, and nothing fetches real pages. The vault needs Docker running (`pnpm matrix:local`). Staging needs a reachable homeserver, an email and SMS sender and its own OAuth apps.
@@ -18,7 +18,9 @@ Also merged: English for the deal, receipt and staff pages (PR #23). In `chunk-l
 
 Also merged: the self-updating, simpler deal page (PR #24). In `chunk-fresh-look`, on founder feedback that the design and colours were unfriendly and wordy: a new light design system for every page (ADR-010), a shorter front page, a simpler login page, shorter page introductions. Inner pages share the new look but their text was not all rewritten shorter.
 
-Next, in order: evidence uploads for reviews; a model-based summary of reviews once `MODEL_API_KEY` exists; live updates on the remaining pages; per-screen design of the review desk and receipt; a real phone and Safari check.
+Also merged: the new design system (PR #25). In `chunk-white-and-live`: the page colour changed to clean white (the founder rejected periwinkle and chose white); live updates on the deal list and notifications; evidence pictures on reviews, private to the author and the assigned moderator (schema file `0018_report_evidence.sql`, applied to the development database).
+
+Next, in order: evidence shown publicly needs a virus scanner and redacted copies first (D.9), which is a provider decision; a model-based summary of reviews once `MODEL_API_KEY` exists; live updates on the remaining pages; per-screen design of the review desk and receipt; a real phone and Safari check.
 
 ## Scripts
 
