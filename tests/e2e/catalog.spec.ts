@@ -104,4 +104,14 @@ test("a top-up is proven by the provider's record for the agreed player ID, not 
     seller.getByTestId("notices").locator('[data-kind="TRANSFER_COMPLETED"]'),
   ).toHaveCount(1, { timeout: 60_000 });
   await expect(seller.locator("main button")).toHaveCount(0);
+
+  // The same deal and receipt in English, with the same facts.
+  await buyer.goto(`/api/lang?to=en&next=${new URL(dealUrl).pathname}`);
+  await expect(buyer.getByTestId("next-step")).toContainText(
+    "Settlement is complete",
+  );
+  await expect(buyer.getByTestId("operation-payout")).toHaveText("Completed");
+  await expect(buyer.locator("main")).not.toContainText(/[ঀ-৿]/);
+  await buyer.getByRole("link", { name: "Receipt and full record" }).click();
+  await expect(buyer.getByTestId("receipt")).toContainText("Test record");
 });

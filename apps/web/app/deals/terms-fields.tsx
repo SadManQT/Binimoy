@@ -1,8 +1,9 @@
 import type { Template } from "@lp/templates";
-import { MODE_TEXT } from "../../lib/copy";
+import { copyFor } from "../../lib/copy";
+import { getI18n } from "../../lib/i18n";
 
 // Shared by "new deal" and "revise": the editable part of the terms.
-export function TermsFields({
+export async function TermsFields({
   template,
   values,
 }: {
@@ -15,12 +16,14 @@ export function TermsFields({
     milestones?: { title: string; amountTaka: string }[];
   };
 }) {
+  const { locale, L } = await getI18n();
+  const modes = copyFor(locale).mode;
   return (
     <>
       <input type="hidden" name="templateId" value={template.templateId} />
       <input type="hidden" name="templateVersion" value={template.version} />
       <label>
-        ডিলের শিরোনাম
+        {L("ডিলের শিরোনাম", "Deal title")}
         <input
           name="title"
           required
@@ -30,7 +33,10 @@ export function TermsFields({
         />
       </label>
       <label>
-        মূল্য (টাকা, যেমন 2500 বা 2500.50; ইংরেজি সংখ্যায়)
+        {L(
+          "মূল্য (টাকা, যেমন 2500 বা 2500.50; ইংরেজি সংখ্যায়)",
+          "Price (taka, such as 2500 or 2500.50; in English digits)",
+        )}
         <input
           name="amountTaka"
           required
@@ -40,7 +46,7 @@ export function TermsFields({
         />
       </label>
       <fieldset>
-        <legend>সেবার ধরন</legend>
+        <legend>{L("সেবার ধরন", "Service mode")}</legend>
         {template.supportedModes.map((mode, index) => (
           <label key={mode}>
             <input
@@ -51,17 +57,19 @@ export function TermsFields({
               defaultChecked={values ? values.mode === mode : index === 0}
               style={{ display: "inline", width: "auto", minHeight: 0 }}
             />{" "}
-            {MODE_TEXT[mode]?.name ?? mode}
+            {modes[mode]?.name ?? mode}
             <br />
-            <small>{MODE_TEXT[mode]?.note}</small>
+            <small>{modes[mode]?.note}</small>
           </label>
         ))}
       </fieldset>
       <fieldset>
-        <legend>প্রোডাক্টের সঠিক পরিচয়</legend>
+        <legend>
+          {L("প্রোডাক্টের সঠিক পরিচয়", "Exactly what the product is")}
+        </legend>
         {template.fields.map((field) => (
           <label key={field.key}>
-            {field.label.bn}
+            {field.label[locale]}
             <input
               name={`product.${field.key}`}
               required={field.required}
@@ -73,11 +81,19 @@ export function TermsFields({
       </fieldset>
       {template.milestones && (
         <fieldset>
-          <legend>মাইলস্টোন (প্রতিটির আলাদা দাম; যোগফল মোট মূল্যের সমান হতে হবে)</legend>
+          <legend>
+            {L(
+              "মাইলস্টোন (প্রতিটির আলাদা দাম; যোগফল মোট মূল্যের সমান হতে হবে)",
+              "Milestones (each with its own price; they must add up to the total)",
+            )}
+          </legend>
           {[0, 1, 2, 3].map((n) => (
             <div key={n}>
               <label>
-                মাইলস্টোন {n + 1}: কী দেওয়া হবে
+                {L(
+                  `মাইলস্টোন ${n + 1}: কী দেওয়া হবে`,
+                  `Milestone ${n + 1}: what will be delivered`,
+                )}
                 <input
                   name="milestoneTitle"
                   maxLength={120}
@@ -86,7 +102,10 @@ export function TermsFields({
                 />
               </label>
               <label>
-                মাইলস্টোন {n + 1}: দাম (টাকা)
+                {L(
+                  `মাইলস্টোন ${n + 1}: দাম (টাকা)`,
+                  `Milestone ${n + 1}: price (taka)`,
+                )}
                 <input
                   name="milestoneTaka"
                   inputMode="decimal"
@@ -99,7 +118,10 @@ export function TermsFields({
           ))}
           <p>
             <small>
-              একটি মাইলস্টোন গ্রহণ করলে শুধু সেটির টাকা ছাড়ে। ফাঁকা সারি বাদ যাবে।
+              {L(
+                "একটি মাইলস্টোন গ্রহণ করলে শুধু সেটির টাকা ছাড়ে। ফাঁকা সারি বাদ যাবে।",
+                "Accepting a milestone releases only that milestone's money. Empty rows are left out.",
+              )}
             </small>
           </p>
         </fieldset>

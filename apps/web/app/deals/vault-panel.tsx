@@ -20,6 +20,7 @@ import {
 import { submitDeliveryAction } from "./actions";
 
 type Props = {
+  locale: "bn" | "en";
   dealId: string;
   myRole: "buyer" | "seller";
   myMxid: string;
@@ -42,6 +43,7 @@ type Phase =
   | "ready";
 
 export function VaultPanel(props: Props) {
+  const L = (bn: string, en: string) => (props.locale === "en" ? en : bn);
   const [phase, setPhase] = useState<Phase>("loading");
   const [status, setStatus] = useState("");
   const [roomId, setRoomId] = useState(props.roomId);
@@ -119,12 +121,17 @@ export function VaultPanel(props: Props) {
   async function create() {
     const client = clientRef.current;
     if (!client) return;
-    setStatus("ভল্ট তৈরি হচ্ছে…");
+    setStatus(L("ভল্ট তৈরি হচ্ছে…", "Creating the vault…"));
     try {
       setRoomId(await createVaultRoom(client, dealId, counterpartyMxid));
-      setStatus("ভল্ট তৈরি হয়েছে। অন্য পক্ষ এই পাতা খুললে যুক্ত হবেন।");
+      setStatus(
+        L(
+          "ভল্ট তৈরি হয়েছে। অন্য পক্ষ এই পাতা খুললে যুক্ত হবেন।",
+          "The vault is created. The other side joins when they open this page.",
+        ),
+      );
     } catch (error) {
-      setStatus(`হয়নি: ${(error as Error).message}`);
+      setStatus(`${L("হয়নি", "It did not work")}: ${(error as Error).message}`);
     }
   }
 
@@ -134,7 +141,7 @@ export function VaultPanel(props: Props) {
     const element = form.currentTarget;
     const value = String(new FormData(element).get("value") ?? "");
     if (!client || !roomId || !value) return;
-    setStatus("এনক্রিপ্ট করে পাঠানো হচ্ছে…");
+    setStatus(L("এনক্রিপ্ট করে পাঠানো হচ্ছে…", "Encrypting and sending…"));
     try {
       await sendDelivery(client, roomId, {
         dealId,
@@ -145,9 +152,16 @@ export function VaultPanel(props: Props) {
       });
       element.reset();
       await refresh();
-      setStatus("পাঠানো হয়েছে। পাঠানো মানে ডেলিভারি গৃহীত হওয়া নয়।");
+      setStatus(
+        L(
+          "পাঠানো হয়েছে। পাঠানো মানে ডেলিভারি গৃহীত হওয়া নয়।",
+          "Sent. Sending does not mean the delivery was accepted.",
+        ),
+      );
     } catch (error) {
-      setStatus(`হয়নি, কিছু পাঠানো হয়নি: ${(error as Error).message}`);
+      setStatus(
+        `${L("হয়নি, কিছু পাঠানো হয়নি", "It did not work, nothing was sent")}: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -156,32 +170,53 @@ export function VaultPanel(props: Props) {
 
   return (
     <div data-testid="vault-panel" data-phase={phase}>
-      <h3>গোপন ভল্ট</h3>
+      <h3>{L("গোপন ভল্ট", "Secret vault")}</h3>
       <p>
-        এখানে যা পাঠানো হয় তা শুধু দুই পক্ষের ডিভাইসে পড়া যায়। বিনিময়ের সার্ভার, এআই বা কর্মী তা
-        পড়তে পারে না। যিনি পান তিনি কপি রাখতে পারেন; পাঠানো জিনিস ফেরত নেওয়া যায় না।
+        {L(
+          "এখানে যা পাঠানো হয় তা শুধু দুই পক্ষের ডিভাইসে পড়া যায়। বিনিময়ের সার্ভার, এআই বা কর্মী তা পড়তে পারে না। যিনি পান তিনি কপি রাখতে পারেন; পাঠানো জিনিস ফেরত নেওয়া যায় না।",
+          "What is sent here can be read only on the two sides' devices. Binimoy's server, the AI and staff cannot read it. Whoever receives it can keep a copy; something sent cannot be taken back.",
+        )}
       </p>
       <p role="status" aria-live="polite">
         {status}
       </p>
 
-      {phase === "loading" && <p>ভল্ট খোলা হচ্ছে…</p>}
+      {phase === "loading" && <p>{L("ভল্ট খোলা হচ্ছে…", "Opening the vault…")}</p>}
       {phase === "unavailable" && (
-        <p>এই পরিবেশে ভল্ট চালু নেই। তাই গোপন ডেলিভারি এখন সম্ভব নয়।</p>
+        <p>
+          {L(
+            "এই পরিবেশে ভল্ট চালু নেই। তাই গোপন ডেলিভারি এখন সম্ভব নয়।",
+            "The vault is not running in this environment. So secret delivery is not possible right now.",
+          )}
+        </p>
       )}
-      {phase === "error" && <p>ভল্ট খোলা যায়নি। পাতা রিফ্রেশ করে আবার চেষ্টা করুন।</p>}
+      {phase === "error" && (
+        <p>
+          {L(
+            "ভল্ট খোলা যায়নি। পাতা রিফ্রেশ করে আবার চেষ্টা করুন।",
+            "The vault could not be opened. Refresh the page and try again.",
+          )}
+        </p>
+      )}
       {phase === "no_room" &&
         (props.myRole === "seller" ? (
           <button type="button" onClick={create}>
-            এই ডিলের ভল্ট তৈরি করুন
+            {L("এই ডিলের ভল্ট তৈরি করুন", "Create this deal's vault")}
           </button>
         ) : (
-          <p>সেলার এখনো ভল্ট তৈরি করেননি।</p>
+          <p>
+            {L(
+              "সেলার এখনো ভল্ট তৈরি করেননি।",
+              "The seller has not created the vault yet.",
+            )}
+          </p>
         ))}
       {phase === "waiting_for_other" && (
         <p>
-          অন্য পক্ষ এখনো ভল্ট খোলেননি। তিনি এই ডিলের পাতা খুললে পাঠানো যাবে; তার আগে পাঠালে
-          তাঁর ডিভাইস তা পড়তে পারত না।
+          {L(
+            "অন্য পক্ষ এখনো ভল্ট খোলেননি। তিনি এই ডিলের পাতা খুললে পাঠানো যাবে; তার আগে পাঠালে তাঁর ডিভাইস তা পড়তে পারত না।",
+            "The other side has not opened the vault yet. You can send once they open this deal's page; anything sent before that could not be read by their device.",
+          )}
         </p>
       )}
 
@@ -194,7 +229,10 @@ export function VaultPanel(props: Props) {
                 {mine[item.itemId] && (
                   <span data-testid={`vault-sent-${item.itemId}`}>
                     {" "}
-                    (ভল্টে পাঠানো হয়েছে; আবার পাঠালে নতুনটি গণ্য হবে)
+                    {L(
+                      "(ভল্টে পাঠানো হয়েছে; আবার পাঠালে নতুনটি গণ্য হবে)",
+                      "(sent to the vault; if you send again, the new one counts)",
+                    )}
                   </span>
                 )}
                 <input
@@ -205,7 +243,9 @@ export function VaultPanel(props: Props) {
                   data-testid={`vault-input-${item.itemId}`}
                 />
               </label>
-              <button type="submit">ভল্টে পাঠান</button>
+              <button type="submit">
+                {L("ভল্টে পাঠান", "Send to the vault")}
+              </button>
             </form>
           ))}
 
@@ -217,7 +257,7 @@ export function VaultPanel(props: Props) {
               value={JSON.stringify(mine)}
             />
             <fieldset>
-              <legend>সেলারের ঘোষণা</legend>
+              <legend>{L("সেলারের ঘোষণা", "Seller's declarations")}</legend>
               {props.declarable.map((item) => (
                 <label key={item.itemId}>
                   <input
@@ -227,20 +267,22 @@ export function VaultPanel(props: Props) {
                     required={item.mandatory}
                     style={{ display: "inline", width: "auto", minHeight: 0 }}
                   />{" "}
-                  আমি ঘোষণা করছি: {item.title}
-                  {item.mandatory ? "" : " (ঐচ্ছিক)"}
+                  {L("আমি ঘোষণা করছি", "I declare")}: {item.title}
+                  {item.mandatory ? "" : L(" (ঐচ্ছিক)", " (optional)")}
                 </label>
               ))}
             </fieldset>
             <p>
-              জমা দিলে বায়ারের চেক শুরু হয়। জমা দেওয়া মানে টাকা পাওয়া নয়; বায়ার গ্রহণ করলে তবেই
-              পেমেন্ট হয়।
+              {L(
+                "জমা দিলে বায়ারের চেক শুরু হয়। জমা দেওয়া মানে টাকা পাওয়া নয়; বায়ার গ্রহণ করলে তবেই পেমেন্ট হয়।",
+                "Submitting starts the buyer's check. Submitting does not mean being paid; payment happens only if the buyer accepts.",
+              )}
             </p>
             <button
               type="submit"
               disabled={props.items.some((item) => !mine[item.itemId])}
             >
-              ডেলিভারি জমা দিন
+              {L("ডেলিভারি জমা দিন", "Submit the delivery")}
             </button>
           </form>
         </div>
@@ -249,19 +291,27 @@ export function VaultPanel(props: Props) {
       {phase === "ready" && props.myRole === "buyer" && (
         <div>
           <p>
-            আপনার নিজের নতুন পাসওয়ার্ড, OTP বা রিকভারি কোড এখানে বা চ্যাটে কখনো দেবেন না।
-            সেগুলো সরাসরি সেবাদাতার সাইটে বসান।
+            {L(
+              "আপনার নিজের নতুন পাসওয়ার্ড, OTP বা রিকভারি কোড এখানে বা চ্যাটে কখনো দেবেন না। সেগুলো সরাসরি সেবাদাতার সাইটে বসান।",
+              "Never put your own new password, OTP or recovery code here or in chat. Enter those directly on the service's own site.",
+            )}
           </p>
           {received.length === 0 ? (
-            <p>এখনো কিছু আসেনি।</p>
+            <p>{L("এখনো কিছু আসেনি।", "Nothing has arrived yet.")}</p>
           ) : (
             <ul>
               {received.map((delivery) => (
                 <li key={delivery.eventId} data-testid="vault-received">
                   {delivery.value === null ? (
-                    "এই ডিভাইসে এটি খোলা যায়নি (চাবি নেই)। এটি ডেলিভারি ব্যর্থ হওয়ার প্রমাণ নয়।"
+                    L(
+                      "এই ডিভাইসে এটি খোলা যায়নি (চাবি নেই)। এটি ডেলিভারি ব্যর্থ হওয়ার প্রমাণ নয়।",
+                      "This could not be opened on this device (no key). That is not proof the delivery failed.",
+                    )
                   ) : !delivery.bindingMatches ? (
-                    "এই বার্তাটি এই ডিলের সংস্করণের সাথে বাঁধা নয়, তাই দেখানো হচ্ছে না।"
+                    L(
+                      "এই বার্তাটি এই ডিলের সংস্করণের সাথে বাঁধা নয়, তাই দেখানো হচ্ছে না।",
+                      "This message is not tied to this version of the deal, so it is not shown.",
+                    )
                   ) : (
                     <>
                       {title(delivery.itemId)}:{" "}
@@ -274,7 +324,7 @@ export function VaultPanel(props: Props) {
                             setRevealed((p) => [...p, delivery.eventId])
                           }
                         >
-                          দেখান
+                          {L("দেখান", "Show")}
                         </button>
                       )}
                     </>

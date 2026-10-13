@@ -8,11 +8,7 @@ import { getI18n } from "../../lib/i18n";
 import { pool } from "../../lib/pool";
 import { requireUser } from "../../lib/session";
 import { saveDraftAction } from "./actions";
-import {
-  COMMUNITY_ERROR_TEXT,
-  EXPERIENCE_TEXT,
-  REPORT_STATE_TEXT,
-} from "./copy";
+import { communityCopy } from "./copy";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "এক্সপেরিয়েন্স জানান · বিনিময়" };
@@ -30,6 +26,8 @@ export default async function CommunityPage({
   const user = await requireUser();
   const { locale, t } = await getI18n();
   const L = (bn: string, en: string) => (locale === "en" ? en : bn);
+  const { COMMUNITY_ERROR_TEXT, EXPERIENCE_TEXT, REPORT_STATE_TEXT } =
+    communityCopy(locale);
   const { error, q, subject, type } = await searchParams;
   const mine = await listMyReports(pool(), user.id);
   const found = q ? await listPublished(pool(), q) : null;
@@ -37,12 +35,16 @@ export default async function CommunityPage({
     <main>
       <h1>{L("এক্সপেরিয়েন্স জানান", "Write a review")}</h1>
       <p>
-        কোনো পেজ বা শপ থেকে কেনার এক্সপেরিয়েন্স, ভালো বা খারাপ, এখানে লিখতে পারেন। ড্রাফট শুধু
-        আপনি দেখেন। আপনি অ্যাপ্রুভাল দিলে এবং একজন মডারেটর নিয়ম মিলিয়ে দেখলে তবেই
-        লেখাটি প্রকাশ হয়। প্রকাশ মানে আমরা ঘটনাটি সত্য বলে ভেরিফাই করেছি, তা নয়।
+        {L(
+          "কোনো পেজ বা শপ থেকে কেনার এক্সপেরিয়েন্স, ভালো বা খারাপ, এখানে লিখতে পারেন। ড্রাফট শুধু আপনি দেখেন। আপনি অ্যাপ্রুভাল দিলে এবং একজন মডারেটর নিয়ম মিলিয়ে দেখলে তবেই লেখাটি প্রকাশ হয়। প্রকাশ মানে আমরা ঘটনাটি সত্য বলে ভেরিফাই করেছি, তা নয়।",
+          "You can write here about buying from any page or shop, good or bad. Only you see a draft. A text is published only after you approve it and a moderator checks it against the rules. Published does not mean we verified that the events are true.",
+        )}
       </p>
       {error ? (
-        <p role="alert">{COMMUNITY_ERROR_TEXT[error] ?? "কাজটি করা যায়নি।"}</p>
+        <p role="alert">
+          {COMMUNITY_ERROR_TEXT[error] ??
+            L("কাজটি করা যায়নি।", "That could not be done.")}
+        </p>
       ) : null}
 
       <section aria-labelledby="new">
@@ -114,8 +116,10 @@ export default async function CommunityPage({
         </form>
         {found === null ? null : found.length === 0 ? (
           <p>
-            ঠিক এই নামে কোনো পাবলিশড এক্সপেরিয়েন্স নেই। এর মানে এই নয় যে কারও কোনো
-            এক্সপেরিয়েন্স নেই।
+            {L(
+              "ঠিক এই নামে কোনো পাবলিশড এক্সপেরিয়েন্স নেই। এর মানে এই নয় যে কারও কোনো এক্সপেরিয়েন্স নেই।",
+              "There is no published experience under exactly this name. That does not mean nobody has had one.",
+            )}
           </p>
         ) : (
           <ul>
@@ -123,7 +127,9 @@ export default async function CommunityPage({
               <li key={report.id}>
                 <a href={`/community/${report.id}`}>
                   {EXPERIENCE_TEXT[report.experienceType]} ·{" "}
-                  {new Date(report.publishedAt).toLocaleDateString("bn-BD")}
+                  {new Date(report.publishedAt).toLocaleDateString(
+                    locale === "en" ? "en-GB" : "bn-BD",
+                  )}
                 </a>
               </li>
             ))}

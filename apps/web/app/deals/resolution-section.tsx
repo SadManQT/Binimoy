@@ -1,7 +1,8 @@
 import { formatBdt } from "@lp/contracts";
 import type { Balances } from "@lp/db/ledger";
 import type { Decision, DisputeView } from "@lp/db/review";
-import { DISPUTE_TEXT } from "../../lib/copy";
+import { copyFor } from "../../lib/copy";
+import { getI18n } from "../../lib/i18n";
 import {
   acceptProposalAction,
   appealAction,
@@ -11,30 +12,35 @@ import {
   waiveAppealAction,
 } from "./actions";
 
-const when = (date: Date | null) =>
-  date
-    ? `${date.toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" })} (Asia/Dhaka)`
-    : "";
-
-export function DecisionText({ decision }: { decision: Decision }) {
+export async function DecisionText({ decision }: { decision: Decision }) {
+  const { L } = await getI18n();
   return (
     <div data-testid="decision">
       <p>
         <strong>
-          {decision.kind === "appeal" ? "আপিলের সিদ্ধান্ত" : "রিভিউয়ারের সিদ্ধান্ত"}:
+          {decision.kind === "appeal"
+            ? L("আপিলের সিদ্ধান্ত", "Appeal decision")
+            : L("রিভিউয়ারের সিদ্ধান্ত", "Reviewer's decision")}
+          :
         </strong>{" "}
         {decision.outcome === "UNRESOLVED"
-          ? "তথ্য দিয়ে বিষয়টি সেটেলমেন্ট করা যায়নি; অমীমাংসিত।"
-          : `সেলার ${formatBdt(decision.toSellerMinor)}, বায়ার ${formatBdt(decision.toBuyerMinor)}`}
+          ? L(
+              "তথ্য দিয়ে বিষয়টি সেটেলমেন্ট করা যায়নি; অমীমাংসিত।",
+              "The facts were not enough to settle this; unresolved.",
+            )
+          : L(
+              `সেলার ${formatBdt(decision.toSellerMinor)}, বায়ার ${formatBdt(decision.toBuyerMinor)}`,
+              `Seller ${formatBdt(decision.toSellerMinor)}, buyer ${formatBdt(decision.toBuyerMinor)}`,
+            )}
       </p>
       <dl>
-        <dt>যে নিয়ম প্রয়োগ হয়েছে</dt>
+        <dt>{L("যে নিয়ম প্রয়োগ হয়েছে", "Rule applied")}</dt>
         <dd>{decision.rule}</dd>
-        <dt>যে তথ্য প্রতিষ্ঠিত</dt>
+        <dt>{L("যে তথ্য প্রতিষ্ঠিত", "Facts established")}</dt>
         <dd>{decision.facts}</dd>
-        <dt>যে অনুমান গ্রহণ করা হয়নি</dt>
-        <dd>{decision.rejectedInferences || "উল্লেখ নেই"}</dd>
-        <dt>যুক্তি</dt>
+        <dt>{L("যে অনুমান গ্রহণ করা হয়নি", "Inferences not accepted")}</dt>
+        <dd>{decision.rejectedInferences || L("উল্লেখ নেই", "None stated")}</dd>
+        <dt>{L("যুক্তি", "Reasoning")}</dt>
         <dd>{decision.reasoning}</dd>
       </dl>
     </div>
@@ -42,7 +48,7 @@ export function DecisionText({ decision }: { decision: Decision }) {
 }
 
 // B9, B10, D.6: the ways a held amount can be resolved, and where each stands.
-export function ResolutionSection({
+export async function ResolutionSection({
   dealId,
   mode,
   balances,
@@ -55,19 +61,24 @@ export function ResolutionSection({
   dispute: DisputeView | null;
   proposal: DisputeView["proposal"];
 }) {
+  const { locale, L, dateTime } = await getI18n();
+  const copy = copyFor(locale);
   const decided =
     dispute && ["DECIDED_AWAITING_APPEAL", "APPEALED"].includes(dispute.state);
   const latest = dispute?.decisions.at(-1);
+  const deadline = latest?.appealDeadline
+    ? dateTime(latest.appealDeadline)
+    : "";
   const hidden = <input type="hidden" name="dealId" value={dealId} />;
 
   return (
     <div data-testid="resolution-section">
-      <h3>মীমাংসা</h3>
+      <h3>{L("মীমাংসা", "Settling it")}</h3>
       {dispute && (
         <p>
-          ডিসপিউটের অবস্থা:{" "}
+          {L("ডিসপিউটের অবস্থা", "Dispute status")}:{" "}
           <strong data-testid="dispute-state">
-            {DISPUTE_TEXT[dispute.state] ?? dispute.state}
+            {copy.dispute[dispute.state] ?? dispute.state}
           </strong>
         </p>
       )}
@@ -82,28 +93,42 @@ export function ResolutionSection({
       {dispute?.state === "DECIDED_AWAITING_APPEAL" && (
         <div>
           <p>
-            আপিলের শেষ সময়: {when(latest?.appealDeadline ?? null)}. এই সময়ের
-            মধ্যে কেউ আপিল না করলে সিদ্ধান্ত কার্যকর হবে এবং টাকা পাঠানো হবে।
+            {L(
+              `আপিলের শেষ সময়: ${deadline}. এই সময়ের মধ্যে কেউ আপিল না করলে সিদ্ধান্ত কার্যকর হবে এবং টাকা পাঠানো হবে।`,
+              `Appeal deadline: ${deadline}. If nobody appeals by then, the decision takes effect and the money is sent.`,
+            )}
           </p>
           {dispute.appealable && (
             <form action={appealAction}>
               {hidden}
-              <p>আপিল করলে টাকা আটকে থাকবে এবং ভিন্ন একজন রিভিউয়ার বিষয়টি দেখবেন।</p>
-              <button type="submit">আপিল করুন</button>
+              <p>
+                {L(
+                  "আপিল করলে টাকা আটকে থাকবে এবং ভিন্ন একজন রিভিউয়ার বিষয়টি দেখবেন।",
+                  "If you appeal, the money stays held and a different reviewer looks at the matter.",
+                )}
+              </p>
+              <button type="submit">{L("আপিল করুন", "Appeal")}</button>
             </form>
           )}
           {dispute.iWaived ? (
             <p>
-              আপনি এই সিদ্ধান্ত মেনে নিয়েছেন। অন্য পক্ষের অপেক্ষা বা সময় শেষ হওয়ার অপেক্ষা।
+              {L(
+                "আপনি এই সিদ্ধান্ত মেনে নিয়েছেন। অন্য পক্ষের অপেক্ষা বা সময় শেষ হওয়ার অপেক্ষা।",
+                "You accepted this decision. Waiting for the other side, or for the time to run out.",
+              )}
             </p>
           ) : (
             <form action={waiveAppealAction}>
               {hidden}
               <p>
-                দুই পক্ষই সিদ্ধান্ত মেনে নিলে অপেক্ষা না করে এখনই কার্যকর হবে। মেনে নিলে
-                আপনি আপনার আপিলের বাকি সময় ছেড়ে দিচ্ছেন।
+                {L(
+                  "দুই পক্ষই সিদ্ধান্ত মেনে নিলে অপেক্ষা না করে এখনই কার্যকর হবে। মেনে নিলে আপনি আপনার আপিলের বাকি সময় ছেড়ে দিচ্ছেন।",
+                  "If both sides accept the decision it takes effect now, without waiting. By accepting, you give up the rest of your time to appeal.",
+                )}
               </p>
-              <button type="submit">সিদ্ধান্ত মেনে নিচ্ছি</button>
+              <button type="submit">
+                {L("সিদ্ধান্ত মেনে নিচ্ছি", "I accept the decision")}
+              </button>
             </form>
           )}
         </div>
@@ -112,44 +137,65 @@ export function ResolutionSection({
       {dispute?.state === "OPEN" &&
         (mode === "ai_only" ? (
           <p>
-            এই ডিল শুধু-এআই ধরনে, তাই হিউম্যান রিভিউ নেই। দুই পক্ষ নিচে সম্মত বণ্টন করতে
-            পারেন। তা না হলে ডিসপিউটটি ৭ দিন পর অমীমাংসিত হিসেবে বন্ধ হবে এবং টাকা আটকে
-            থাকবে।
+            {L(
+              "এই ডিল শুধু-এআই ধরনে, তাই হিউম্যান রিভিউ নেই। দুই পক্ষ নিচে সম্মত বণ্টন করতে পারেন। তা না হলে ডিসপিউটটি ৭ দিন পর অমীমাংসিত হিসেবে বন্ধ হবে এবং টাকা আটকে থাকবে।",
+              "This deal is in AI-only mode, so there is no human review. The two sides can agree on a split below. Otherwise the dispute closes as unresolved after 7 days and the money stays held.",
+            )}
           </p>
         ) : (
           <form action={requestReviewAction}>
             {hidden}
             <p>
-              রিভিউয়ার চাইলে বিষয়টি সারিতে যাবে। কখন কেউ দায়িত্ব নেবেন তার নিশ্চয়তা দেওয়া
-              হচ্ছে না; সারিতে থাকা মানে কাউকে দেওয়া হয়ে যাওয়া নয়।
+              {L(
+                "রিভিউয়ার চাইলে বিষয়টি সারিতে যাবে। কখন কেউ দায়িত্ব নেবেন তার নিশ্চয়তা দেওয়া হচ্ছে না; সারিতে থাকা মানে কাউকে দেওয়া হয়ে যাওয়া নয়।",
+                "Asking for a reviewer puts the matter in the queue. There is no promise of when someone will take it; being in the queue does not mean it has been given to anyone.",
+              )}
             </p>
-            <button type="submit">হিউম্যান রিভিউ চাই</button>
+            <button type="submit">
+              {L("হিউম্যান রিভিউ চাই", "Ask for a human review")}
+            </button>
           </form>
         ))}
 
       {dispute?.state === "UNRESOLVED_CLOSED" && (
         <form action={reopenDisputeAction}>
           {hidden}
-          <p>নতুন গুরুত্বপূর্ণ প্রমাণ থাকলে ডিসপিউটটি আবার খোলা যায়।</p>
-          <button type="submit">ডিসপিউট আবার খুলুন</button>
+          <p>
+            {L(
+              "নতুন গুরুত্বপূর্ণ প্রমাণ থাকলে ডিসপিউটটি আবার খোলা যায়।",
+              "The dispute can be reopened if there is important new evidence.",
+            )}
+          </p>
+          <button type="submit">
+            {L("ডিসপিউট আবার খুলুন", "Reopen the dispute")}
+          </button>
         </form>
       )}
 
       {balances.held > 0n && !decided && (
         <div>
-          <h4>দুই পক্ষের সম্মত বণ্টন</h4>
+          <h4>{L("দুই পক্ষের সম্মত বণ্টন", "A split both sides agree to")}</h4>
           <p>
-            আটকে আছে {formatBdt(balances.held.toString())}. এক পক্ষ প্রস্তাব দেন,
-            অন্য পক্ষ ঠিক সেই প্রস্তাব গ্রহণ করলে তবেই টাকা সেভাবে ভাগ হয়।
+            {L(
+              `আটকে আছে ${formatBdt(balances.held.toString())}. এক পক্ষ প্রস্তাব দেন, অন্য পক্ষ ঠিক সেই প্রস্তাব গ্রহণ করলে তবেই টাকা সেভাবে ভাগ হয়।`,
+              `${formatBdt(balances.held.toString())} is held. One side proposes; the money is split that way only if the other side accepts exactly that proposal.`,
+            )}
           </p>
           {proposal && (
             <div data-testid="proposal">
               <p>
-                খোলা প্রস্তাব: সেলার {formatBdt(proposal.toSellerMinor)}, বায়ার{" "}
-                {formatBdt(proposal.toBuyerMinor)}
+                {L(
+                  `খোলা প্রস্তাব: সেলার ${formatBdt(proposal.toSellerMinor)}, বায়ার ${formatBdt(proposal.toBuyerMinor)}`,
+                  `Open proposal: seller ${formatBdt(proposal.toSellerMinor)}, buyer ${formatBdt(proposal.toBuyerMinor)}`,
+                )}
               </p>
               {proposal.proposedByMe ? (
-                <p>এটি আপনার প্রস্তাব। অন্য পক্ষের উত্তরের অপেক্ষা।</p>
+                <p>
+                  {L(
+                    "এটি আপনার প্রস্তাব। অন্য পক্ষের উত্তরের অপেক্ষা।",
+                    "This is your proposal. Waiting for the other side's answer.",
+                  )}
+                </p>
               ) : (
                 <form action={acceptProposalAction}>
                   {hidden}
@@ -158,7 +204,9 @@ export function ResolutionSection({
                     name="proposalId"
                     value={proposal.proposalId}
                   />
-                  <button type="submit">ঠিক এই বণ্টনে সম্মত</button>
+                  <button type="submit">
+                    {L("ঠিক এই বণ্টনে সম্মত", "I agree to exactly this split")}
+                  </button>
                 </form>
               )}
             </div>
@@ -166,7 +214,10 @@ export function ResolutionSection({
           <form action={proposeResolutionAction}>
             {hidden}
             <label>
-              সেলার পাবেন (টাকা; বাকিটা বায়ার ফেরত পাবেন)
+              {L(
+                "সেলার পাবেন (টাকা; বাকিটা বায়ার ফেরত পাবেন)",
+                "The seller gets (taka; the buyer is refunded the rest)",
+              )}
               <input
                 name="toSellerTaka"
                 required
@@ -175,7 +226,12 @@ export function ResolutionSection({
               />
             </label>
             <button type="submit">
-              {proposal ? "নতুন প্রস্তাব দিন (আগেরটি বাতিল হবে)" : "প্রস্তাব দিন"}
+              {proposal
+                ? L(
+                    "নতুন প্রস্তাব দিন (আগেরটি বাতিল হবে)",
+                    "Make a new proposal (the earlier one is cancelled)",
+                  )
+                : L("প্রস্তাব দিন", "Make a proposal")}
             </button>
           </form>
         </div>

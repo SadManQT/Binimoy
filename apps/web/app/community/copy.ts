@@ -47,3 +47,67 @@ export const COMMUNITY_ERROR_TEXT: Record<string, string> = {
   DUPLICATE_REPORT:
     "এই শপ নিয়ে আপনার একটি লেখা ইতিমধ্যে জমা বা পাবলিশড আছে। নতুন কিছু জানাতে চাইলে সেই লেখায় সংশোধন বা সমাধান যোগ করুন।",
 };
+
+const EN = {
+  EXPERIENCE_TEXT: {
+    positive: "Good experience",
+    negative: "Report",
+    mixed: "Both good and bad",
+    neutral: "General experience",
+  },
+  REPORT_STATE_TEXT: {
+    DRAFT: "Draft (only you can see it)",
+    SUBMITTED: "Submitted, waiting for a moderator",
+    NEEDS_INFORMATION: "The moderator asked for more information",
+    UNDER_REVIEW: "A moderator is looking at it",
+    PUBLISHED: "Published",
+    NOT_PUBLISHED: "Not published",
+    WITHDRAWN: "Withdrawn by the writer",
+  },
+  EVENT_TEXT: {
+    SUBMITTED: "Submitted",
+    CLAIMED: "A moderator took it",
+    NEEDS_INFORMATION: "More information was asked for",
+    PUBLISHED: "Published",
+    NOT_PUBLISHED: "Decision not to publish",
+    APPEALED: "Appealed",
+    WITHDRAWN: "Withdrawn by the writer",
+  },
+  FOLLOWUP_TEXT: {
+    RESPONSE: "Reply",
+    CORRECTION: "The writer's correction",
+    RESOLUTION: "Resolution reported by the writer",
+  },
+  FOLLOWUP_STATUS_TEXT: {
+    PENDING: "Waiting for a moderator, not visible to others yet",
+    PUBLISHED: "Published",
+    REJECTED: "Not published",
+  },
+  COMMUNITY_ERROR_TEXT: {
+    VALIDATION_FAILED:
+      "Something is not filled in correctly. Check the name, type, length of the text and the approval tick again. If you give a reason, write at least 10 characters.",
+    SECRET_SUSPECTED:
+      "The text to be published holds something that looks like a phone number, account or transaction number, email or password. Remove those. This detection is not perfect; if there is a long number, leave it out.",
+    NOT_AUTHORIZED: "You are not allowed to do this.",
+    ILLEGAL_TRANSITION: "This cannot be done at the report's current stage.",
+    VERSION_CONFLICT:
+      "The text changed afterwards. Read the current text below and approve it again.",
+    BUDGET_EXHAUSTED: "Today's limit is used up. Try again later.",
+    APPEAL_WINDOW_CLOSED: "The seven days to appeal have passed.",
+    DUPLICATE_REPORT:
+      "You already have a submitted or published text about this shop. To add something new, add a correction or resolution to that text.",
+  },
+} satisfies Record<string, Record<string, string>>;
+const BN = {
+  EXPERIENCE_TEXT,
+  REPORT_STATE_TEXT,
+  EVENT_TEXT,
+  FOLLOWUP_TEXT,
+  FOLLOWUP_STATUS_TEXT,
+  COMMUNITY_ERROR_TEXT,
+};
+// The same labels in the reader's language.
+export const communityCopy = (
+  locale: "bn" | "en",
+): Record<keyof typeof BN, Record<string, string>> =>
+  locale === "en" ? EN : BN;

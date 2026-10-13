@@ -17,6 +17,10 @@ export type I18n = {
   // Numbers and dates in the reader's own digits.
   num: (value: number) => string;
   date: (iso: string) => string;
+  // Dhaka date and time, for deadlines and records.
+  dateTime: (value: Date | string) => string;
+  // Both languages written where the words are used; picks the reader's.
+  L: (bn: string, en: string) => string;
 };
 
 export async function getI18n(): Promise<I18n> {
@@ -25,6 +29,9 @@ export async function getI18n(): Promise<I18n> {
   return {
     locale,
     t: dictionaries[locale],
+    L: (bn, en) => (locale === "en" ? en : bn),
+    dateTime: (value) =>
+      `${new Date(value).toLocaleString(tag, { timeZone: "Asia/Dhaka" })} (Asia/Dhaka)`,
     num: (value) => value.toLocaleString(tag),
     date: (iso) =>
       new Date(iso).toLocaleDateString(tag, {

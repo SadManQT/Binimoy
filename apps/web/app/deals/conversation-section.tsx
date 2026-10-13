@@ -1,6 +1,7 @@
 import type { Conversation } from "@lp/db/conversation";
 import { MONITORING_POLICY } from "@lp/db/conversation";
-import { ROLE_TEXT } from "../../lib/copy";
+import { copyFor } from "../../lib/copy";
+import { getI18n } from "../../lib/i18n";
 import {
   acceptMonitoringAction,
   postMessageAction,
@@ -9,19 +10,24 @@ import {
   withdrawMonitoringAction,
 } from "./actions";
 
-const when = (date: Date) =>
-  date.toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" });
-
-const KIND_TEXT: Record<string, string> = {
-  original: "মূল",
-  edit: "সম্পাদিত",
-  deleted: "মুছে ফেলা হয়েছে",
-  redacted: "গোপন তথ্য থাকায় লেখা সরানো হয়েছে",
+const KIND_TEXT = {
+  bn: {
+    original: "মূল",
+    edit: "সম্পাদিত",
+    deleted: "মুছে ফেলা হয়েছে",
+    redacted: "গোপন তথ্য থাকায় লেখা সরানো হয়েছে",
+  } as Record<string, string>,
+  en: {
+    original: "Original",
+    edit: "Edited",
+    deleted: "Deleted",
+    redacted: "Text removed because it held a secret",
+  } as Record<string, string>,
 };
 
 // B3: the monitored room. `readOnly` is for the assigned reviewer, who reads
 // and never speaks here.
-export function ConversationSection({
+export async function ConversationSection({
   dealId,
   conversation,
   readOnly = false,
@@ -30,28 +36,43 @@ export function ConversationSection({
   conversation: Conversation;
   readOnly?: boolean;
 }) {
+  const { locale, L } = await getI18n();
+  const roles = copyFor(locale).role;
+  const kinds = KIND_TEXT[locale];
+  const when = (date: Date) =>
+    date.toLocaleString(locale === "en" ? "en-GB" : "bn-BD", {
+      timeZone: "Asia/Dhaka",
+    });
   const hidden = <input type="hidden" name="dealId" value={dealId} />;
   return (
     <div data-testid="conversation">
-      <h3>ডিলের কথোপকথন (পর্যবেক্ষিত)</h3>
+      <h3>{L("ডিলের কথোপকথন (পর্যবেক্ষিত)", "Deal conversation (monitored)")}</h3>
       <p data-testid="monitoring-label">
-        <strong>এই কথোপকথন গোপন নয়।</strong> এখানকার বার্তা বিনিময়ের সার্ভারে পড়া যায়,
-        ডিসপিউট হলে নিযুক্ত রিভিউয়ার দেখতে পারেন, এবং দুই পক্ষ সম্মতি দিলে ডেলিভারিতে
-        সহায়তা ও সমস্যা মীমাংসার জন্য এআই দিয়ে প্রক্রিয়া করা হতে পারে। পাসওয়ার্ড, OTP, পিন বা
-        লাইসেন্স কি এখানে নয়, গোপন ভল্টে দিন। বাইরের (যেমন WhatsApp) কথা এখানে ধরা পড়ে
-        না।
+        <strong>
+          {L("এই কথোপকথন গোপন নয়।", "This conversation is not private.")}
+        </strong>{" "}
+        {L(
+          "এখানকার বার্তা বিনিময়ের সার্ভারে পড়া যায়, ডিসপিউট হলে নিযুক্ত রিভিউয়ার দেখতে পারেন, এবং দুই পক্ষ সম্মতি দিলে ডেলিভারিতে সহায়তা ও সমস্যা মীমাংসার জন্য এআই দিয়ে প্রক্রিয়া করা হতে পারে। পাসওয়ার্ড, OTP, পিন বা লাইসেন্স কি এখানে নয়, গোপন ভল্টে দিন। বাইরের (যেমন WhatsApp) কথা এখানে ধরা পড়ে না।",
+          "Messages here can be read on Binimoy's server, can be seen by the assigned reviewer in a dispute, and, if both sides agree, may be processed by AI to help with delivery and settle problems. Put passwords, OTPs, PINs and license keys in the secret vault, not here. Conversations elsewhere (such as WhatsApp) are not captured here.",
+        )}
       </p>
       <p>
-        এআই পড়তে পারে:{" "}
+        {L("এআই পড়তে পারে", "AI may read this")}:{" "}
         <strong data-testid="ai-may-read">
           {conversation.aiMayRead
-            ? "হ্যাঁ, দুই পক্ষ সম্মতি দিয়েছেন (তবে এই সংস্করণে কোনো এআই যুক্ত নেই)"
-            : "না, দুই পক্ষের সম্মতি এখনো সম্পূর্ণ নয়"}
+            ? L(
+                "হ্যাঁ, দুই পক্ষ সম্মতি দিয়েছেন (তবে এই সংস্করণে কোনো এআই যুক্ত নেই)",
+                "Yes, both sides agreed (but no AI is connected in this version)",
+              )
+            : L(
+                "না, দুই পক্ষের সম্মতি এখনো সম্পূর্ণ নয়",
+                "No, both sides have not agreed yet",
+              )}
         </strong>
       </p>
 
       {conversation.messages.length === 0 ? (
-        <p>এখনো কোনো বার্তা নেই।</p>
+        <p>{L("এখনো কোনো বার্তা নেই।", "No messages yet.")}</p>
       ) : (
         <ol>
           {conversation.messages.map((message) => {
@@ -59,25 +80,26 @@ export function ConversationSection({
             const gone = latest?.body === null;
             return (
               <li key={message.messageId} data-testid="message">
-                <strong>{ROLE_TEXT[message.authorRole]}</strong>
-                {message.mine ? " (আপনি)" : ""} ·{" "}
+                <strong>{roles[message.authorRole]}</strong>
+                {message.mine ? L(" (আপনি)", " (you)") : ""} ·{" "}
                 {latest ? when(latest.createdAt) : ""}
                 <br />
                 {gone ? (
-                  <em>{KIND_TEXT[latest?.kind ?? "deleted"]}</em>
+                  <em>{kinds[latest?.kind ?? "deleted"]}</em>
                 ) : (
                   <span data-testid="message-body">{latest?.body}</span>
                 )}
                 {message.versions.length > 1 && (
                   <details>
                     <summary>
-                      আগের সংস্করণ ({message.versions.length - 1})
+                      {L("আগের সংস্করণ", "Earlier versions")} (
+                      {message.versions.length - 1})
                     </summary>
                     <ol>
                       {message.versions.slice(0, -1).map((version) => (
                         <li key={version.seq}>
-                          {KIND_TEXT[version.kind]} · {when(version.createdAt)}:{" "}
-                          {version.body ?? <em>লেখা নেই</em>}
+                          {kinds[version.kind]} · {when(version.createdAt)}:{" "}
+                          {version.body ?? <em>{L("লেখা নেই", "no text")}</em>}
                         </li>
                       ))}
                     </ol>
@@ -85,7 +107,12 @@ export function ConversationSection({
                 )}
                 {!readOnly && !gone && (
                   <details>
-                    <summary>এই বার্তা নিয়ে কিছু করুন</summary>
+                    <summary>
+                      {L(
+                        "এই বার্তা নিয়ে কিছু করুন",
+                        "Do something with this message",
+                      )}
+                    </summary>
                     {message.mine && conversation.iConsented && (
                       <form action={reviseMessageAction}>
                         {hidden}
@@ -95,7 +122,10 @@ export function ConversationSection({
                           value={message.messageId}
                         />
                         <label>
-                          নতুন লেখা (আগের লেখা ইতিহাসে থেকে যাবে)
+                          {L(
+                            "নতুন লেখা (আগের লেখা ইতিহাসে থেকে যাবে)",
+                            "New text (the earlier text stays in the history)",
+                          )}
                           <input
                             name="body"
                             maxLength={4000}
@@ -103,10 +133,10 @@ export function ConversationSection({
                           />
                         </label>
                         <button type="submit" name="intent" value="edit">
-                          সম্পাদনা সংরক্ষণ
+                          {L("সম্পাদনা সংরক্ষণ", "Save the edit")}
                         </button>
                         <button type="submit" name="intent" value="delete">
-                          মুছুন
+                          {L("মুছুন", "Delete")}
                         </button>
                       </form>
                     )}
@@ -118,11 +148,14 @@ export function ConversationSection({
                         value={message.messageId}
                       />
                       <p>
-                        এতে পাসওয়ার্ড, কোড বা পিন থাকলে জানান। লেখাটি সব সংস্করণ থেকে
-                        সরানো হবে। তবে যিনি আগেই পড়েছেন তিনি পড়েছেন: যাঁর গোপন তথ্য,
-                        তাঁকে সেটি সেবাদাতার সাইটে গিয়ে বদলাতে হবে।
+                        {L(
+                          "এতে পাসওয়ার্ড, কোড বা পিন থাকলে জানান। লেখাটি সব সংস্করণ থেকে সরানো হবে। তবে যিনি আগেই পড়েছেন তিনি পড়েছেন: যাঁর গোপন তথ্য, তাঁকে সেটি সেবাদাতার সাইটে গিয়ে বদলাতে হবে।",
+                          "Tell us if this holds a password, code or PIN. The text will be removed from every version. Anyone who already read it has read it, though: whoever owns the secret must change it on the service's own site.",
+                        )}
                       </p>
-                      <button type="submit">এতে গোপন তথ্য আছে</button>
+                      <button type="submit">
+                        {L("এতে গোপন তথ্য আছে", "This contains a secret")}
+                      </button>
                     </form>
                   </details>
                 )}
@@ -138,7 +171,7 @@ export function ConversationSection({
             <form action={postMessageAction}>
               {hidden}
               <label>
-                বার্তা
+                {L("বার্তা", "Message")}
                 <input
                   name="body"
                   required
@@ -146,18 +179,26 @@ export function ConversationSection({
                   autoComplete="off"
                 />
               </label>
-              <button type="submit">পাঠান</button>
+              <button type="submit">{L("পাঠান", "Send")}</button>
             </form>
             <details>
-              <summary>এআই প্রক্রিয়ায় সম্মতি তুলে নিন</summary>
+              <summary>
+                {L(
+                  "এআই প্রক্রিয়ায় সম্মতি তুলে নিন",
+                  "Withdraw agreement to AI processing",
+                )}
+              </summary>
               <p>
-                তুলে নিলে ভবিষ্যতে এআই এই কথোপকথন পড়বে না এবং আপনি নতুন বার্তা লিখতে
-                পারবেন না, তবে পড়তে, ডিসপিউট খুলতে ও প্রমাণ দেখতে পারবেন। আগে পাঠানো বার্তা
-                থেকে যাবে। এতে কাউকে অসৎ ধরা হয় না।
+                {L(
+                  "তুলে নিলে ভবিষ্যতে এআই এই কথোপকথন পড়বে না এবং আপনি নতুন বার্তা লিখতে পারবেন না, তবে পড়তে, ডিসপিউট খুলতে ও প্রমাণ দেখতে পারবেন। আগে পাঠানো বার্তা থেকে যাবে। এতে কাউকে অসৎ ধরা হয় না।",
+                  "If you withdraw, AI will not read this conversation from now on and you cannot write new messages, but you can still read, open a dispute and see the evidence. Messages already sent stay. Nobody is treated as dishonest for doing this.",
+                )}
               </p>
               <form action={withdrawMonitoringAction}>
                 {hidden}
-                <button type="submit">সম্মতি তুলে নিচ্ছি</button>
+                <button type="submit">
+                  {L("সম্মতি তুলে নিচ্ছি", "I withdraw my agreement")}
+                </button>
               </form>
             </details>
           </>
@@ -165,13 +206,12 @@ export function ConversationSection({
           <form action={acceptMonitoringAction}>
             {hidden}
             <p>
-              লিখতে হলে আগে সম্মতি দিন। আপনি যাতে সম্মতি দিচ্ছেন (সংস্করণ{" "}
-              {MONITORING_POLICY.version}): আপনার বার্তা সার্ভারে পড়া যাবে এবং ডেলিভারিতে
-              সহায়তা, সমস্যা নির্ণয় ও ডিসপিউট মীমাংসার জন্য এআই দিয়ে প্রক্রিয়া করা হতে পারে।
-              মডেলের গন্তব্য: এখনো কোনো এআই যুক্ত নেই। সংযুক্তি: এখনো নেওয়া হয় না। সম্মতি
-              যেকোনো সময় তুলে নেওয়া যায়।
+              {L(
+                `লিখতে হলে আগে সম্মতি দিন। আপনি যাতে সম্মতি দিচ্ছেন (সংস্করণ ${MONITORING_POLICY.version}): আপনার বার্তা সার্ভারে পড়া যাবে এবং ডেলিভারিতে সহায়তা, সমস্যা নির্ণয় ও ডিসপিউট মীমাংসার জন্য এআই দিয়ে প্রক্রিয়া করা হতে পারে। মডেলের গন্তব্য: এখনো কোনো এআই যুক্ত নেই। সংযুক্তি: এখনো নেওয়া হয় না। সম্মতি যেকোনো সময় তুলে নেওয়া যায়।`,
+                `To write, agree first. What you are agreeing to (version ${MONITORING_POLICY.version}): your messages can be read on the server and may be processed by AI to help with delivery, diagnose problems and settle disputes. Model destination: no AI is connected yet. Attachments: not accepted yet. You can withdraw this agreement at any time.`,
+              )}
             </p>
-            <button type="submit">সম্মতি দিচ্ছি</button>
+            <button type="submit">{L("সম্মতি দিচ্ছি", "I agree")}</button>
           </form>
         ))}
     </div>

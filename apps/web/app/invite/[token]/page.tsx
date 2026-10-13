@@ -1,5 +1,6 @@
 import { peekInvite } from "@lp/db/agreements";
-import { ERROR_TEXT, ROLE_TEXT } from "../../../lib/copy";
+import { copyFor } from "../../../lib/copy";
+import { getI18n } from "../../../lib/i18n";
 import { pool } from "../../../lib/pool";
 import { requireUser } from "../../../lib/session";
 import { acceptInviteAction } from "../../deals/actions";
@@ -18,32 +19,44 @@ export default async function InvitePage({
   const { token } = await params;
   const { error } = await searchParams;
   const invite = await peekInvite(pool(), token);
+  const { locale, L } = await getI18n();
+  const copy = copyFor(locale);
 
   return (
     <main>
-      <h1>ডিলে যোগ দেওয়ার ইনভাইট</h1>
-      {error && <p role="alert">{ERROR_TEXT[error] ?? error}</p>}
+      <h1>{L("ডিলে যোগ দেওয়ার ইনভাইট", "Invite to join a deal")}</h1>
+      {error && <p role="alert">{copy.error[error] ?? error}</p>}
       {invite ? (
         <>
           <p>
-            ডিল: <strong>{invite.title}</strong>
+            {L("ডিল", "Deal")}: <strong>{invite.title}</strong>
             <br />
-            আপনি যোগ দেবেন: <strong>{ROLE_TEXT[invite.role]}</strong> হিসেবে
+            {L("আপনি যোগ দেবেন", "You will join as")}:{" "}
+            <strong>{copy.role[invite.role]}</strong>
+            {L(" হিসেবে", "")}
           </p>
           <p>
-            যোগ দিলে আপনি ডিলের ড্রাফট দেখতে পাবেন। যোগ দেওয়া মানে শর্তে সম্মতি নয়;
-            সম্মতি আলাদা ধাপ।
+            {L(
+              "যোগ দিলে আপনি ডিলের ড্রাফট দেখতে পাবেন। যোগ দেওয়া মানে শর্তে সম্মতি নয়; সম্মতি আলাদা ধাপ।",
+              "Joining lets you see the deal's draft. Joining is not agreeing to the terms; agreeing is a separate step.",
+            )}
           </p>
           <form action={acceptInviteAction}>
             <input type="hidden" name="token" value={token} />
-            <button type="submit">যোগ দিন</button>
+            <button type="submit">{L("যোগ দিন", "Join")}</button>
           </form>
         </>
       ) : (
-        <p>{ERROR_TEXT.INVITE_INVALID} যিনি পাঠিয়েছেন তাঁর কাছে নতুন লিংক চান।</p>
+        <p>
+          {copy.error.INVITE_INVALID}{" "}
+          {L(
+            "যিনি পাঠিয়েছেন তাঁর কাছে নতুন লিংক চান।",
+            "Ask whoever sent it for a new link.",
+          )}
+        </p>
       )}
       <p>
-        <a href="/deals">আমার ডিল</a>
+        <a href="/deals">{L("আমার ডিল", "My deals")}</a>
       </p>
     </main>
   );

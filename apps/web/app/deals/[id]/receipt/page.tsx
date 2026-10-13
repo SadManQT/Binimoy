@@ -1,25 +1,13 @@
 import { formatBdt } from "@lp/contracts";
 import { getReceipt } from "@lp/db/receipt";
 import { notFound } from "next/navigation";
-import {
-  AUTHORIZATION_TEXT,
-  CLAIM_TEXT,
-  INSPECTION_TEXT,
-  MODE_TEXT,
-  OPERATION_TEXT,
-  PATH_TEXT,
-  PROOF_TEXT,
-  ROLE_TEXT,
-  STATE_TEXT,
-} from "../../../../lib/copy";
+import { copyFor } from "../../../../lib/copy";
+import { getI18n } from "../../../../lib/i18n";
 import { pool } from "../../../../lib/pool";
 import { requireUser } from "../../../../lib/session";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "রসিদ · বিনিময়" };
-
-const when = (iso: string) =>
-  `${new Date(iso).toLocaleString("bn-BD", { timeZone: "Asia/Dhaka" })} (Asia/Dhaka)`;
 
 export default async function ReceiptPage({
   params,
@@ -28,101 +16,128 @@ export default async function ReceiptPage({
 }) {
   const user = await requireUser();
   const { id } = await params;
-  const receipt = await getReceipt(pool(), { userId: user.id, dealId: id });
+  const { locale, L, dateTime: when } = await getI18n();
+  const receipt = await getReceipt(pool(), {
+    userId: user.id,
+    dealId: id,
+    locale,
+  });
   if (!receipt) notFound();
   const { agreement, balances } = receipt;
+  const copy = copyFor(locale);
 
   return (
     <main data-testid="receipt">
       <p>
-        <a href={`/deals/${receipt.dealId}`}>← ডিলে ফিরে যান</a>
+        <a href={`/deals/${receipt.dealId}`}>
+          ← {L("ডিলে ফিরে যান", "Back to the deal")}
+        </a>
       </p>
-      <h1>রসিদ: {receipt.title}</h1>
+      <h1>
+        {L("রসিদ", "Receipt")}: {receipt.title}
+      </h1>
       <p>
-        <strong>টেস্ট রেকর্ড।</strong> এখানে কোনো আসল টাকা নড়েনি, এবং “স্বাধীন ভেরিফাই”
-        লেখা ফলগুলো টেস্ট প্রোভাইডার থেকে এসেছে। এটি শুধু দুই পক্ষের জন্য ব্যক্তিগত রেকর্ড;
-        এটি কারও সুনাম বা নির্ভরযোগ্যতার প্রমাণ নয়, এবং এটি প্রকাশ করা হয় না।
+        <strong>{L("টেস্ট রেকর্ড।", "Test record.")}</strong>{" "}
+        {L(
+          "এখানে কোনো আসল টাকা নড়েনি, এবং “স্বাধীন ভেরিফাই” লেখা ফলগুলো টেস্ট প্রোভাইডার থেকে এসেছে। এটি শুধু দুই পক্ষের জন্য ব্যক্তিগত রেকর্ড; এটি কারও সুনাম বা নির্ভরযোগ্যতার প্রমাণ নয়, এবং এটি প্রকাশ করা হয় না।",
+          "No real money moved here, and results marked “independent verification” came from a test provider. This is a private record for the two sides only; it is not proof of anyone's reputation or reliability, and it is not published.",
+        )}
       </p>
       <p>
-        <small>তৈরির সময়: {when(receipt.generatedAt)}</small>
+        <small>
+          {L("তৈরির সময়", "Generated")}: {when(receipt.generatedAt)}
+        </small>
       </p>
       {receipt.pending && (
         <p role="status" data-testid="receipt-pending">
-          <strong>এখনো চূড়ান্ত নয়:</strong> কোনো টাকা পাঠানো বাকি বা অজানা অবস্থায় আছে, অথবা
-          কোনো আবশ্যক চেক পাস হয়নি।
+          <strong>{L("এখনো চূড়ান্ত নয়:", "Not final yet:")}</strong>{" "}
+          {L(
+            "কোনো টাকা পাঠানো বাকি বা অজানা অবস্থায় আছে, অথবা কোনো আবশ্যক চেক পাস হয়নি।",
+            "a transfer is still outstanding or in an unknown state, or a required check has not passed.",
+          )}
         </p>
       )}
 
       <section aria-labelledby="r-agreement">
-        <h2 id="r-agreement">ডিল</h2>
+        <h2 id="r-agreement">{L("ডিল", "Deal")}</h2>
         <dl>
-          <dt>পক্ষ</dt>
+          <dt>{L("পক্ষ", "Parties")}</dt>
           <dd>
             {receipt.parties
-              .map((p) => `${ROLE_TEXT[p.role]}: ${p.name}`)
+              .map((p) => `${copy.role[p.role]}: ${p.name}`)
               .join(" · ")}
           </dd>
-          <dt>সংস্করণ ও ছাপ</dt>
+          <dt>{L("সংস্করণ ও ছাপ", "Version and fingerprint")}</dt>
           <dd>
-            সংস্করণ {agreement.versionNo} · <code>{agreement.termsHash}</code> ·{" "}
-            {STATE_TEXT[agreement.state] ?? agreement.state}
+            {L("সংস্করণ", "Version")} {agreement.versionNo} ·{" "}
+            <code>{agreement.termsHash}</code> ·{" "}
+            {copy.state[agreement.state] ?? agreement.state}
           </dd>
-          <dt>ধরন ও নীতি</dt>
+          <dt>{L("ধরন ও নীতি", "Type and policy")}</dt>
           <dd>
             {agreement.categoryId} · {agreement.templateId} v
-            {agreement.templateVersion} · নীতি {agreement.policyVersion} · সক্ষমতা{" "}
+            {agreement.templateVersion} · {L("নীতি", "policy")}{" "}
+            {agreement.policyVersion} · {L("সক্ষমতা", "capability")}{" "}
             {agreement.capabilityVersion}
           </dd>
-          <dt>সেবার ধরন</dt>
-          <dd>{MODE_TEXT[agreement.mode]?.name ?? agreement.mode}</dd>
-          <dt>মূল্য</dt>
+          <dt>{L("সেবার ধরন", "Service mode")}</dt>
+          <dd>{copy.mode[agreement.mode]?.name ?? agreement.mode}</dd>
+          <dt>{L("মূল্য", "Price")}</dt>
           <dd>
-            {formatBdt(agreement.amountMinor)} ({agreement.currency}) · ফি{" "}
-            {formatBdt(agreement.feeMinor)}
+            {formatBdt(agreement.amountMinor)} ({agreement.currency}) ·{" "}
+            {L("ফি", "fee")} {formatBdt(agreement.feeMinor)}
           </dd>
           {agreement.milestones.map((m) => (
             <div key={`${m.title}-${m.amountMinor}`}>
-              <dt>মাইলস্টোন</dt>
+              <dt>{L("মাইলস্টোন", "Milestone")}</dt>
               <dd>
                 {m.title} · {formatBdt(m.amountMinor)}
               </dd>
             </div>
           ))}
-          <dt>টাকা জমা</dt>
+          <dt>{L("টাকা জমা", "Funding")}</dt>
           <dd>
             {receipt.funding
-              ? `${formatBdt(receipt.funding.amountMinor)} · ${receipt.funding.state}`
-              : "জমা হয়নি"}
+              ? `${formatBdt(receipt.funding.amountMinor)} · ${copy.funding[receipt.funding.state] ?? receipt.funding.state}`
+              : L("জমা হয়নি", "Not paid in")}
           </dd>
         </dl>
       </section>
 
       <section aria-labelledby="r-delivery">
-        <h2 id="r-delivery">ডেলিভারি ও চেক</h2>
+        <h2 id="r-delivery">{L("ডেলিভারি ও চেক", "Delivery and checks")}</h2>
         {receipt.packages.length === 0 ? (
-          <p>কিছু জমা পড়েনি।</p>
+          <p>{L("কিছু জমা পড়েনি।", "Nothing was submitted.")}</p>
         ) : (
           receipt.packages.map((p) => (
             <div key={p.packageId}>
               <h3>
-                সংস্করণ {p.versionNo}
-                {p.milestoneNo ? ` · মাইলস্টোন ${p.milestoneNo}` : ""} ·{" "}
+                {L("সংস্করণ", "Version")} {p.versionNo}
+                {p.milestoneNo
+                  ? ` · ${L("মাইলস্টোন", "milestone")} ${p.milestoneNo}`
+                  : ""}{" "}
+                ·{" "}
                 {p.state === "SUPERSEDED"
-                  ? "প্রতিস্থাপিত, আর গণ্য নয়"
+                  ? L("প্রতিস্থাপিত, আর গণ্য নয়", "replaced, no longer counted")
                   : p.accepted
-                    ? "বায়ার গ্রহণ করেছেন"
-                    : "গৃহীত হয়নি"}
+                    ? L("বায়ার গ্রহণ করেছেন", "accepted by the buyer")
+                    : L("গৃহীত হয়নি", "not accepted")}
               </h3>
               <p>
-                <small>জমা: {when(p.submittedAt)}</small>
+                <small>
+                  {L("জমা", "Submitted")}: {when(p.submittedAt)}
+                </small>
               </p>
               <ul>
                 {p.inspections.map((i) => (
                   <li key={i.itemId}>
-                    {i.title} · {i.mandatory ? "আবশ্যক" : "ঐচ্ছিক"} ·{" "}
-                    <strong>{INSPECTION_TEXT[i.state] ?? i.state}</strong>
+                    {i.title} ·{" "}
+                    {i.mandatory
+                      ? L("আবশ্যক", "required")
+                      : L("ঐচ্ছিক", "optional")}{" "}
+                    · <strong>{copy.inspection[i.state] ?? i.state}</strong>
                     {i.proofType
-                      ? ` · প্রমাণ: ${PROOF_TEXT[i.proofType] ?? i.proofType}`
+                      ? ` · ${L("প্রমাণ", "proof")}: ${copy.proof[i.proofType] ?? i.proofType}`
                       : ""}
                   </li>
                 ))}
@@ -133,36 +148,44 @@ export default async function ReceiptPage({
       </section>
 
       <section aria-labelledby="r-money">
-        <h2 id="r-money">টাকার হিসাব</h2>
+        <h2 id="r-money">{L("টাকার হিসাব", "Money")}</h2>
         <dl>
-          <dt>আটকে আছে</dt>
+          <dt>{L("আটকে আছে", "Held")}</dt>
           <dd>{formatBdt(balances.heldMinor)}</dd>
-          <dt>অনুমোদিত, পাঠানো বাকি</dt>
+          <dt>{L("অনুমোদিত, পাঠানো বাকি", "Approved, not yet sent")}</dt>
           <dd>{formatBdt(balances.reservedMinor)}</dd>
-          <dt>সেলারকে পেইড</dt>
+          <dt>{L("সেলারকে পেইড", "Paid to the seller")}</dt>
           <dd data-testid="receipt-seller-paid">
             {formatBdt(balances.sellerPaidMinor)}
           </dd>
-          <dt>বায়ারকে ফেরত</dt>
+          <dt>{L("বায়ারকে ফেরত", "Refunded to the buyer")}</dt>
           <dd>{formatBdt(balances.buyerRefundedMinor)}</dd>
         </dl>
         {receipt.allocations.length === 0 ? (
-          <p>এখনো কোনো সেটেলমেন্টের অ্যাপ্রুভাল হয়নি।</p>
+          <p>
+            {L(
+              "এখনো কোনো সেটেলমেন্টের অ্যাপ্রুভাল হয়নি।",
+              "No settlement has been approved yet.",
+            )}
+          </p>
         ) : (
           <ol>
             {receipt.allocations.map((a) => (
               <li key={a.createdAt}>
-                {when(a.createdAt)} · {PATH_TEXT[a.path] ?? a.path} ·{" "}
-                {AUTHORIZATION_TEXT[a.state] ?? a.state} · সেলার{" "}
-                {formatBdt(a.toSellerMinor)}, বায়ার {formatBdt(a.toBuyerMinor)}
+                {when(a.createdAt)} · {copy.path[a.path] ?? a.path} ·{" "}
+                {copy.authorization[a.state] ?? a.state} · {L("সেলার", "seller")}{" "}
+                {formatBdt(a.toSellerMinor)}, {L("বায়ার", "buyer")}{" "}
+                {formatBdt(a.toBuyerMinor)}
                 <ul>
                   {a.operations.map((o) => (
                     <li key={o.kind}>
-                      {o.kind === "payout" ? "সেলারকে পেমেন্ট" : "বায়ারকে ফেরত"}:{" "}
-                      {formatBdt(o.amountMinor)} ·{" "}
+                      {o.kind === "payout"
+                        ? L("সেলারকে পেমেন্ট", "Payment to the seller")
+                        : L("বায়ারকে ফেরত", "Refund to the buyer")}
+                      : {formatBdt(o.amountMinor)} ·{" "}
                       {a.state === "INVALIDATED"
-                        ? "বাতিল, পাঠানো হয়নি"
-                        : (OPERATION_TEXT[o.state] ?? o.state)}
+                        ? L("বাতিল, পাঠানো হয়নি", "Cancelled, not sent")
+                        : (copy.operation[o.state] ?? o.state)}
                     </li>
                   ))}
                 </ul>
@@ -174,22 +197,29 @@ export default async function ReceiptPage({
 
       {receipt.disputes.length > 0 && (
         <section aria-labelledby="r-disputes">
-          <h2 id="r-disputes">ডিসপিউট</h2>
+          <h2 id="r-disputes">{L("ডিসপিউট", "Disputes")}</h2>
           <ul>
             {receipt.disputes.map((d) => (
               <li key={d.openedAt}>
-                {when(d.openedAt)} · {CLAIM_TEXT[d.claim] ?? d.claim} ·{" "}
-                {d.state}
+                {when(d.openedAt)} · {copy.claim[d.claim] ?? d.claim} ·{" "}
+                {copy.dispute[d.state] ?? d.state}
               </li>
             ))}
           </ul>
-          <p>ডিসপিউটের রেকর্ড কোনো পক্ষকে দোষী বলে না।</p>
+          <p>
+            {L(
+              "ডিসপিউটের রেকর্ড কোনো পক্ষকে দোষী বলে না।",
+              "A dispute record does not say either side is at fault.",
+            )}
+          </p>
         </section>
       )}
       <p>
         <small>
-          এই রসিদে গোপন ভল্টের কিছু, কথোপকথনের কোনো লেখা বা কারও পাসওয়ার্ড নেই। ছাপাতে
-          ব্রাউজারের প্রিন্ট ব্যবহার করুন।
+          {L(
+            "এই রসিদে গোপন ভল্টের কিছু, কথোপকথনের কোনো লেখা বা কারও পাসওয়ার্ড নেই। ছাপাতে ব্রাউজারের প্রিন্ট ব্যবহার করুন।",
+            "This receipt holds nothing from the secret vault, no conversation text and nobody's password. To print it, use your browser's print.",
+          )}
         </small>
       </p>
     </main>
